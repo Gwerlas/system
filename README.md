@@ -1,7 +1,11 @@
 Base system
 ===========
 
+[![pipeline status](https://gitlab.com/yoanncolin/ansible/roles/system/badges/main/pipeline.svg)](https://gitlab.com/yoanncolin/ansible/roles/system/-/commits/main)
+
 Linux systems base settings.
+
+GitLab project: [yoanncolin/ansible/roles/system](https://gitlab.com/yoanncolin/ansible/roles/system)
 
 Requirements
 ------------
