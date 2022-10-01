@@ -1,0 +1,15 @@
+---
+- name: Firewalling
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution | lower }}{{ ansible_distribution_version }}.yml"
+        - "{{ ansible_distribution | lower }}.yml"
+        - other.yml
+      paths:
+        - firewall
+
+- name: Configure
+  ansible.builtin.include_tasks:
+    file: firewall/configure.yml

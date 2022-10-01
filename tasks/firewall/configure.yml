@@ -1,0 +1,31 @@
+---
+- name: Firewalld service
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Get default zone
+  become: true
+  ansible.builtin.command:
+    cmd: "firewall-cmd --get-default-zone"
+  register: system_firewall_current_default_zone
+  changed_when: "'success' in system_firewall_current_default_zone.stdout"
+
+- name: Change default zone
+  when: system_firewall_current_default_zone.stdout != system_firewall_default_zone
+  become: true
+  ansible.builtin.command:
+    cmd: "firewall-cmd --set-default-zone {{ system_firewall_default_zone }}"
+  register: system_firewall_change_default_zone
+  changed_when: "'success' in system_firewall_change_default_zone.stdout"
+
+- name: Set the default zone to the default interface
+  become: true
+  ansible.posix.firewalld:
+    interface: "{{ ansible_default_ipv4.interface }}"
+    zone: "{{ system_firewall_default_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled

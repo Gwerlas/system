@@ -1,0 +1,62 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+platforms:
+  - name: archlinux
+    box: archlinux/archlinux
+    provider_raw_config_args: &raw_config
+      - "cpu_mode = 'host-passthrough'"
+      - "disk_bus = 'virtio'"
+      - "nic_model_type = 'virtio'"
+      - "video_type = 'virtio'"
+      - "disk_driver :cache => 'writeback'"
+      - "storage :file, bus: 'virtio', cache: 'writeback'"
+  - name: debian10
+    box: debian/buster64
+    provider_raw_config_args: *raw_config
+  - name: debian11
+    box: debian/bullseye64
+    provider_raw_config_args: *raw_config
+  - name: debian12
+    box: debian/testing64
+    provider_raw_config_args: *raw_config
+  - name: el7
+    box: centos/7
+    provider_raw_config_args: *raw_config
+  - name: el8
+    box: almalinux/8
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: el9
+    box: almalinux/9
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  # - name: gentoo
+  #   box: generic/gentoo
+  #   cpus: 4
+  #   memory: 8192
+  #   provider_raw_config_args: *raw_config
+  # - name: ubuntu-18.04
+  #   box: generic/ubuntu1804
+  #   provider_raw_config_args: *raw_config
+  # - name: ubuntu-20.04
+  #   box: generic/ubuntu2004
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: ubuntu-22.04
+  #   box: generic/ubuntu2204
+  #   memory: 4096
+  #   provider_raw_config_args: *raw_config
+  # - name: ubuntu-22.10
+  #   box: generic/ubuntu2210
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+lint: ansible-lint
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

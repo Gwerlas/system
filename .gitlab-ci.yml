@@ -1,0 +1,7 @@
+ansible-lint:
+  image: gwerlas/ansible-lint
+  script: ansible-lint
+
+molecule:
+  image: gwerlas/molecule
+  script: molecule test -s server-docker

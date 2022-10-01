@@ -1,0 +1,37 @@
+---
+- name: Update APT cache
+  block:
+    - name: Check for APT cache
+      ansible.builtin.find:
+        path: /var/lib/apt/lists
+        pattern: lock
+        age: "{{ system_pkg_cache_max_age }}"
+      register: _system_apt_lock_file
+
+    - name: Update cache
+      when:
+        - _system_apt_lock_file.matched == 0
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+
+- name: Distribution upgrade
+  when: system_update
+  block:
+    - name: Upgrade packages
+      become: true
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: true
+
+    - name: Check if a reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: _system_reboot_required
+
+    - name: Reboot
+      become: true
+      when:
+        - _system_reboot_required.stat.exists
+      ansible.builtin.reboot:
+        msg: "{{ system_update_reboot_msg }}"

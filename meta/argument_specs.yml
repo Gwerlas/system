@@ -1,0 +1,66 @@
+---
+argument_specs:
+  main:
+    short_description: The main entry point which calls the other tasks if needed / asked.
+    options:
+      system_manage_hosts_names:
+        type: bool
+        default: "true in most cases, false for containers"
+        description: Enable/Disable hosts names management.
+      system_install_zsh:
+        type: bool
+        default: false
+        description: Install ZSH and our default configuration.
+      system_firewall_managed:
+        type: bool
+        default: "true in most cases, false for containers"
+        description: Enable/Disable firewalling.
+
+  hosts-names:
+    short_description: Configure system hostname and /etc/hosts file.
+    options:
+      system_domainname:
+        description: Local domain name.
+      system_hostname:
+        default: "{{ inventory_hostname }}"
+        description: Local host name.
+      system_hostname_aliases:
+        type: list
+        elements: str
+        default: "[]"
+        description: List of additional names for local host.
+      system_custom_hosts:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of external custom hosts.
+
+  update:
+    short_description: Update the system packages and reboot the machine if needed.
+    options:
+      system_pkg_cache_max_age:
+        default: -1w
+        description: The maximum accepted cache age
+      system_update:
+        type: bool
+        default: false
+        description: Ask a system update, default to false to permit playbooks idempotence.
+      system_update_reboot_msg:
+        default: Reboot initiated by Ansible after a distribution update
+        description: Message stored in system logs when an update trigger a reboot.
+
+  firewall:
+    short_description: Install and configure firewalld.
+    options:
+      system_firewall_default_zone:
+        default: public
+        description: The name of the default zone.
+        choices:
+          - block
+          - dmz
+          - drop
+          - home
+          - internal
+          - public
+          - trusted
+          - work

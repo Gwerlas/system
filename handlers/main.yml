@@ -1,0 +1,6 @@
+---
+- name: Restart logind
+  become: true
+  ansible.builtin.service:
+    name: "{{ (ansible_service_mgr == 'systemd') | ternary('systemd-logind', 'hostname') }}"
+    state: restarted

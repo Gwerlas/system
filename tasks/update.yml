@@ -1,0 +1,10 @@
+---
+- name: Whole update
+  include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-like.yml"
+      paths:
+        - update

@@ -1,0 +1,39 @@
+galaxy_info:
+  author: Yoann Colin
+  namespace: yoanncolin
+  description: Linux systems management
+
+  issue_tracker_url: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues
+
+  license: BSD-3-Clause
+
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+
+  galaxy_tags:
+    - linux
+    - system
+
+dependencies: []

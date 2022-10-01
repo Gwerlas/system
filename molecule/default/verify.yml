@@ -1,0 +1,9 @@
+---
+- name: Verify role with the server profile (default)
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Rsync
+      ansible.posix.synchronize:
+        src: LICENSE
+        dest: /tmp/LICENSE

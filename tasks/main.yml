@@ -1,0 +1,20 @@
+---
+- name: Hosts names resolution
+  when: system_manage_hosts_names
+  import_tasks: hosts-names.yml
+
+- name: Update the system
+  import_tasks: update.yml
+
+- name: Wait for connection
+  ansible.builtin.wait_for_connection:
+
+- name: Install packages
+  import_tasks: packages.yml
+
+- name: Configure ZSH
+  import_tasks: zsh.yml
+
+- name: Firewall
+  when: system_firewall_managed
+  import_tasks: firewall.yml

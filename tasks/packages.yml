@@ -1,0 +1,11 @@
+---
+- name: System base packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ system_common_packages }}"
+
+- name: Desktop packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ system_desktop_packages }}"
+  when: system_profile == "desktop"

@@ -1,0 +1,27 @@
+---
+system_hostnames: |
+  {{
+    ( [system_hostname] + system_hostname_aliases ) |
+    product(['', '.' + system_domain]) |
+    map('join')
+  }}
+
+system_loopback_hosts:
+  - ip: "127.0.0.1"
+    names: ['localhost']
+  - ip: "127.0.1.1"
+    names: "{{ system_hostnames }}"
+  - ip: "::1"
+    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + system_hostnames }}"
+
+system_hosts: "{{ system_loopback_hosts + system_custom_hosts }}"
+
+system_common_packages:
+  - rsync
+
+system_desktop_packages:
+  - usbutils
+
+system_firewall_packages:
+  - firewalld
+  - "{{ ansible_python_version is version('3', '<') | ternary('python-firewall', 'python3-firewall') }}"

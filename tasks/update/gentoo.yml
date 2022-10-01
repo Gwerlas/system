@@ -1,0 +1,5 @@
+---
+- name: Sync portage metadata
+  become: true
+  portage:
+    sync: true

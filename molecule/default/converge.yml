@@ -1,0 +1,7 @@
+---
+- name: Converge with role defaults
+  hosts: all
+  tasks:
+    - name: Include gwerlas.system
+      ansible.builtin.include_role:
+        name: gwerlas.system

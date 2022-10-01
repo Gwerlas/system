@@ -1,0 +1,35 @@
+---
+- name: Verify role with the server profile (default)
+  hosts: all
+  tasks:
+
+    - name: Command line tools
+      ansible.builtin.command: "{{ item }} --version"
+      changed_when: false
+      with_items:
+        - rsync
+        - zsh
+
+    - name: Check host FQDN
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - ansible_fqdn == inventory_hostname + '.mydomain.tld'
+
+    - name: Get custom hosts
+      ansible.builtin.command: cat /etc/hosts
+      changed_when: false
+      register: _etc_hosts
+
+    - name: Check hosts entries
+      ansible.builtin.lineinfile:
+        name: /etc/hosts
+        line: "{{ item }}"
+      check_mode: true
+      register: conf
+      failed_when: (conf is changed) or (conf is failed)
+      loop:
+        - '127.0.0.1       localhost'
+        - '127.0.1.1       {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
+        - '::1             localhost ip6-localhost ip6-loopback {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
+        - '10.0.0.7        host7 host7.domain.tld'

@@ -1,0 +1,77 @@
+---
+- name: Update pacman cache
+  block:
+    - name: Check for core.db
+      ansible.builtin.find:
+        path: /var/lib/pacman/sync
+        pattern: core.db
+        age: "{{ system_pkg_cache_max_age }}"
+      register: _system_pacman_core_db
+
+    - name: Update cache
+      when:
+        - _system_pacman_core_db.matched == 0
+      become: true
+      ansible.builtin.pacman:
+        update_cache: true
+
+- name: Check for Yay
+  ansible.builtin.stat:
+    path: /usr/bin/yay
+  register: _system_yay
+
+- name: Install yay
+  when: not _system_yay.stat.exists
+  block:
+    - name: Install Yay dependencies
+      become: true
+      community.general.pacman:
+        name:
+          - base-devel
+          - git
+        state: present
+
+    - name: Clone Yay from github
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/yay.git
+        dest: /tmp/yay
+        version: "{{ system_yay_version | default(omit) }}"
+
+    - name: Build yay
+      ansible.builtin.command:
+        cmd: makepkg --noconfirm -si
+        chdir: /tmp/yay
+        creates: /usr/bin/yay
+
+- name: Yay Ansible module
+  become: true
+  run_once: true
+  delegate_to: localhost
+  ansible.builtin.unarchive:
+    src: https://github.com/mnussbaum/ansible-yay/archive/refs/heads/master.tar.gz
+    remote_src: true
+    dest: /usr/share/ansible
+    extra_opts:
+      - --strip-components=1
+      - ansible-yay-master/yay
+    mode: 0755
+
+- name: Distribution upgrade
+  when: system_update
+  block:
+    - name: Upgrade packages
+      ansible.builtin.command: yay --noconfirm -Syu
+      register: _yay
+      changed_when: "'there is nothing to do' not in (_yay.stdout_lines | last)"
+
+    - name: Get kernel version
+      ansible.builtin.shell:
+        cmd: "file -bL {{ ansible_proc_cmdline.BOOT_IMAGE }} | grep -oP '(?<=version )[^ ]*'"
+      changed_when: false
+      register: _system_vmlinuz
+
+    - name: Reboot
+      when: ansible_kernel != _system_vmlinuz.stdout
+      become: true
+      ansible.builtin.reboot:
+        msg: "{{ system_update_reboot_msg }}"

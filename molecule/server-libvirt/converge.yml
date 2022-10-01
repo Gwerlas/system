@@ -1,0 +1,19 @@
+---
+- name: Converge customization
+  hosts: all
+  tasks:
+    - name: Include gwerlas.system
+      ansible.builtin.include_role:
+        name: gwerlas.system
+      vars:
+        system_update: true
+        system_domain: mydomain.tld
+        system_hostname_aliases:
+          - me
+          - myself
+        system_custom_hosts:
+          - ip: '10.0.0.7'
+            names:
+              - host7
+              - host7.domain.tld
+        system_install_zsh: true
