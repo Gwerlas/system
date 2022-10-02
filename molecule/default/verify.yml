@@ -5,5 +5,12 @@
   tasks:
     - name: Rsync
       ansible.posix.synchronize:
-        src: LICENSE
-        dest: /tmp/LICENSE
+        src: verify.yml
+        dest: /tmp/verify.yml
+
+    - name: ZSH
+      ansible.builtin.command:
+        cmd: command -v zsh
+      changed_when: false
+      register: zsh
+      failed_when: zsh.rc == 0

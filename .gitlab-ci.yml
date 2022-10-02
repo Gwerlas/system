@@ -1,3 +1,5 @@
 molecule:
   image: gwerlas/molecule
+  services:
+    - docker:20.10-dind
   script: molecule test

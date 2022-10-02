@@ -13,6 +13,7 @@
   import_tasks: packages.yml
 
 - name: Configure ZSH
+  when: system_install_zsh
   import_tasks: zsh.yml
 
 - name: Firewall
