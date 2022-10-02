@@ -7,7 +7,7 @@
         name: gwerlas.system
       vars:
         system_update: true
-        system_domain: mydomain.tld
+        system_domainname: mydomain.tld
         system_hostname_aliases:
           - me
           - myself

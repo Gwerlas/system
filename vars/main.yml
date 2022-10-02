@@ -2,7 +2,7 @@
 system_hostnames: |
   {{
     ( [system_hostname] + system_hostname_aliases ) |
-    product(['', '.' + system_domain]) |
+    product(['', '.' + system_domainname]) |
     map('join')
   }}
 
