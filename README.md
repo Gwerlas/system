@@ -5,6 +5,11 @@ Base system
 
 Linux systems base settings.
 
+Running roles in containers is not common, but this use case is supported for
+Ansible testing with Molecule. In this case, just the package manager cache
+will be update if needed, the other system component will be not managed since
+it is the reponsibility of the container engine.
+
 GitLab project: [yoanncolin/ansible/roles/system](https://gitlab.com/yoanncolin/ansible/roles/system)
 
 Requirements
@@ -18,7 +23,6 @@ Role Variables
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
 ```yaml
----
 system_manage_hosts_names: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_domainname: localdomain
 system_hostname: "{{ inventory_hostname }}"
@@ -34,6 +38,7 @@ system_profile: server
 system_install_zsh: false
 
 system_firewall_managed: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_firewall_default_zone: public
 ```
 
 ### Hosts names configuration
@@ -77,14 +82,17 @@ update explicitly asked.
 
 ### Packages update
 
-The `system_update` set as `true` will update the system packages and reboot the machine if needed.
+The `system_update` set as `true` will update the system packages and reboot
+the machine if needed.
 
-If you have Waterfall or V-Cycle deployments, You should call it at first deployment time or for whole system upgrades campains, then let it to `false` at the other times to keep control on your infrastructure state.
+If you have Waterfall or V-Cycle deployments, You should call it at first
+deployment time or for whole system upgrades campains, then let it to `false`
+at the other times to keep control on your infrastructure state.
 
 For continuous deployments, You would like to set it permanently as `true`.
 
-In case of Ansible role development, set it as `true` at preparation stage only to keep idempotence control. Here an exemple of
-`molecule/default/prepare.yml` :
+In case of Ansible role development, set it as `true` at preparation stage
+only to keep idempotence control. Here an exemple of `molecule/default/prepare.yml` :
 
 ```yml
 ---
@@ -98,22 +106,26 @@ In case of Ansible role development, set it as `true` at preparation stage only 
         system_update: true
 ```
 
-You can customize the system update reboot message throw the `system_update_reboot_msg` variable.
+You can customize the system update reboot message throw the
+`system_update_reboot_msg` variable.
 
 ### Profile
 
-Currently for `server` nodes only. Desktops will be supported in futures developments.
+Currently for `server` nodes only. Desktops will be supported in future
+developments.
 
 ### ZSH
 
-The `system_install_zsh` set as `true` whill install ZSH and put a default user configuration.
+The `system_install_zsh` set as `true` will install ZSH and put a default user
+configuration.
 
 ### Firewall
 
 By defaults, firewalling is disabled for containers, and enabled in the
 other cases.
 
-You can force enabling or disabling throw defining the `system_firewall_managed` to `true` or `false`.
+You can force enabling or disabling throw defining the `system_firewall_managed`
+to `true` or `false`.
 
 Dependencies
 ------------

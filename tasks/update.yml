@@ -1,6 +1,6 @@
 ---
 - name: Whole update
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "{{ item }}"
   with_first_found:
     - files:

@@ -1,5 +1,5 @@
 ---
 - name: Sync portage metadata
   become: true
-  portage:
+  ansible.builtin.portage:
     sync: true
