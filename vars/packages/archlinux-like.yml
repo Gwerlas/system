@@ -1,0 +1,16 @@
+---
+system_update_cache_policy:
+  recurse: true
+  path: /var/lib/pacman/sync
+  pattern: "*.db"
+  age: -1d
+
+system_update_policy:
+  upgrade: true
+
+system_packages:
+  common:
+    - ca-certificates
+    - rsync
+  desktop:
+    - usbutils

@@ -29,9 +29,10 @@ system_hostname: "{{ inventory_hostname }}"
 system_hostname_aliases: []
 system_custom_hosts: []
 
-system_pkg_cache_max_age: -1w
 system_update: false
 system_update_reboot_msg: Reboot initiated by Ansible after a distribution update
+
+system_portage_directory: /var/db/pkg
 
 system_profile: server
 
@@ -39,6 +40,8 @@ system_install_zsh: false
 
 system_firewall_managed: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_firewall_default_zone: public
+
+system_ca_certificates: []
 ```
 
 ### Hosts names configuration

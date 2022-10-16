@@ -1,0 +1,3 @@
+---
+system_firewall_packages:
+  - firewalld

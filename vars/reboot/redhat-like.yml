@@ -1,0 +1,3 @@
+---
+system_reboot_detection_policy:
+  cmd: needs-restarting -r

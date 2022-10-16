@@ -1,5 +1,0 @@
----
-- name: Package firewalld
-  become: true
-  ansible.builtin.package:
-    name: firewalld

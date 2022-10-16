@@ -1,6 +1,29 @@
 ---
-- name: Restart logind
+- name: Portage
+  ansible.builtin.import_tasks: portage.yml
+
+- name: OpenRC
+  ansible.builtin.import_tasks: openrc.yml
+
+- name: Restart systemd-logind or hostname services
+  listen:
+    - restart hostname
+    - restart logind
   become: true
   ansible.builtin.service:
     name: "{{ (ansible_service_mgr == 'systemd') | ternary('systemd-logind', 'hostname') }}"
     state: restarted
+
+- name: Grub make configuration
+  listen: grub-mkconfig
+  become: true
+  ansible.builtin.command:
+    cmd: grub-mkconfig -o /boot/grub/grub.cfg
+
+- name: Reboot
+  listen:
+    - grub-mkconfig
+    - reboot
+  become: true
+  ansible.builtin.reboot:
+    msg: "{{ system_update_reboot_msg }}"

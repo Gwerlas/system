@@ -1,0 +1,16 @@
+---
+system_update_cache_policy:
+  path: /var/lib/apt/lists
+  pattern: lock
+  age: -1w
+
+system_update_policy:
+  upgrade: dist
+  autoremove: true
+
+system_packages:
+  common:
+    - ca-certificates
+    - rsync
+  desktop:
+    - usbutils

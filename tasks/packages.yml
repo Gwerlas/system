@@ -1,11 +1,65 @@
 ---
-- name: System base packages
-  become: true
-  ansible.builtin.package:
-    name: "{{ system_common_packages }}"
+- name: OS family settings
+  ansible.builtin.include_vars: "packages/{{ ansible_os_family | lower }}-like.yml"
 
-- name: Desktop packages
+- name: Package manager preparation
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}-pre.yml"
+        - empty.yml
+      paths:
+        - package-managers
+
+- name: Age of the cache
+  ansible.builtin.find:
+    recurse: "{{ system_update_cache_policy.recurse | default(omit) }}"
+    path: "{{ system_update_cache_policy.path }}"
+    pattern: "{{ system_update_cache_policy.pattern | default(omit) }}"
+    age: "{{ system_update_cache_policy.age | default(omit) }}"
+  register: system_cache_find
+
+- name: Packages cache update
+  when: system_cache_find.matched == 0
   become: true
   ansible.builtin.package:
-    name: "{{ system_desktop_packages }}"
-  when: system_profile == "desktop"
+    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
+    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
+  register: result
+  until: result.failed == false
+  retries: 3
+
+- name: Base system packages
+  when: system_packages is defined
+  become: true
+  ansible.builtin.package:
+    name: "{{ system_packages.common + (system_packages[system_profile] | default([])) }}"
+  register: result
+  until: result.failed == false
+  retries: 3
+
+- name: System update
+  when:
+    - system_update
+    - system_update_policy is defined
+  block:
+    - name: Packages update
+      become: true
+      ansible.builtin.package:
+        name: "{{ system_update_policy.name | default(omit) }}"
+        state: "{{ system_update_policy.state | default(omit) }}"
+        upgrade: "{{ system_update_policy.upgrade | default(omit) }}"
+
+- name: Packaage managers post operations
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}-post.yml"
+        - empty.yml
+      paths:
+        - package-managers
+
+- name: Reboot if needed
+  ansible.builtin.import_tasks: reboot.yml

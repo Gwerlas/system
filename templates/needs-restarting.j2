@@ -1,0 +1,18 @@
+#!/usr/bin/sh
+#
+# {{ ansible_managed }}
+#
+# Detection script to determine if a reboot is needed
+#
+# Return codes :
+#
+# 0 = Do not need to restart
+# 1 = Need restarting
+# 2 = Unmanaged system
+
+{% if ansible_os_family == 'Archlinux' %}
+test -f /boot/vmlinuz-linux || exit 2
+test "$(file -bL /boot/vmlinuz-linux | grep -oP '(?<=version )[^ ]*')" "==" "$(uname -r)"
+{% else %}
+exit 2
+{% endif %}

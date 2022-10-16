@@ -1,0 +1,5 @@
+---
+system_firewall_packages:
+  - firewalld
+
+system_firewall_package_release: buster-backports

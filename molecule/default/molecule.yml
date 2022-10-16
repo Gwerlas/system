@@ -33,6 +33,26 @@ platforms:
     image: gwerlas/ansible-guest-almalinux:9
     pre_build_mage: true
     volumes: *volumes
+  - name: gentoo
+    image: gwerlas/ansible-guest-gentoo
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu-18.04
+    image: gwerlas/ansible-guest-ubuntu:18.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu-20.04
+    image: gwerlas/ansible-guest-ubuntu:20.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu-22.04
+    image: gwerlas/ansible-guest-ubuntu:22.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu-22.10
+    image: gwerlas/ansible-guest-ubuntu:22.10
+    pre_build_mage: true
+    volumes: *volumes
 lint: ansible-lint
 provisioner:
   name: ansible

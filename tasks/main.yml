@@ -3,13 +3,7 @@
   when: system_manage_hosts_names
   ansible.builtin.import_tasks: hosts-names.yml
 
-- name: Update the system
-  ansible.builtin.import_tasks: update.yml
-
-- name: Wait for connection
-  ansible.builtin.wait_for_connection:
-
-- name: Install packages
+- name: System packages
   ansible.builtin.import_tasks: packages.yml
 
 - name: Configure ZSH

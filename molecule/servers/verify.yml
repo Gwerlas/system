@@ -19,15 +19,14 @@
     - name: Get custom hosts
       ansible.builtin.command: cat /etc/hosts
       changed_when: false
-      register: _etc_hosts
 
     - name: Check hosts entries
       ansible.builtin.lineinfile:
         name: /etc/hosts
         line: "{{ item }}"
       check_mode: true
-      register: conf
-      failed_when: (conf is changed) or (conf is failed)
+      register: result
+      failed_when: result.changed or result.failed
       loop:
         - '127.0.0.1       localhost'
         - '127.0.1.1       {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'

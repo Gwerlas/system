@@ -12,5 +12,5 @@
       ansible.builtin.command:
         cmd: command -v zsh
       changed_when: false
-      register: zsh
-      failed_when: zsh.rc == 0
+      register: result
+      failed_when: result.rc == 0

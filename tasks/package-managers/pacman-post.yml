@@ -1,0 +1,39 @@
+---
+- name: Archlinux User Repository (AUR)
+  when: system_archlinux_user_repository
+  block:
+    - name: Check for Yay
+      ansible.builtin.stat:
+        path: /usr/bin/yay
+      register: system_bin_yay
+
+    - name: Install yay
+      when: not system_bin_yay.stat.exists
+      block:
+        - name: Install build dependencies
+          become: true
+          ansible.builtin.pacman:
+            name:
+              - base-devel
+              - git
+
+        - name: Clone Yay from github
+          ansible.builtin.git:
+            repo: https://aur.archlinux.org/yay.git
+            dest: /tmp/yay
+            version: "{{ system_yay_version | default(omit) }}"
+
+        - name: Build yay
+          ansible.builtin.command:
+            cmd: makepkg --noconfirm -si
+            chdir: /tmp/yay
+            creates: /usr/bin/yay
+
+    - name: Yay Ansible module
+      become: true
+      run_once: true
+      delegate_to: localhost
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
+        dest: /usr/share/ansible/yay
+        mode: 0755

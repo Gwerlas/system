@@ -1,0 +1,4 @@
+---
+system_firewall_packages:
+  - firewalld
+  - "{{ ansible_python_version is version('3', '<') | ternary('python-firewall', 'python3-firewall') }}"

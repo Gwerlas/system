@@ -3,7 +3,7 @@
   become: true
   ansible.builtin.hostname:
     name: "{{ system_hostname }}"
-  notify: Restart logind
+  notify: restart logind
 
 - name: Display system hosts for debugging
   ansible.builtin.debug:
@@ -17,4 +17,23 @@
     line: "{{ '{:<15}'.format(item.ip) }} {{ item.names | join(' ') }}"
     regexp: "^{{ item.ip }}"
   with_items: "{{ system_hosts }}"
-  notify: Restart logind
+  notify: restart logind
+
+- name: OpenRC
+  when: ansible_service_mgr == "openrc"
+  become: true
+  notify: restart hostname
+  block:
+    - name: Remove /etc/hostname
+      ansible.builtin.file:
+        path: /etc/hostname
+        state: absent
+
+    - name: Domain name
+      ansible.builtin.lineinfile:
+        path: /etc/conf.d/net
+        line: 'dns_domain_lo="{{ system_domainname }}"'
+        regex: ^dns_domain_lo=
+        create: true
+        group: wheel
+        mode: 0664

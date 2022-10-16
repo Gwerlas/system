@@ -15,13 +15,3 @@ system_loopback_hosts:
     names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + system_hostnames }}"
 
 system_hosts: "{{ system_loopback_hosts + system_custom_hosts }}"
-
-system_common_packages:
-  - rsync
-
-system_desktop_packages:
-  - usbutils
-
-system_firewall_packages:
-  - firewalld
-  - "{{ ansible_python_version is version('3', '<') | ternary('python-firewall', 'python3-firewall') }}"

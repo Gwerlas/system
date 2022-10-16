@@ -1,0 +1,23 @@
+---
+system_update_cache_policy:
+  recurse: true
+  path: "{{ system_portage_directory }}"
+  age: -1d
+
+# system_update_policy:
+#   deep: true
+#   newuse: true
+#   update: true
+#   name: '@world'
+
+system_packages:
+  common:
+    - app-misc/ca-certificates
+    - dev-vcs/git
+    - net-misc/rsync
+  desktop:
+    - sys-apps/usbutils
+
+system_portage_profile:
+  desktop: default/linux/amd64/17.1/desktop
+  server: default/linux/amd64/17.1/no-multilib
