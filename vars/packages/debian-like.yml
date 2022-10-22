@@ -1,6 +1,6 @@
 ---
 system_update_cache_policy:
-  path: /var/lib/apt/lists
+  path: /var/cache/apt/archives
   pattern: lock
   age: -1w
 
