@@ -26,4 +26,4 @@
     - reboot
   become: true
   ansible.builtin.reboot:
-    msg: "{{ system_update_reboot_msg }}"
+    msg: "{{ system_package_update_reboot_msg }}"

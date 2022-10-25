@@ -11,5 +11,5 @@
   ansible.builtin.import_tasks: zsh.yml
 
 - name: Firewall
-  when: system_firewall_managed
+  when: system_manage_firewall
   ansible.builtin.import_tasks: firewall.yml

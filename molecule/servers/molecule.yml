@@ -45,18 +45,18 @@ platforms:
       - "video_type = 'virtio'"
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
-  - name: ubuntu-18.04
+  - name: ubuntu1804
     box: generic/ubuntu1804
     provider_raw_config_args: *raw_config
-  - name: ubuntu-20.04
+  - name: ubuntu2004
     box: generic/ubuntu2004
     memory: 2048
     provider_raw_config_args: *raw_config
-  - name: ubuntu-22.04
+  - name: ubuntu2204
     box: generic/ubuntu2204
     memory: 4096
     provider_raw_config_args: *raw_config
-  # - name: ubuntu-22.10
+  # - name: ubuntu2210
   #   box: generic/ubuntu2210
   #   memory: 2048
   #   provider_raw_config_args: *raw_config

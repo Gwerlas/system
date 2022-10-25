@@ -1,10 +1,5 @@
 ---
-system_update_cache_policy:
-  path: /var/cache/apt/archives
-  pattern: lock
-  age: -1w
-
-system_update_policy:
+system_package_update_policy:
   upgrade: dist
   autoremove: true
 

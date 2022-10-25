@@ -11,7 +11,7 @@ argument_specs:
         type: bool
         default: false
         description: Install ZSH and our default configuration.
-      system_firewall_managed:
+      system_manage_firewall:
         type: bool
         default: "true in most cases, false for containers"
         description: Enable/Disable firewalling.
@@ -35,17 +35,18 @@ argument_specs:
         default: "[]"
         description: List of external custom hosts.
 
-  update:
-    short_description: Update the system packages and reboot the machine if needed.
+  packages:
+    short_description: Configure the package manager and install/update the system
     options:
-      system_pkg_cache_max_age:
-        default: -1w
-        description: The maximum accepted cache age
-      system_update:
+      system_package_manager_cache_age:
+        type: int
+        default: 7
+        description: The maximum accepted cache age (in days)
+      system_package_update:
         type: bool
         default: false
         description: Ask a system update, default to false to permit playbooks idempotence.
-      system_update_reboot_msg:
+      system_package_update_reboot_msg:
         default: Reboot initiated by Ansible after a distribution update
         description: Message stored in system logs when an update trigger a reboot.
 

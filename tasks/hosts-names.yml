@@ -19,7 +19,7 @@
   with_items: "{{ system_hosts }}"
   notify: restart logind
 
-- name: OpenRC
+- name: OpenRC host and domain name configuration
   when: ansible_service_mgr == "openrc"
   become: true
   notify: restart hostname

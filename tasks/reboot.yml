@@ -14,6 +14,12 @@
     - "'container' not in ansible_virtualization_tech_guest"
     - system_reboot_detection_policy is defined
   block:
+    - name: Package providing the command that determine if a restart is needed
+      when: system_reboot_detection_policy.package is defined
+      become: true
+      ansible.builtin.package:
+        name: "{{ system_reboot_detection_policy.package }}"
+
     - name: Needed reboot detection script
       when:
         - system_reboot_detection_policy.use_template is defined
@@ -26,10 +32,7 @@
 
     - name: Check for needed reboot
       ansible.builtin.command:
-        cmd: "{{
-          '/usr/local/bin/needs-restarting'
-            if (system_reboot_detection_policy.use_template is defined and system_reboot_detection_policy.use_template)
-            else system_reboot_detection_policy.cmd }}"
+        cmd: "{{ system_reboot_detection_policy.cmd | default('needs-restarting -r') }}"
       register: result
       changed_when: result.rc == 1
       failed_when: result.rc > 1

@@ -1,10 +1,8 @@
 ---
-system_update_cache_policy:
-  recurse: true
+system_package_update_cache_policy:
   path: "{{ system_portage_directory }}"
-  age: -1d
 
-# system_update_policy:
+# system_package_update_policy:
 #   deep: true
 #   newuse: true
 #   update: true

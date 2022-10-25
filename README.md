@@ -42,8 +42,8 @@ system_hostname: "{{ inventory_hostname }}"
 system_hostname_aliases: []
 system_custom_hosts: []
 
-system_update: false
-system_update_reboot_msg: Reboot initiated by Ansible after a distribution update
+system_package_update: false
+system_package_update_reboot_msg: Reboot initiated by Ansible after a distribution update
 
 system_profile: server
 
@@ -52,7 +52,7 @@ system_portage_directory: /var/db/repos/gentoo
 
 system_install_zsh: false
 
-system_firewall_managed: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_firewall_default_zone: public
 
 system_ca_certificates: []
@@ -75,7 +75,7 @@ First deployment :
   roles:
     - name: gwerlas.system
       vars:
-        system_update: true
+        system_package_update: true
 ```
 
 Distribution update, rolling update by ~10% slices :
@@ -88,7 +88,7 @@ Distribution update, rolling update by ~10% slices :
   roles:
     - name: gwerlas.system
       vars:
-        system_update: true
+        system_package_update: true
 ```
 
 Use just one task :

@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+#
+# {{ ansible_managed }}
+#
+# Detection script to determine if the package manager cache need to be updated
+#
+# Return codes :
+#
+# 0 = Do not need to update cache
+# 1 = Need updating
+# 2 = Unmanaged system
+
+set -e
+
+{% if system_package_update_cache_policy.path is defined %}
+matches=$(find {{ system_package_update_cache_policy.path }} -type f -mtime -{{ system_package_manager_cache_age + 1 }} | wc -l)
+test $matches -gt 0
+{% elif ansible_pkg_mgr == 'apt' %}
+# Empty cache
+test ! -z "$(apt-cache search rsync)"
+
+# pkgcacke location data
+eval $(apt-config shell root Dir)
+eval $(apt-config shell cache Dir::Cache)
+eval $(apt-config shell pkgcache Dir::Cache::pkgcache)
+
+file="${root}${cache}/${pkgcache}"
+
+# pkgcache file exists
+test -f $file
+
+# pkgcache age
+mtime=$(stat --printf '%y' $file)
+ts=$(date +%s -d "$mtime")
+
+test $ts -gt $(date +%s -d '{{ system_package_manager_cache_age }} days ago')
+{% else %}
+exit 2
+{% endif %}
