@@ -27,7 +27,7 @@
       become: true
       ansible.builtin.template:
         src: needs-restarting.j2
-        dest: /usr/local/bin/needs-restarting
+        dest: "{{ system_bin_path }}/needs-restarting"
         mode: 0755
 
     - name: Check for needed reboot

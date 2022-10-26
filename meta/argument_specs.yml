@@ -38,17 +38,29 @@ argument_specs:
   packages:
     short_description: Configure the package manager and install/update the system
     options:
-      system_package_manager_cache_age:
+      system_bin_path:
+        default: /usr/local/bin
+        description: Path location for our scripts
+      system_pkg_mgr_cache_age:
         type: int
         default: 7
         description: The maximum accepted cache age (in days)
-      system_package_update:
+      system_pkg_update:
         type: bool
         default: false
         description: Ask a system update, default to false to permit playbooks idempotence.
-      system_package_update_reboot_msg:
-        default: Reboot initiated by Ansible after a distribution update
-        description: Message stored in system logs when an update trigger a reboot.
+      system_profile:
+        default: server
+        description: Type of the node
+        choices:
+          - server
+
+  reboot:
+    short_description: Reboot the system if needed
+    options:
+      system_bin_path:
+        default: /usr/local/bin
+        description: Path location for our scripts
 
   firewall:
     short_description: Install and configure firewalld.

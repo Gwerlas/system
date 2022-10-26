@@ -1,9 +1,9 @@
 ---
-system_package_update_policy:
+system_pkg_update_policy:
   upgrade: dist
   autoremove: true
 
-system_packages:
+system_pkgs:
   common:
     - ca-certificates
     - rsync

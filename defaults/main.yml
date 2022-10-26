@@ -5,9 +5,10 @@ system_hostname: "{{ inventory_hostname }}"
 system_hostname_aliases: []
 system_custom_hosts: []
 
-system_package_update: false
-system_package_update_reboot_msg: Reboot initiated by Ansible after a distribution update
-system_package_manager_cache_age: 7
+system_bin_path: /usr/local/bin
+
+system_pkg_update: false
+system_pkg_mgr_cache_age: 7
 
 system_profile: server
 

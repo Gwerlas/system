@@ -26,4 +26,4 @@
     - reboot
   become: true
   ansible.builtin.reboot:
-    msg: "{{ system_package_update_reboot_msg }}"
+    msg: Reboot initiated by gwerlas.system Ansible role

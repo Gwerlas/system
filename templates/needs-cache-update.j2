@@ -12,8 +12,8 @@
 
 set -e
 
-{% if system_package_update_cache_policy.path is defined %}
-matches=$(find {{ system_package_update_cache_policy.path }} -type f -mtime -{{ system_package_manager_cache_age + 1 }} | wc -l)
+{% if system_pkg_update_cache_policy.path is defined %}
+matches=$(find {{ system_pkg_update_cache_policy.path }} -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
 test $matches -gt 0
 {% elif ansible_pkg_mgr == 'apt' %}
 # Empty cache
@@ -33,7 +33,7 @@ test -f $file
 mtime=$(stat --printf '%y' $file)
 ts=$(date +%s -d "$mtime")
 
-test $ts -gt $(date +%s -d '{{ system_package_manager_cache_age }} days ago')
+test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
 {% else %}
 exit 2
 {% endif %}

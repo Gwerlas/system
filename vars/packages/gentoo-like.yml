@@ -1,14 +1,14 @@
 ---
-system_package_update_cache_policy:
+system_pkg_update_cache_policy:
   path: "{{ system_portage_directory }}"
 
-# system_package_update_policy:
+# system_pkg_update_policy:
 #   deep: true
 #   newuse: true
 #   update: true
 #   name: '@world'
 
-system_packages:
+system_pkgs:
   common:
     - app-misc/ca-certificates
     - dev-vcs/git

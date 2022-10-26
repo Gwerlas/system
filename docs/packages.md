@@ -24,7 +24,7 @@ update explicitly asked.
 Packages update
 ---------------
 
-The `system_package_update` set as `true` will update the system packages and reboot
+The `system_pkg_update` set as `true` will update the system packages and reboot
 the machine if needed.
 
 If you have Waterfall or V-Cycle deployments, You should call it at first
@@ -45,8 +45,5 @@ only to keep idempotence control. Here an exemple of `molecule/default/prepare.y
       ansible.builtin.include_role:
         name: gwerlas.system
       vars:
-        system_package_update: true
+        system_pkg_update: true
 ```
-
-You can customize the system update reboot message throw the
-`system_package_update_reboot_msg` variable.

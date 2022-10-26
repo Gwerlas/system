@@ -16,18 +16,18 @@
   become: true
   ansible.builtin.template:
     src: needs-cache-update.j2
-    dest: /usr/local/bin/needs-cache-update
+    dest: "{{ system_bin_path }}/needs-cache-update"
     mode: 0755
 
 - name: Determine if the package manager cache need to be updated
   ansible.builtin.command:
     cmd: needs-cache-update
   changed_when: false
-  register: system_package_manager_cache_needs_update
-  failed_when: system_package_manager_cache_needs_update.rc > 1
+  register: system_pkg_mgr_cache_needs_update
+  failed_when: system_pkg_mgr_cache_needs_update.rc > 1
 
 - name: Packages cache update
-  when: system_package_manager_cache_needs_update.rc == 1
+  when: system_pkg_mgr_cache_needs_update.rc == 1
   become: true
   ansible.builtin.package:
     sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
@@ -37,25 +37,25 @@
   retries: 3
 
 - name: Base system packages
-  when: system_packages is defined
+  when: system_pkgs is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_packages.common + (system_packages[system_profile] | default([])) }}"
+    name: "{{ system_pkgs.common + (system_pkgs[system_profile] | default([])) }}"
   register: result
   until: result.failed == false
   retries: 3
 
 - name: System update
   when:
-    - system_package_update
-    - system_package_update_policy is defined
+    - system_pkg_update
+    - system_pkg_update_policy is defined
   block:
     - name: Packages update
       become: true
       ansible.builtin.package:
-        name: "{{ system_package_update_policy.name | default(omit) }}"
-        state: "{{ system_package_update_policy.state | default(omit) }}"
-        upgrade: "{{ system_package_update_policy.upgrade | default(omit) }}"
+        name: "{{ system_pkg_update_policy.name | default(omit) }}"
+        state: "{{ system_pkg_update_policy.state | default(omit) }}"
+        upgrade: "{{ system_pkg_update_policy.upgrade | default(omit) }}"
       register: result
       until: result.failed == false
       retries: 3

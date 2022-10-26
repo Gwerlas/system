@@ -1,12 +1,12 @@
 ---
-system_package_update_cache_policy:
+system_pkg_update_cache_policy:
   path: "/var/cache/{{ ansible_pkg_mgr }}"
 
-system_package_update_policy:
+system_pkg_update_policy:
   name: '*'
   state: latest
 
-system_packages:
+system_pkgs:
   common:
     - ca-certificates
     - rsync

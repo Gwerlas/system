@@ -5,7 +5,7 @@
   community.general.portage:
     deep: true
     newuse: true
-    update: "{{ system_package_update }}"
+    update: "{{ system_pkg_update }}"
     package: '@world'
 
 - name: Clean portage dependencies

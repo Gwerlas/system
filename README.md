@@ -42,8 +42,7 @@ system_hostname: "{{ inventory_hostname }}"
 system_hostname_aliases: []
 system_custom_hosts: []
 
-system_package_update: false
-system_package_update_reboot_msg: Reboot initiated by Ansible after a distribution update
+system_pkg_update: false
 
 system_profile: server
 
@@ -75,7 +74,7 @@ First deployment :
   roles:
     - name: gwerlas.system
       vars:
-        system_package_update: true
+        system_pkg_update: true
 ```
 
 Distribution update, rolling update by ~10% slices :
@@ -88,7 +87,7 @@ Distribution update, rolling update by ~10% slices :
   roles:
     - name: gwerlas.system
       vars:
-        system_package_update: true
+        system_pkg_update: true
 ```
 
 Use just one task :
