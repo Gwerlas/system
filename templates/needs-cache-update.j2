@@ -8,14 +8,33 @@
 #
 # 0 = Do not need to update cache
 # 1 = Need updating
-# 2 = Unmanaged system
 
 set -e
 
+test_dir() {
+  matches=$(find "$1" -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
+  test $matches -gt 0  
+}
+
+test_file() {
+  test -f "$1"
+
+  # pkgcache age
+  local mtime=$(stat --printf '%y' "$1")
+  local ts=$(date +%s -d "$mtime")
+
+  test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
+}
+
+{% if system_pkg_update_cache_policy.marker is defined %}
+test_file "{{ system_pkg_update_cache_policy.marker }}"
+{% endif %}
+
 {% if system_pkg_update_cache_policy.path is defined %}
-matches=$(find {{ system_pkg_update_cache_policy.path }} -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
-test $matches -gt 0
-{% elif ansible_pkg_mgr == 'apt' %}
+test_dir "{{ system_pkg_update_cache_policy.path }}"
+{% endif %}
+
+{% if ansible_pkg_mgr == 'apt' %}
 # Empty cache
 test ! -z "$(apt-cache search rsync)"
 
@@ -24,15 +43,5 @@ eval $(apt-config shell root Dir)
 eval $(apt-config shell cache Dir::Cache)
 eval $(apt-config shell pkgcache Dir::Cache::pkgcache)
 
-for file in {{ system_pkg_update_cache_policy.marker | default('') }} "${root}${cache}/${pkgcache}"; do
-  if [ -f "$file" ]; then
-    # pkgcache age
-    mtime=$(stat --printf '%y' "$file")
-    ts=$(date +%s -d "$mtime")
-
-    test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
-  fi
-done
-{% else %}
-exit 2
+test_file "${root}${cache}/${pkgcache}"
 {% endif %}
