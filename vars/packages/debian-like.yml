@@ -3,6 +3,9 @@ system_pkg_update_policy:
   upgrade: dist
   autoremove: true
 
+system_pkg_update_cache_policy:
+  marker: /var/cache/gwsys
+
 system_pkgs:
   common:
     - ca-certificates

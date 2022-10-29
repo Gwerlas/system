@@ -35,6 +35,7 @@
   register: result
   until: result.failed == false
   retries: 3
+  notify: mark update
 
 - name: Base system packages
   when: system_pkgs is defined

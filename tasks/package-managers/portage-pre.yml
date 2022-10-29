@@ -18,7 +18,7 @@
 - name: Portage configuration directories
   become: true
   ansible.builtin.file:
-    path: "/etc/portage/{{ system_portage_directory }}"
+    path: "/etc/portage/{{ system_portage_configuration_directory }}"
     state: directory
     group: portage
     mode: 0775
@@ -26,7 +26,7 @@
     - package.license
     - package.use
   loop_control:
-    loop_var: system_portage_directory
+    loop_var: system_portage_configuration_directory
 
 - name: Portage configuration
   become: true

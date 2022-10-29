@@ -24,16 +24,15 @@ eval $(apt-config shell root Dir)
 eval $(apt-config shell cache Dir::Cache)
 eval $(apt-config shell pkgcache Dir::Cache::pkgcache)
 
-file="${root}${cache}/${pkgcache}"
+for file in {{ system_pkg_update_cache_policy.marker | default('') }} "${root}${cache}/${pkgcache}"; do
+  if [ -f "$file" ]; then
+    # pkgcache age
+    mtime=$(stat --printf '%y' "$file")
+    ts=$(date +%s -d "$mtime")
 
-# pkgcache file exists
-test -f $file
-
-# pkgcache age
-mtime=$(stat --printf '%y' $file)
-ts=$(date +%s -d "$mtime")
-
-test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
+    test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
+  fi
+done
 {% else %}
 exit 2
 {% endif %}
