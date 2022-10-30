@@ -3,33 +3,33 @@ argument_specs:
   main:
     short_description: The main entry point which calls the other tasks if needed / asked.
     options:
-      system_manage_hosts_names:
+      system_manage_hosts:
         type: bool
         default: "true in most cases, false for containers"
         description: Enable/Disable hosts names management.
-      system_install_zsh:
-        type: bool
-        default: false
-        description: Install ZSH and our default configuration.
       system_manage_firewall:
         type: bool
         default: "true in most cases, false for containers"
         description: Enable/Disable firewalling.
+      system_zsh_install:
+        type: bool
+        default: false
+        description: Install ZSH and our default configuration.
 
   hosts-names:
     short_description: Configure system hostname and /etc/hosts file.
     options:
-      system_domainname:
+      system_hosts_domain:
         description: Local domain name.
-      system_hostname:
+      system_hosts_localhost:
         default: "{{ inventory_hostname }}"
         description: Local host name.
-      system_hostname_aliases:
+      system_hosts_localhost_aliases:
         type: list
         elements: str
         default: "[]"
         description: List of additional names for local host.
-      system_custom_hosts:
+      system_hosts_custom:
         type: list
         elements: dict
         default: "[]"
@@ -69,11 +69,12 @@ argument_specs:
         default: public
         description: The name of the default zone.
         choices:
-          - block
-          - dmz
           - drop
+          - block
+          - public
+          - external
+          - dmz
+          - work
           - home
           - internal
-          - public
           - trusted
-          - work

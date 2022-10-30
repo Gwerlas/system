@@ -1,11 +1,11 @@
 ---
-- name: System binaries
+- name: Portage - System binaries
   when: "'container' not in ansible_virtualization_tech_guest"
   block:
-    - name: Portage profile
+    - name: Portage - Profile
       ansible.builtin.import_tasks: portage-profile.yml
 
-    - name: Kernel related packages settings
+    - name: Portage - Kernel related packages settings
       ansible.builtin.copy:
         src: "{{ system_portage_kernel_file }}"
         dest: "/etc/portage/{{ system_portage_kernel_file }}"
@@ -19,7 +19,7 @@
         loop_var: system_portage_kernel_file
       notify: emerge --newuse
 
-    - name: Kernel package and its dependencies
+    - name: Portage - Kernel package and its dependencies
       become: true
       community.general.portage:
         update: "{{ system_pkg_update }}"
@@ -30,13 +30,13 @@
       notify:
         - grub-mkconfig
 
-    - name: Get available kernels
+    - name: Portage - Kernels
       ansible.builtin.find:
         path: /boot
         pattern: vmlinuz-*
       register: system_available_kernels
 
-    - name: Kernel symlink for external modules
+    - name: Portage - Kernel symlink for external modules
       become: true
       when: system_available_kernels.matched > 0
       ansible.builtin.file:
@@ -46,7 +46,7 @@
       notify:
         - emerge @module-rebuild
 
-- name: System update
+- name: Portage - System update
   when: system_pkg_update
   become: true
   community.general.portage:

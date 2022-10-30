@@ -1,8 +1,8 @@
 ---
-- name: OS family settings
+- name: Packages - OS family settings
   ansible.builtin.include_vars: "packages/{{ ansible_os_family | lower }}-like.yml"
 
-- name: Package manager preparation
+- name: Packages - Package manager preparation
   ansible.builtin.include_tasks:
     file: "{{ item }}"
   with_first_found:
@@ -12,21 +12,21 @@
       paths:
         - package-managers
 
-- name: Detection script to determine if the package manager cache need to be updated
+- name: Packages - Detection script to determine if the package manager cache need to be updated
   become: true
   ansible.builtin.template:
     src: needs-cache-update.j2
     dest: "{{ system_bin_path }}/needs-cache-update"
     mode: 0755
 
-- name: Determine if the package manager cache need to be updated
+- name: Packages - Determine if the package manager cache need to be updated
   ansible.builtin.command:
     cmd: needs-cache-update
   changed_when: false
   register: system_pkg_mgr_cache_needs_update
   failed_when: system_pkg_mgr_cache_needs_update.rc > 1
 
-- name: Packages cache update
+- name: Packages - Update the package list
   when: system_pkg_mgr_cache_needs_update.rc == 1
   become: true
   ansible.builtin.package:
@@ -34,34 +34,32 @@
     update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
   register: result
   until: result.failed == false
-  retries: 3
+  retries: 5
   notify: mark update
 
-- name: Base system packages
+- name: Packages - Base system tools
   when: system_pkgs is defined
   become: true
   ansible.builtin.package:
     name: "{{ system_pkgs.common + (system_pkgs[system_profile] | default([])) }}"
   register: result
   until: result.failed == false
-  retries: 3
+  retries: 5
 
-- name: System update
+- name: Packages - Update
   when:
     - system_pkg_update
     - system_pkg_update_policy is defined
-  block:
-    - name: Packages update
-      become: true
-      ansible.builtin.package:
-        name: "{{ system_pkg_update_policy.name | default(omit) }}"
-        state: "{{ system_pkg_update_policy.state | default(omit) }}"
-        upgrade: "{{ system_pkg_update_policy.upgrade | default(omit) }}"
-      register: result
-      until: result.failed == false
-      retries: 3
+  become: true
+  ansible.builtin.package:
+    name: "{{ system_pkg_update_policy.name | default(omit) }}"
+    state: "{{ system_pkg_update_policy.state | default(omit) }}"
+    upgrade: "{{ system_pkg_update_policy.upgrade | default(omit) }}"
+  register: result
+  until: result.failed == false
+  retries: 5
 
-- name: Package managers post operations
+- name: Packages - Package managers post operations
   ansible.builtin.include_tasks:
     file: "{{ item }}"
   with_first_found:
@@ -71,5 +69,5 @@
       paths:
         - package-managers
 
-- name: Reboot if needed
+- name: Packages - Reboot if needed
   ansible.builtin.import_tasks: reboot.yml

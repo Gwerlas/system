@@ -1,5 +1,5 @@
 ---
-- name: Deployer admin in portage group
+- name: Portage - Deployer admin in portage group
   become: true
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
@@ -7,15 +7,15 @@
     groups:
       - portage
 
-- name: Reset SSH connection
+- name: Portage - Reset SSH connection
   ansible.builtin.meta: reset_connection
 
-- name: Load initial config
+- name: Portage - Load initial config
   register: system_portage_config_initial
   ansible.builtin.slurp:
     src: /etc/portage/make.conf
 
-- name: Portage configuration directories
+- name: Portage - Configuration directories
   become: true
   ansible.builtin.file:
     path: "/etc/portage/{{ system_portage_configuration_directory }}"
@@ -28,7 +28,7 @@
   loop_control:
     loop_var: system_portage_configuration_directory
 
-- name: Portage configuration
+- name: Portage - Configuration parameters
   become: true
   ansible.builtin.lineinfile:
     path: /etc/portage/make.conf
@@ -47,7 +47,7 @@
   loop_control:
     loop_var: system_make_param
 
-- name: Packages features flipping (use flags)
+- name: Portage - Packages features flipping (use flags)
   ansible.builtin.copy:
     src: "package.use/{{ package }}"
     dest: "/etc/portage/package.use/{{ package }}"
@@ -61,22 +61,22 @@
     loop_var: package
   notify: emerge --newuse
 
-- name: Check for equery
+- name: Portage - Check for equery
   ansible.builtin.stat:
     path: /usr/bin/equery
   register: system_bin_equery
 
-- name: Install gentoolkit
+- name: Portage - Ansible module dependencies
   when: not system_bin_equery.stat.exists
   block:
-    - name: Portage Ansible module dependencies
+    - name: Portage - Gentoolkit
       block:
-        - name: Check for gentoolkit manifest
+        - name: Portage - Gentoolkit - Check the manifest
           ansible.builtin.stat:
             path: "{{ system_portage_directory }}/app-portage/gentoolkit/Manifest"
           register: system_portage_manifest_equery
 
-        - name: Manual emerge sync
+        - name: Portage - Gentoolkit - Manual emerge sync
           when: not system_portage_manifest_equery.stat.exists
           become: true
           ansible.builtin.command:
@@ -84,28 +84,28 @@
           register: result
           changed_when: result.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
 
-        - name: Predefined Portage directory
+        - name: Portage - Gentoolkit - Predefined Portage directory
           ansible.builtin.set_fact:
             system_portage_directory_matches: "{{ system_portage_config_initial.content | b64decode | regex_findall('(?<!#)PORTDIR=\"(.+)\"') }}"
 
-        - name: Initial portage directory
+        - name: Portage - Gentoolkit - Initial portage directory
           when: system_portage_directory_matches | length > 0
           block:
-            - name: Fact
+            - name: Portage - Gentoolkit - Portdir - Fact
               ansible.builtin.set_fact:
                 system_portage_directory_initial: "{{ system_portage_directory_matches | last }}"
 
-            - name: Remove old directory
+            - name: Portage - Gentoolkit - Portdir - Remove old directory
               when: system_portage_directory_initial != system_portage_directory
               become: true
               ansible.builtin.file:
                 path: "{{ system_portage_directory_initial }}"
                 state: absent
 
-        - name: Portage profile
+        - name: Portage - Profile
           ansible.builtin.import_tasks: portage-profile.yml
 
-        - name: Package gentoolkit
+        - name: Package - Gentoolkit - Package
           become: true
           ansible.builtin.command:
             cmd: emerge app-portage/gentoolkit

@@ -1,5 +1,5 @@
 ---
-- name: Load variables
+- name: Firewall - Load variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
@@ -12,7 +12,7 @@
       paths:
         - vars/firewall
 
-- name: Configuration file for firewalling
+- name: Firewall - Configuration file
   become: true
   when: system_firewall_config_file is defined
   ansible.builtin.copy:
@@ -22,27 +22,27 @@
     owner: "{{ system_firewall_config_file.owner | default(omit) }}"
     group: "{{ system_firewall_config_file.group | default(omit) }}"
 
-- name: Package firewalld
+- name: Firewall - Package
   become: true
   ansible.builtin.package:
     name: "{{ system_firewall_packages | default('firewalld') }}"
     default_release: "{{ system_firewall_package_release | default(omit) }}"
 
-- name: Firewalld service
+- name: Firewall - Service
   become: true
   ansible.builtin.service:
     name: firewalld
     state: started
     enabled: true
 
-- name: Get default zone
+- name: Firewall - Get default zone
   become: true
   ansible.builtin.command:
     cmd: "firewall-cmd --get-default-zone"
   register: system_firewall_current_default_zone
   changed_when: "'success' in system_firewall_current_default_zone.stdout"
 
-- name: Change default zone
+- name: Firewall - Change default zone
   when: system_firewall_current_default_zone.stdout != system_firewall_default_zone
   become: true
   ansible.builtin.command:
@@ -50,7 +50,7 @@
   register: system_firewall_change_default_zone
   changed_when: "'success' in system_firewall_change_default_zone.stdout"
 
-- name: Set the default zone to the default interface
+- name: Firewall - Set the default zone to the default interface
   become: true
   ansible.posix.firewalld:
     interface: "{{ ansible_default_ipv4.interface }}"

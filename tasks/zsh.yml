@@ -1,20 +1,20 @@
 ---
-- name: ZSH distribution package
+- name: ZSH - Distribution package
   become: true
   ansible.builtin.package:
     name: zsh
 
-- name: ZSH user configuration
+- name: ZSH - User configuration
   block:
-    - name: ZSH sub directory
+    - name: ZSH - User configuration - Directory
       ansible.builtin.file:
         path: "{{ ansible_user_dir }}/.zsh"
         state: directory
         mode: 0700
-    - name: ZSH configuration files
+    - name: ZSH - User configuration - Files
       ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/{{ _zsh_config_file }}"
-        src: "{{ _zsh_config_file }}"
+        dest: "{{ ansible_user_dir }}/{{ system_zsh_config_file }}"
+        src: "{{ system_zsh_config_file }}"
         mode: 0600
       loop:
         - .zshrc
@@ -22,4 +22,4 @@
         - .zsh/prompt
         - .zsh/prompt_git
       loop_control:
-        loop_var: _zsh_config_file
+        loop_var: system_zsh_config_file

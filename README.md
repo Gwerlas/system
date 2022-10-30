@@ -24,7 +24,7 @@ System composents are managed throw separated tasks that could be called indepen
 
 Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 
-* [hosts-names](docs/hosts-names.md)
+* [hosts](docs/hosts.md)
 * [packages](docs/packages.md)
 * [reboot](docs/reboot.md)
 * [zsh](docs/zsh.md)
@@ -33,29 +33,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 Role Variables
 --------------
 
-Available variables are listed below, along with default values (see `defaults/main.yml`):
-
-```yaml
-system_manage_hosts_names: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_domainname: localdomain
-system_hostname: "{{ inventory_hostname }}"
-system_hostname_aliases: []
-system_custom_hosts: []
-
-system_pkg_update: false
-
-system_profile: server
-
-system_archlinux_user_repository: "{{ system_profile != 'server' }}"
-system_portage_directory: /var/db/repos/gentoo
-
-system_install_zsh: false
-
-system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_firewall_default_zone: public
-
-system_ca_certificates: []
-```
+Look at [`defaults/main.yml`](defaults/main.yml).
 
 Dependencies
 ------------

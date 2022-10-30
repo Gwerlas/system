@@ -1,13 +1,13 @@
 ---
-- name: Hosts names resolution
-  when: system_manage_hosts_names
-  ansible.builtin.import_tasks: hosts-names.yml
+- name: Hosts
+  when: system_manage_hosts
+  ansible.builtin.import_tasks: hosts.yml
 
-- name: System packages
+- name: Packages
   ansible.builtin.import_tasks: packages.yml
 
-- name: Configure ZSH
-  when: system_install_zsh
+- name: ZSH
+  when: system_zsh_install
   ansible.builtin.import_tasks: zsh.yml
 
 - name: Firewall

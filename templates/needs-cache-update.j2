@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #
 # {{ ansible_managed }}
 #
@@ -12,7 +12,7 @@
 set -e
 
 test_dir() {
-  matches=$(find "$1" -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
+  local matches=$(find "$1" -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
   test $matches -gt 0  
 }
 
@@ -32,16 +32,4 @@ test_file "{{ system_pkg_update_cache_policy.marker }}"
 
 {% if system_pkg_update_cache_policy.path is defined %}
 test_dir "{{ system_pkg_update_cache_policy.path }}"
-{% endif %}
-
-{% if ansible_pkg_mgr == 'apt' %}
-# Empty cache
-test ! -z "$(apt-cache search rsync)"
-
-# pkgcacke location data
-eval $(apt-config shell root Dir)
-eval $(apt-config shell cache Dir::Cache)
-eval $(apt-config shell pkgcache Dir::Cache::pkgcache)
-
-test_file "${root}${cache}/${pkgcache}"
 {% endif %}

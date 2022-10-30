@@ -1,5 +1,5 @@
 ---
-- name: Auto merge /etc/conf.d/hostname
+- name: OpenRC - Auto merge /etc/conf.d/hostname
   listen: restart logind
   when: ansible_service_mgr == "openrc"
   become: true

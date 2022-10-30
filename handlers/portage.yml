@@ -1,5 +1,5 @@
 ---
-- name: Rebuild packages that need to be rebuilt
+- name: Portage - Rebuild packages that need to be rebuilt
   listen: emerge --newuse
   become: true
   community.general.portage:
@@ -8,13 +8,13 @@
     update: "{{ system_pkg_update }}"
     package: '@world'
 
-- name: Clean portage dependencies
+- name: Portage - Clean dependencies
   listen: emerge --newuse
   become: true
   community.general.portage:
     depclean: true
 
-- name: Kernel modules rebuild
+- name: Portage - Kernel modules rebuild
   listen: emerge @module-rebuild
   become: true
   community.general.portage:

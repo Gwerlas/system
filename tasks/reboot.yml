@@ -1,5 +1,5 @@
 ---
-- name: Load variables
+- name: Reboot - Load variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
@@ -9,18 +9,18 @@
       paths:
         - vars/reboot
 
-- name: Reboot management
+- name: Reboot
   when:
     - "'container' not in ansible_virtualization_tech_guest"
     - system_reboot_detection_policy is defined
   block:
-    - name: Package providing the command that determine if a restart is needed
+    - name: Reboot - Package providing the command that determine if a restart is needed
       when: system_reboot_detection_policy.package is defined
       become: true
       ansible.builtin.package:
         name: "{{ system_reboot_detection_policy.package }}"
 
-    - name: Needed reboot detection script
+    - name: Reboot - Determination script
       when:
         - system_reboot_detection_policy.use_template is defined
         - system_reboot_detection_policy.use_template
@@ -30,7 +30,7 @@
         dest: "{{ system_bin_path }}/needs-restarting"
         mode: 0755
 
-    - name: Check for needed reboot
+    - name: Reboot - Check if it's needed
       ansible.builtin.command:
         cmd: "{{ system_reboot_detection_policy.cmd | default('needs-restarting -r') }}"
       register: result
@@ -38,8 +38,8 @@
       failed_when: result.rc > 1
       notify: reboot
 
-- name: Trigger handlers
+- name: Reboot - Trigger handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Wait for connection
+- name: Reboot - Wait for connection
   ansible.builtin.wait_for_connection:

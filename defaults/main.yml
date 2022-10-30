@@ -1,9 +1,11 @@
 ---
-system_manage_hosts_names: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_domainname: localdomain
-system_hostname: "{{ inventory_hostname }}"
-system_hostname_aliases: []
-system_custom_hosts: []
+system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+
+system_hosts_domain: localdomain
+system_hosts_localhost: "{{ inventory_hostname }}"
+system_hosts_localhost_aliases: []
+system_hosts_custom: []
 
 system_bin_path: /usr/local/bin
 
@@ -15,9 +17,8 @@ system_profile: server
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_portage_directory: /var/db/repos/gentoo
 
-system_install_zsh: false
+system_zsh_install: false
 
-system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_firewall_default_zone: public
 
 system_ca_certificates: []

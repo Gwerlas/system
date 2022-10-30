@@ -1,8 +1,8 @@
 ---
-system_hostnames: |
+system_hosts_localhosts: |
   {{
-    ( [system_hostname] + system_hostname_aliases ) |
-    product(['', '.' + system_domainname]) |
+    ( [system_hosts_localhost] + system_hosts_localhost_aliases ) |
+    product(['', '.' + system_hosts_domain]) |
     map('join')
   }}
 
@@ -10,8 +10,8 @@ system_loopback_hosts:
   - ip: "127.0.0.1"
     names: ['localhost']
   - ip: "127.0.1.1"
-    names: "{{ system_hostnames }}"
+    names: "{{ system_hosts_localhosts }}"
   - ip: "::1"
-    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + system_hostnames }}"
+    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + system_hosts_localhosts }}"
 
-system_hosts: "{{ system_loopback_hosts + system_custom_hosts }}"
+system_hosts: "{{ system_loopback_hosts + system_hosts_custom }}"

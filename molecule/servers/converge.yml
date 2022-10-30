@@ -7,13 +7,13 @@
         name: gwerlas.system
       vars:
         system_pkg_update: true
-        system_domainname: mydomain.tld
-        system_hostname_aliases:
+        system_hosts_domain: mydomain.tld
+        system_hosts_localhost_aliases:
           - me
           - myself
-        system_custom_hosts:
+        system_hosts_custom:
           - ip: '10.0.0.7'
             names:
               - host7
               - host7.domain.tld
-        system_install_zsh: true
+        system_zsh_install: true
