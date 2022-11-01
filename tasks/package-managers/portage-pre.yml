@@ -1,5 +1,6 @@
 ---
 - name: Portage - Deployer admin in portage group
+  when: ansible_user_id != 'root'
   become: true
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
@@ -15,16 +16,57 @@
   ansible.builtin.slurp:
     src: /etc/portage/make.conf
 
+- name: Portage - Cache
+  block:
+    - name: Portage - Cache - Configuration parameter
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/portage/make.conf
+        line: "PORTDIR=\"{{ system_portage_directory }}\""
+        regex: ^PORTDIR=
+        group: portage
+        mode: 0664
+
+    - name: Portage - Cache - Predefined Portage directory
+      ansible.builtin.set_fact:
+        system_portage_directory_matches: "{{ system_portage_config_initial.content | b64decode | regex_findall('(?<!#)PORTDIR=\"(.+)\"') }}"
+
+    - name: Portage - Cache - Initial portage directory
+      when: system_portage_directory_matches | length > 0
+      block:
+        - name: Portage - Cache - Portdir - Fact
+          ansible.builtin.set_fact:
+            system_portage_directory_initial: "{{ system_portage_directory_matches | last }}"
+
+        - name: Portage - Cache - Portdir - Move old directory to the new path
+          when: system_portage_directory_initial != system_portage_directory
+          become: true
+          block:
+            - name: Portage - Cache - Portdir - Parent directory
+              ansible.builtin.file:
+                path: "{{ system_portage_directory | dirname }}"
+                state: directory
+                mode: 0755
+
+            - name: Portage - Cache - Portdir - Move data
+              ansible.builtin.command:
+                cmd: "mv '{{ system_portage_directory_initial }}' '{{ system_portage_directory }}'"
+              changed_when: true
+
+            - name: Portage - Cache - Portdir - Profile symlink repair
+              ansible.builtin.import_tasks: portage-profile.yml
+
 - name: Portage - Configuration directories
   become: true
   ansible.builtin.file:
-    path: "/etc/portage/{{ system_portage_configuration_directory }}"
+    path: "{{ system_portage_configuration_directory }}"
     state: directory
     group: portage
     mode: 0775
   loop:
-    - package.license
-    - package.use
+    - /etc/portage/
+    - /etc/portage/package.license
+    - /etc/portage/package.use
   loop_control:
     loop_var: system_portage_configuration_directory
 
@@ -32,25 +74,22 @@
   become: true
   ansible.builtin.lineinfile:
     path: /etc/portage/make.conf
-    line: "{{ system_make_param.line | default(omit) }}"
-    regex: "{{ system_make_param.regex }}"
-    state: "{{ system_make_param.state | default(omit) }}"
-    group: portage
-    mode: 0664
+    line: "{{ system_portage_make_param.line | default(omit) }}"
+    regex: "{{ system_portage_make_param.regex }}"
+    state: "{{ system_portage_make_param.state | default(omit) }}"
   loop:
     - regex: ^USE_PYTHON=
       state: absent
     - regex: ^PYTHON_TARGETS=
       state: absent
-    - regex: ^PORTDIR=
-      line: "PORTDIR=\"{{ system_portage_directory }}\""
   loop_control:
-    loop_var: system_make_param
+    loop_var: system_portage_make_param
+  notify: emerge --newuse
 
 - name: Portage - Packages features flipping (use flags)
   ansible.builtin.copy:
-    src: "package.use/{{ package }}"
-    dest: "/etc/portage/package.use/{{ package }}"
+    src: "package.use/{{ system_portage_use_file }}"
+    dest: "/etc/portage/package.use/{{ system_portage_use_file }}"
     owner: "{{ ansible_user_id }}"
     group: portage
     mode: 0664
@@ -58,7 +97,7 @@
     - kernel
     - python
   loop_control:
-    loop_var: package
+    loop_var: system_portage_use_file
   notify: emerge --newuse
 
 - name: Portage - Check for equery
@@ -66,48 +105,25 @@
     path: /usr/bin/equery
   register: system_bin_equery
 
-- name: Portage - Ansible module dependencies
+- name: Portage - Gentoolkit
   when: not system_bin_equery.stat.exists
   block:
-    - name: Portage - Gentoolkit
-      block:
-        - name: Portage - Gentoolkit - Check the manifest
-          ansible.builtin.stat:
-            path: "{{ system_portage_directory }}/app-portage/gentoolkit/Manifest"
-          register: system_portage_manifest_equery
+    - name: Portage - Gentoolkit - Check the manifest
+      ansible.builtin.stat:
+        path: "{{ system_portage_directory }}/app-portage/gentoolkit/Manifest"
+      register: system_portage_manifest_equery
 
-        - name: Portage - Gentoolkit - Manual emerge sync
-          when: not system_portage_manifest_equery.stat.exists
-          become: true
-          ansible.builtin.command:
-            cmd: emerge --sync
-          register: result
-          changed_when: result.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
+    - name: Portage - Gentoolkit - Manual emerge sync
+      when: not system_portage_manifest_equery.stat.exists
+      become: true
+      ansible.builtin.command:
+        cmd: emerge --sync
+      register: result
+      changed_when: result.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
 
-        - name: Portage - Gentoolkit - Predefined Portage directory
-          ansible.builtin.set_fact:
-            system_portage_directory_matches: "{{ system_portage_config_initial.content | b64decode | regex_findall('(?<!#)PORTDIR=\"(.+)\"') }}"
-
-        - name: Portage - Gentoolkit - Initial portage directory
-          when: system_portage_directory_matches | length > 0
-          block:
-            - name: Portage - Gentoolkit - Portdir - Fact
-              ansible.builtin.set_fact:
-                system_portage_directory_initial: "{{ system_portage_directory_matches | last }}"
-
-            - name: Portage - Gentoolkit - Portdir - Remove old directory
-              when: system_portage_directory_initial != system_portage_directory
-              become: true
-              ansible.builtin.file:
-                path: "{{ system_portage_directory_initial }}"
-                state: absent
-
-        - name: Portage - Profile
-          ansible.builtin.import_tasks: portage-profile.yml
-
-        - name: Package - Gentoolkit - Package
-          become: true
-          ansible.builtin.command:
-            cmd: emerge app-portage/gentoolkit
-          register: result
-          changed_when: result.stdout | regex_findall('>>> Installing') | length > 0
+    - name: Package - Gentoolkit - Package
+      become: true
+      ansible.builtin.command:
+        cmd: emerge app-portage/gentoolkit
+      register: result
+      changed_when: result.stdout | regex_findall('>>> Installing') | length > 0

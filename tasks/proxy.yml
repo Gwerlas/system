@@ -1,0 +1,30 @@
+---
+- name: Proxy - Environment variables
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: "{{ system_proxy.key }}={{ system_proxy.value }}"
+    regex: "^{{ system_proxy.key }}="
+    state: "{{ 'absent' if system_proxy.value == '' else 'present' }}"
+  loop:
+    - key: http_proxy
+      value: "{{ system_http_proxy | default('') }}"
+    - key: https_proxy
+      value: "{{ system_https_proxy | default('') }}"
+    - key: ftp_proxy
+      value: "{{ system_ftp_proxy | default('') }}"
+    - key: no_proxy
+      value: "{{ system_no_proxy | default('') }}"
+    - key: HTTP_PROXY
+      value: "{{ system_http_proxy | default('') }}"
+    - key: HTTPS_PROXY
+      value: "{{ system_https_proxy | default('') }}"
+    - key: FTP_PROXY
+      value: "{{ system_ftp_proxy | default('') }}"
+    - key: NO_PROXY
+      value: "{{ system_no_proxy | default('') }}"
+  loop_control:
+    loop_var: system_proxy
+
+- name: Proxy - Reset connection to take effect
+  ansible.builtin.meta: reset_connection

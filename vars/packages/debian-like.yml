@@ -1,12 +1,12 @@
 ---
-system_pkg_update_policy:
+system_packages_update_policy:
   upgrade: dist
   autoremove: true
 
-system_pkg_update_cache_policy:
+system_packages_update_cache_policy:
   marker: /var/cache/gwsys
 
-system_pkgs:
+system_packages:
   common:
     - ca-certificates
     - rsync

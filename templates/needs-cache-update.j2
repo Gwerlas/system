@@ -12,7 +12,7 @@
 set -e
 
 test_dir() {
-  local matches=$(find "$1" -type f -mtime -{{ system_pkg_mgr_cache_age + 1 }} | wc -l)
+  local matches=$(find "$1" -type f -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
   test $matches -gt 0  
 }
 
@@ -23,13 +23,13 @@ test_file() {
   local mtime=$(stat --printf '%y' "$1")
   local ts=$(date +%s -d "$mtime")
 
-  test $ts -gt $(date +%s -d '{{ system_pkg_mgr_cache_age }} days ago')
+  test $ts -gt $(date +%s -d '{{ system_packages_cache_age }} days ago')
 }
 
-{% if system_pkg_update_cache_policy.marker is defined %}
-test_file "{{ system_pkg_update_cache_policy.marker }}"
+{% if system_packages_update_cache_policy.marker is defined %}
+test_file "{{ system_packages_update_cache_policy.marker }}"
 {% endif %}
 
-{% if system_pkg_update_cache_policy.path is defined %}
-test_dir "{{ system_pkg_update_cache_policy.path }}"
+{% if system_packages_update_cache_policy.path is defined %}
+test_dir "{{ system_packages_update_cache_policy.path }}"
 {% endif %}

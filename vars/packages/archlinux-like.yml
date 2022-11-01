@@ -1,11 +1,11 @@
 ---
-system_pkg_update_cache_policy:
+system_packages_update_cache_policy:
   path: /var/lib/pacman/sync
 
-system_pkg_update_policy:
+system_packages_update_policy:
   upgrade: true
 
-system_pkgs:
+system_packages:
   common:
     - ca-certificates
     - rsync

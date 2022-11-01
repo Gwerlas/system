@@ -35,6 +35,26 @@ Role Variables
 
 Look at [`defaults/main.yml`](defaults/main.yml).
 
+### Feature flipping
+
+```yaml
+system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+```
+
+Disable or enable hosts management or firewalling.
+
+### Shared variables
+
+```yaml
+system_bin_path: /usr/local/bin
+```
+
+Some distributions does not provide command line to easily know if a reboot is
+required, or if the packages cache is outdated. So we put scripts to do it.
+
+You can change those scripts location throw the `system_bin_path`.
+
 Dependencies
 ------------
 
@@ -52,7 +72,7 @@ First deployment :
   roles:
     - name: gwerlas.system
       vars:
-        system_pkg_update: true
+        system_packages_update: true
 ```
 
 Distribution update, rolling update by ~10% slices :
@@ -65,7 +85,7 @@ Distribution update, rolling update by ~10% slices :
   roles:
     - name: gwerlas.system
       vars:
-        system_pkg_update: true
+        system_packages_update: true
 ```
 
 Use just one task :

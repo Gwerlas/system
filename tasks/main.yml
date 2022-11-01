@@ -3,6 +3,9 @@
   when: system_manage_hosts
   ansible.builtin.import_tasks: hosts.yml
 
+- name: Proxy
+  ansible.builtin.import_tasks: proxy.yml
+
 - name: Packages
   ansible.builtin.import_tasks: packages.yml
 

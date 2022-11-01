@@ -22,7 +22,7 @@
     - name: Portage - Kernel package and its dependencies
       become: true
       community.general.portage:
-        update: "{{ system_pkg_update }}"
+        update: "{{ system_packages_update }}"
         package:
           - sys-kernel/linux-firmware
           - virtual/dist-kernel
@@ -47,7 +47,7 @@
         - emerge @module-rebuild
 
 - name: Portage - System update
-  when: system_pkg_update
+  when: system_packages_update
   become: true
   community.general.portage:
     deep: true

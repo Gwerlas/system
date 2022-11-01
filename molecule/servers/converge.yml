@@ -6,7 +6,6 @@
       ansible.builtin.include_role:
         name: gwerlas.system
       vars:
-        system_pkg_update: true
         system_hosts_domain: mydomain.tld
         system_hosts_localhost_aliases:
           - me
@@ -16,4 +15,6 @@
             names:
               - host7
               - host7.domain.tld
+        system_packages_update: true
+        system_portage_directory: /data/gentoo
         system_zsh_install: true

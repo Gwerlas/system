@@ -12,22 +12,22 @@
       paths:
         - package-managers
 
-- name: Packages - Detection script to determine if the package manager cache need to be updated
+- name: Packages - Cache update detection script
   become: true
   ansible.builtin.template:
     src: needs-cache-update.j2
     dest: "{{ system_bin_path }}/needs-cache-update"
     mode: 0755
 
-- name: Packages - Determine if the package manager cache need to be updated
+- name: Packages - Cache update detection
   ansible.builtin.command:
     cmd: needs-cache-update
   changed_when: false
-  register: system_pkg_mgr_cache_needs_update
-  failed_when: system_pkg_mgr_cache_needs_update.rc > 1
+  register: system_packages_cache_needs_update
+  failed_when: system_packages_cache_needs_update.rc > 1
 
-- name: Packages - Update the package list
-  when: system_pkg_mgr_cache_needs_update.rc == 1
+- name: Packages - Cache update
+  when: system_packages_cache_needs_update.rc == 1
   become: true
   ansible.builtin.package:
     sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
@@ -38,23 +38,23 @@
   notify: mark update
 
 - name: Packages - Base system tools
-  when: system_pkgs is defined
+  when: system_packages is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_pkgs.common + (system_pkgs[system_profile] | default([])) }}"
+    name: "{{ system_packages.common + (system_packages[system_profile] | default([])) }}"
   register: result
   until: result.failed == false
   retries: 5
 
 - name: Packages - Update
   when:
-    - system_pkg_update
-    - system_pkg_update_policy is defined
+    - system_packages_update
+    - system_packages_update_policy is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_pkg_update_policy.name | default(omit) }}"
-    state: "{{ system_pkg_update_policy.state | default(omit) }}"
-    upgrade: "{{ system_pkg_update_policy.upgrade | default(omit) }}"
+    name: "{{ system_packages_update_policy.name | default(omit) }}"
+    state: "{{ system_packages_update_policy.state | default(omit) }}"
+    upgrade: "{{ system_packages_update_policy.upgrade | default(omit) }}"
   register: result
   until: result.failed == false
   retries: 5

@@ -1,14 +1,14 @@
 ---
-system_pkg_update_cache_policy:
-  path: "{{ system_portage_directory }}"
+system_packages_update_cache_policy:
+  marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
-# system_pkg_update_policy:
+# system_packages_update_policy:
 #   deep: true
 #   newuse: true
 #   update: true
 #   name: '@world'
 
-system_pkgs:
+system_packages:
   common:
     - app-misc/ca-certificates
     - dev-vcs/git
