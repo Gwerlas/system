@@ -10,5 +10,6 @@ system_packages:
   common:
     - ca-certificates
     - rsync
+    - zsh
   desktop:
     - usbutils

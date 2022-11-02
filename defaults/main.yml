@@ -7,17 +7,17 @@ system_hosts_localhost: "{{ inventory_hostname }}"
 system_hosts_localhost_aliases: []
 system_hosts_custom: []
 
+system_users: []
+system_users_groups: []
+
 system_bin_path: /usr/local/bin
+system_profile: server
 
 system_packages_update: false
 system_packages_cache_age: 7
 
-system_profile: server
-
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_portage_directory: /var/db/repos/gentoo
-
-system_zsh_install: false
 
 system_firewall_default_zone: public
 

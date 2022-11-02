@@ -1,0 +1,82 @@
+---
+- name: Users and groups management
+  become: true
+  block:
+    - name: Users - Skeleton - ZSH - Directory
+      ansible.builtin.file:
+        path: "/etc/skel/.zsh"
+        state: directory
+        mode: 0700
+
+    - name: Users - Skeleton - ZSH - Files
+      ansible.builtin.copy:
+        dest: "/etc/skel/{{ system_users_skeleton_zsh_config_file }}"
+        src: "{{ system_users_skeleton_zsh_config_file }}"
+        mode: 0600
+      loop:
+        - .zshrc
+        - .zsh/history
+        - .zsh/prompt
+        - .zsh/prompt_git
+      loop_control:
+        loop_var: system_users_skeleton_zsh_config_file
+
+    - name: Users - Groups
+      ansible.builtin.group:
+        name: "{{ system_group.name }}"
+        gid: "{{ system_group.gid | default(omit) }}"
+        local: "{{ system_group.local | default(omit) }}"
+        non_unique: "{{ system_group.non_unique | default(omit) }}"
+        state: "{{ system_group.state | default(omit) }}"
+        system: "{{ system_group.system | default(omit) }}"
+      loop: "{{ system_users_groups }}"
+      loop_control:
+        loop_var: system_group
+
+    - name: Users - Groups - Implicit
+      ansible.builtin.group:
+        name: "{{ system_group }}"
+      loop: |
+        {{ (
+          (system_users | selectattr('group', 'defined') | map(attribute='group'))
+        + (system_users | selectattr('groups', 'defined') | map(attribute='groups'))
+        ) | flatten | sort | unique }}
+      loop_control:
+        loop_var: system_group
+
+    - name: Users
+      ansible.builtin.user:
+        name: "{{ system_user.name }}"
+        append: "{{ system_user.append | default(omit) }}"
+        comment: "{{ system_user.comment | default(omit) }}"
+        create_home: "{{ system_user.create_home | default(omit) }}"
+        expires: "{{ system_user.expires | default(omit) }}"
+        force: "{{ system_user.force | default(omit) }}"
+        generate_ssh_key: "{{ system_user.generate_ssh_key | default(omit) }}"
+        group: "{{ system_user.group | default(omit) }}"
+        groups: "{{ system_user.groups | default(omit) }}"
+        home: "{{ system_user.home | default(omit) }}"
+        local: "{{ system_user.local | default(omit) }}"
+        move_home: "{{ system_user.move_home | default(omit) }}"
+        non_unique: "{{ system_user.non_unique | default(omit) }}"
+        password: "{{ system_user.password | default(omit) }}"
+        password_expire_max: "{{ system_user.password_expire_max | default(omit) }}"
+        password_expire_min: "{{ system_user.password_expire_min | default(omit) }}"
+        password_lock: "{{ system_user.password_lock | default(omit) }}"
+        remove: "{{ system_user.remove | default(omit) }}"
+        seuser: "{{ system_user.seuser | default(omit) }}"
+        shell: "{{ system_user.shell | default(omit) }}"
+        skeleton: "{{ system_user.skeleton | default(omit) }}"
+        ssh_key_bits: "{{ system_user.ssh_key_bits | default(omit) }}"
+        ssh_key_comment: "{{ system_user.ssh_key_comment | default(omit) }}"
+        ssh_key_file: "{{ system_user.ssh_key_file | default(omit) }}"
+        ssh_key_passphrase: "{{ system_user.ssh_key_passphrase | default(omit) }}"
+        ssh_key_type: "{{ system_user.ssh_key_type | default(omit) }}"
+        state: "{{ system_user.state | default(omit) }}"
+        system: "{{ system_user.system | default(omit) }}"
+        uid: "{{ system_user.uid | default(omit) }}"
+        umask: "{{ system_user.umask | default(omit) }}"
+        update_password: "{{ system_user.update_password | default(omit) }}"
+      loop: "{{ system_users }}"
+      loop_control:
+        loop_var: system_user

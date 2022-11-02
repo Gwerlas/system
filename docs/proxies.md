@@ -1,5 +1,5 @@
-Proxy
-=====
+Proxies
+=======
 
 Configure network proxies.
 

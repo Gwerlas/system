@@ -32,3 +32,16 @@
         - '127.0.1.1       {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
         - '::1             localhost ip6-localhost ip6-loopback {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
         - '10.0.0.7        host7 host7.domain.tld'
+
+    - name: Check groups
+      ansible.builtin.group:
+        name: my_company
+        state: present
+
+    - name: Check users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - jane
+        - john

@@ -15,6 +15,16 @@
             names:
               - host7
               - host7.domain.tld
+        system_users:
+          - name: jane
+            comment: System administrator
+            group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
+            groups:
+              - users
+            shell: /bin/zsh
+          - name: john
+            group: users
+        system_users_groups:
+          - name: my_company
         system_packages_update: true
         system_portage_directory: /data/gentoo
-        system_zsh_install: true

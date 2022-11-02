@@ -27,6 +27,9 @@
   ansible.builtin.package:
     name: "{{ system_firewall_packages | default('firewalld') }}"
     default_release: "{{ system_firewall_package_release | default(omit) }}"
+  register: result
+  until: result.failed == false
+  retries: 5
 
 - name: Firewall - Service
   become: true

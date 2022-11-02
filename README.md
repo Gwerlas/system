@@ -25,9 +25,10 @@ System composents are managed throw separated tasks that could be called indepen
 Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 
 * [hosts](docs/hosts.md)
+* [proxies](docs/proxies.md)
 * [packages](docs/packages.md)
 * [reboot](docs/reboot.md)
-* [zsh](docs/zsh.md)
+* [users](docs/users.md)
 * [firewall](docs/firewall.md)
 
 Role Variables

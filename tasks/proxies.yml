@@ -1,5 +1,5 @@
 ---
-- name: Proxy - Environment variables
+- name: Proxies - Environment variables
   become: true
   ansible.builtin.lineinfile:
     path: /etc/environment
@@ -26,5 +26,5 @@
   loop_control:
     loop_var: system_proxy
 
-- name: Proxy - Reset connection to take effect
+- name: Proxies - Reset connection to take effect
   ansible.builtin.meta: reset_connection

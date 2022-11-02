@@ -11,6 +11,7 @@ system_packages_update_cache_policy:
 system_packages:
   common:
     - app-misc/ca-certificates
+    - app-shells/zsh
     - dev-vcs/git
     - net-misc/rsync
   desktop:

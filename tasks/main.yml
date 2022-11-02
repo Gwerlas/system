@@ -3,15 +3,14 @@
   when: system_manage_hosts
   ansible.builtin.import_tasks: hosts.yml
 
-- name: Proxy
-  ansible.builtin.import_tasks: proxy.yml
+- name: Proxies
+  ansible.builtin.import_tasks: proxies.yml
 
 - name: Packages
   ansible.builtin.import_tasks: packages.yml
 
-- name: ZSH
-  when: system_zsh_install
-  ansible.builtin.import_tasks: zsh.yml
+- name: Users
+  ansible.builtin.import_tasks: users.yml
 
 - name: Firewall
   when: system_manage_firewall

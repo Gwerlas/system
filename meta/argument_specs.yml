@@ -35,7 +35,16 @@ argument_specs:
         default: "[]"
         description: List of external custom hosts.
 
-  proxy:
+  users:
+    short_description: Users and groups management
+    options:
+      system_users:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of system users
+
+  proxies:
     short_description: Configure network proxies
     options:
       system_http_proxy:
