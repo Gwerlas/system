@@ -15,13 +15,13 @@
 - name: Packages - Cache update detection script
   become: true
   ansible.builtin.template:
-    src: needs-cache-update.j2
-    dest: "{{ system_bin_path }}/needs-cache-update"
+    src: needs-update.j2
+    dest: "{{ system_bin_path }}/needs-update"
     mode: 0755
 
 - name: Packages - Cache update detection
   ansible.builtin.command:
-    cmd: needs-cache-update
+    cmd: needs-update
   changed_when: false
   register: system_packages_cache_needs_update
   failed_when: system_packages_cache_needs_update.rc > 1
@@ -48,13 +48,13 @@
 
 - name: Packages - Update
   when:
-    - system_packages_update
-    - system_packages_update_policy is defined
+    - system_packages_upgrade
+    - system_packages_upgrade_policy is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_packages_update_policy.name | default(omit) }}"
-    state: "{{ system_packages_update_policy.state | default(omit) }}"
-    upgrade: "{{ system_packages_update_policy.upgrade | default(omit) }}"
+    name: "{{ system_packages_upgrade_policy.name | default(omit) }}"
+    state: "{{ system_packages_upgrade_policy.state | default(omit) }}"
+    upgrade: "{{ system_packages_upgrade_policy.upgrade | default(omit) }}"
   register: result
   until: result.failed == false
   retries: 5

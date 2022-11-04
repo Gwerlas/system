@@ -1,9 +1,9 @@
 ---
-system_packages_update_policy:
+system_packages_upgrade_policy:
   upgrade: dist
   autoremove: true
 
-system_packages_update_cache_policy:
+system_packages_update_policy:
   marker: /var/cache/gwsys
 
 system_packages:

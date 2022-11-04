@@ -96,7 +96,7 @@ argument_specs:
         type: int
         default: 7
         description: The maximum accepted cache age (in days)
-      system_packages_update:
+      system_packages_upgrade:
         type: bool
         default: false
         description: Ask a system update, default to false to permit playbooks idempotence.

@@ -20,7 +20,7 @@ system_users: []
 system_bin_path: /usr/local/bin
 system_profile: server
 
-system_packages_update: false
+system_packages_upgrade: false
 system_packages_cache_age: 7
 
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"

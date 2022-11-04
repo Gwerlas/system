@@ -26,10 +26,10 @@ test_file() {
   test $ts -gt $(date +%s -d '{{ system_packages_cache_age }} days ago')
 }
 
-{% if system_packages_update_cache_policy.marker is defined %}
-test_file "{{ system_packages_update_cache_policy.marker }}"
+{% if system_packages_update_policy.marker is defined %}
+test_file "{{ system_packages_update_policy.marker }}"
 {% endif %}
 
-{% if system_packages_update_cache_policy.path is defined %}
-test_dir "{{ system_packages_update_cache_policy.path }}"
+{% if system_packages_update_policy.path is defined %}
+test_dir "{{ system_packages_update_policy.path }}"
 {% endif %}

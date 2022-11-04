@@ -1,8 +1,8 @@
 ---
-system_packages_update_cache_policy:
+system_packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
-# system_packages_update_policy:
+# system_packages_upgrade_policy:
 #   deep: true
 #   newuse: true
 #   update: true

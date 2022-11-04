@@ -81,7 +81,7 @@ First deployment :
   roles:
     - name: gwerlas.system
       vars:
-        system_packages_update: true
+        system_packages_upgrade: true
 ```
 
 Distribution update, rolling update by ~10% slices :
@@ -94,7 +94,7 @@ Distribution update, rolling update by ~10% slices :
   roles:
     - name: gwerlas.system
       vars:
-        system_packages_update: true
+        system_packages_upgrade: true
 ```
 
 Use just one task :

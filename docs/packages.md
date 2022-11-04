@@ -65,7 +65,7 @@ So, we install it if it's missing.
 Packages update
 ---------------
 
-The `system_packages_update` set to `true` will update the system packages and reboot
+The `system_packages_upgrade` set to `true` will update the system packages and reboot
 the machine if needed.
 
 If you have Waterfall or V-Cycle deployments, You should call it at first
@@ -87,5 +87,5 @@ only to keep idempotence control. Here an exemple of `molecule/default/prepare.y
         name: gwerlas.system
         tasks_from: packages
       vars:
-        system_packages_update: true
+        system_packages_upgrade: true
 ```

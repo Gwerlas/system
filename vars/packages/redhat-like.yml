@@ -1,8 +1,8 @@
 ---
-system_packages_update_cache_policy:
+system_packages_update_policy:
   path: "/var/cache/{{ ansible_pkg_mgr }}"
 
-system_packages_update_policy:
+system_packages_upgrade_policy:
   name: '*'
   state: latest
 
