@@ -1,14 +1,21 @@
 ---
+system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+
+system_sudo_nopasswd: true
+system_sudo_group: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+system_sudo_defaults: []
 
 system_hosts_domain: localdomain
 system_hosts_localhost: "{{ inventory_hostname }}"
 system_hosts_localhost_aliases: []
 system_hosts_custom: []
 
-system_users: []
+system_users_admin_group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
 system_users_groups: []
+system_users: []
 
 system_bin_path: /usr/local/bin
 system_profile: server

@@ -1,0 +1,32 @@
+---
+- name: Sudo - Group
+  become: true
+  ansible.builtin.group:
+    name: "{{ system_sudo_group }}"
+    state: present
+
+- name: Sudo - Get version
+  ansible.builtin.command:
+    cmd: sudo --version
+  register: result
+  changed_when: false
+
+- name: Sudo - Store version
+  ansible.builtin.set_fact:
+    cacheable: true
+    system_sudo_version: "{{ result.stdout_lines | first | split(' ') | last }}"
+
+- name: Sudo - Config directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/sudoers.d
+    state: directory
+    mode: 0750
+
+- name: Sudo - Config file
+  become: true
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: /etc/sudoers
+    mode: 0440
+    validate: visudo -cf %s

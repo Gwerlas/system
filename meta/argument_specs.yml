@@ -3,18 +3,35 @@ argument_specs:
   main:
     short_description: The main entry point which calls the other tasks if needed / asked.
     options:
+      system_manage_sudo:
+        type: bool
+        default: "false for containers"
+        description: Enable/Disable sudo management.
       system_manage_hosts:
         type: bool
-        default: "true in most cases, false for containers"
+        default: "false for containers"
         description: Enable/Disable hosts names management.
       system_manage_firewall:
         type: bool
-        default: "true in most cases, false for containers"
+        default: "false for containers"
         description: Enable/Disable firewalling.
-      system_zsh_install:
+
+  sudo:
+    short_description: Configure sudo rules.
+    options:
+      system_sudo_defaults:
+        type: list
+        elements: str
+        default: "[]"
+        description: Sudoers 'Defaults' parameter list.
+      system_sudo_nopasswd:
         type: bool
-        default: false
-        description: Install ZSH and our default configuration.
+        default: "true"
+        description: Add NOPASSWD to system_sudo_group.
+      system_sudo_group:
+        type: str
+        default: "'sudo' for Debian like distros, 'wheel' otherwise"
+        description: Name of the group with all permissions.
 
   hosts-names:
     short_description: Configure system hostname and /etc/hosts file.
@@ -42,7 +59,16 @@ argument_specs:
         type: list
         elements: dict
         default: "[]"
-        description: List of system users
+        description: List of system users.
+      system_users_groups:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of system groups
+      system_users_admin_group:
+        type: str
+        default: "'adm' for Debian like distros, 'wheel' otherwise"
+        description: Name of the admin group.
 
   proxies:
     short_description: Configure network proxies

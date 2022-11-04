@@ -13,13 +13,13 @@ Variables
 ---------
 
 ```yaml
-system_users: []
+system_users_admin_group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
 system_users_groups: []
+system_users: []
 ```
 
 Users and groups are lists of dictionaries with the same structure documented respectively in the
 [Ansible user module][] and [Ansible group module][].
-
 
 The users' groups and the groups listed in `system_users_groups` will
 be created if missing.
@@ -30,9 +30,9 @@ Example :
 system_users:
   - name: jane
     comment: System administrator
-    group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
+    group: "{{ system_users_admin_group }}"
     groups:
-      - sudo
+      - "{{ system_sudo_group }}"
       - users
     shell: /bin/zsh
   - name: john

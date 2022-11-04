@@ -1,9 +1,14 @@
 ---
+- name: Sudo
+  when: system_manage_sudo
+  ansible.builtin.import_tasks: sudo.yml
+
 - name: Hosts
   when: system_manage_hosts
   ansible.builtin.import_tasks: hosts.yml
 
 - name: Proxies
+  when: system_manage_proxies
   ansible.builtin.import_tasks: proxies.yml
 
 - name: Packages

@@ -36,6 +36,7 @@
       block:
         - name: Portage - Cache - Portdir - Fact
           ansible.builtin.set_fact:
+            cacheable: true
             system_portage_directory_initial: "{{ system_portage_directory_matches | last }}"
 
         - name: Portage - Cache - Portdir - Move old directory to the new path

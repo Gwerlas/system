@@ -1,0 +1,21 @@
+{% for param in system_sudo_defaults %}
+{% if param is string %}
+Defaults   {{ param }}
+{% elif param is mapping %}
+{% for k,v in param.items() %}
+{% if v is string %}
+Defaults   {{ k }} = "{{ v }}"
+{% elif v is sequence %}
+{% for i in v | slice(6) %}
+Defaults   {{ k }} {{ ' =' if loop.index == 1 else '+=' }} "{{ i | join(' ')}}"
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+root    ALL=(ALL) ALL
+
+%{{ system_sudo_group }} ALL=(ALL){% if system_sudo_nopasswd %} NOPASSWD:{% endif %} ALL
+
+{{ '#' if system_sudo_version is version('1.9.1', '<') else '@' }}includedir /etc/sudoers.d

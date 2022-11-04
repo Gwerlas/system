@@ -16,27 +16,26 @@
         that:
           - ansible_fqdn == inventory_hostname + '.mydomain.tld'
 
-    - name: Get custom hosts
-      ansible.builtin.command: cat /etc/hosts
-      changed_when: false
-
-    - name: Check hosts entries
-      ansible.builtin.lineinfile:
-        name: /etc/hosts
-        line: "{{ item }}"
-      check_mode: true
+    - name: Check sudo rules
+      ansible.builtin.command: sudo -l
       register: result
-      failed_when: result.changed or result.failed
+      changed_when: false
+      failed_when: item not in result.stdout
       loop:
-        - '127.0.0.1       localhost'
-        - '127.0.1.1       {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
-        - '::1             localhost ip6-localhost ip6-loopback {{ inventory_hostname }} {{ ansible_fqdn }} me me.mydomain.tld myself myself.mydomain.tld'
-        - '10.0.0.7        host7 host7.domain.tld'
+        - "!visiblepw"
+        - always_set_home
+        - QTDIR
+        - NOPASSWD
 
     - name: Check groups
       ansible.builtin.group:
-        name: my_company
+        name: "{{ item }}"
         state: present
+      loop:
+        - administrators
+        - gods
+        - my_company
+        - my_team
 
     - name: Check users
       ansible.builtin.user:
@@ -45,3 +44,10 @@
       loop:
         - jane
         - john
+
+    - name: Check jane's group
+      ansible.builtin.command:
+        cmd: id -g -n jane
+      register: result
+      changed_when: false
+      failed_when: result.stdout != 'administrators'

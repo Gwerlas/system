@@ -14,7 +14,7 @@ By default, hosts names management is disabled for containers.
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
-You can force enabling or disabling throw defining the `system_manage_hosts` to `true` or `false`.
+You can force enabling or disabling it defining the `system_manage_hosts` to `true` or `false`.
 
 ### Custom hosts names
 

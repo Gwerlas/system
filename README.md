@@ -17,6 +17,14 @@ Requirements
 
 This role as been writen to be run as non root user, so Sudo has to be installed and configured.
 
+Facts
+-----
+
+Defined facts of this role :
+
+- `system_sudo_version`
+- `system_portage_directory_initial`
+
 Tasks
 -----
 

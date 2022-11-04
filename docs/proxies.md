@@ -6,6 +6,18 @@ Configure network proxies.
 Variables
 ---------
 
+### Feature flipping
+
+By default, proxies management is enabled if at least one proxy server is set.
+
+```yaml
+system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
+```
+
+You can force enabling or disabling it defining the `system_manage_proxies` to `true` or `false`.
+
+# Proxy servers
+
 By default, these variables are not defined, here is an example of
 proxies configuration :
 

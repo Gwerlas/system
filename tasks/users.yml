@@ -38,7 +38,8 @@
         name: "{{ system_group }}"
       loop: |
         {{ (
-          (system_users | selectattr('group', 'defined') | map(attribute='group'))
+          [system_users_admin_group]
+        + (system_users | selectattr('group', 'defined') | map(attribute='group'))
         + (system_users | selectattr('groups', 'defined') | map(attribute='groups'))
         ) | flatten | sort | unique }}
       loop_control:
