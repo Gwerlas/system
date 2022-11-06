@@ -1,6 +1,35 @@
 ---
+- name: Packages - Is stable fact
+  ansible.builtin.set_fact:
+    cacheable: true
+    system_distribution_stable: |
+      {{
+        ['devel', 'NA', 'rawhide', 'testing', 'unstable'] |
+        intersect(ansible_distribution_major_version | split('/')) | length == 0
+      }}
+
 - name: Packages - OS family settings
   ansible.builtin.include_vars: "packages/{{ ansible_os_family | lower }}-like.yml"
+
+- name: Packages - Distribution settings
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution | lower }}.yml"
+        - empty.yml
+      paths:
+        - vars/packages
+
+- name: Packages - Release settings
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution | lower }}{{ system_distribution_stable | ternary(ansible_distribution_major_version, '-testing') }}.yml"
+        - empty.yml
+      paths:
+        - vars/packages
 
 - name: Packages - Package manager preparation
   ansible.builtin.include_tasks:
@@ -22,20 +51,13 @@
 - name: Packages - Cache update detection
   ansible.builtin.command:
     cmd: needs-update
-  changed_when: false
-  register: system_packages_cache_needs_update
-  failed_when: system_packages_cache_needs_update.rc > 1
+  register: result
+  failed_when: result.rc > 1
+  changed_when: result.rc == 1
+  notify: cache update
 
 - name: Packages - Cache update
-  when: system_packages_cache_needs_update.rc == 1
-  become: true
-  ansible.builtin.package:
-    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
-    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
-  register: result
-  until: result.failed == false
-  retries: 5
-  notify: mark update
+  ansible.builtin.meta: flush_handlers
 
 - name: Packages - Base system tools
   when: system_packages is defined

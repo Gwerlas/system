@@ -1,0 +1,30 @@
+---
+system_apt_default_mirrors:
+  - url: http://us.archive.ubuntu.com/ubuntu
+    branch: "{{ ansible_distribution_release }}"
+    sections:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: http://us.archive.ubuntu.com/ubuntu
+    branch: "{{ ansible_distribution_release }}-updates"
+    sections:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: http://us.archive.ubuntu.com/ubuntu
+    branch: "{{ ansible_distribution_release }}-backports"
+    sections:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: http://us.archive.ubuntu.com/ubuntu
+    branch: "{{ ansible_distribution_release }}-security"
+    sections:
+      - main
+      - restricted
+      - universe
+      - multiverse

@@ -1,0 +1,4 @@
+{% set mirrors = system_apt_mirrors | default(system_apt_default_mirrors) %}
+{% for mirror in mirrors %}
+deb {{ mirror.url }} {{ mirror.branch }} {{ mirror.sections | join(' ') }}
+{% endfor %}

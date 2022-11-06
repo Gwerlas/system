@@ -3,6 +3,15 @@ Proxies
 
 Configure network proxies.
 
+Tag
+---
+
+You can quickly update the proxies settings with the Ansible tag `proxies` :
+
+```sh
+ansible-playbook -t proxies my_play.yml
+```
+
 Variables
 ---------
 

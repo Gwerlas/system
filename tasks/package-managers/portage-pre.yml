@@ -26,6 +26,7 @@
         regex: ^PORTDIR=
         group: portage
         mode: 0664
+      notify: cache update
 
     - name: Portage - Cache - Predefined Portage directory
       ansible.builtin.set_fact:

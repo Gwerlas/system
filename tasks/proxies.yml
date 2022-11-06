@@ -1,5 +1,8 @@
 ---
 - name: Proxies - sudoers
+  tags:
+    - sudoers
+    - proxies
   become: true
   ansible.builtin.template:
     src: sudoers.d/50-proxy.j2
@@ -8,6 +11,8 @@
     validate: visudo -cf %s
 
 - name: Proxies - Environment variables
+  tags:
+    - proxies
   become: true
   ansible.builtin.lineinfile:
     path: /etc/environment

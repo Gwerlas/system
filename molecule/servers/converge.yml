@@ -66,5 +66,3 @@
             group: users
         system_users_groups:
           - name: my_company
-        system_packages_upgrade: true
-        system_portage_directory: /data/gentoo

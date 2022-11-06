@@ -3,6 +3,15 @@ Sudo
 
 Configure sudo rules.
 
+Tag
+---
+
+You can quickly update the sudo rules with the Ansible tag `sudoers` :
+
+```sh
+ansible-playbook -t sudoers my_play.yml
+```
+
 Variables
 ---------
 

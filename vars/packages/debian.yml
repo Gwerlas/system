@@ -1,0 +1,18 @@
+---
+system_apt_default_mirrors:
+  - url: https://deb.debian.org/debian
+    branch: "{{ ansible_distribution_release }}"
+    sections:
+      - main
+  - url: https://deb.debian.org/debian
+    branch: "{{ ansible_distribution_release }}-updates"
+    sections:
+      - main
+  - url: https://deb.debian.org/debian
+    branch: "{{ ansible_distribution_release }}-backports"
+    sections:
+      - main
+  - url: https://security.debian.org/debian-security
+    branch: "{{ ansible_distribution_release }}/updates"
+    sections:
+      - main

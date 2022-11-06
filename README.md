@@ -22,8 +22,23 @@ Facts
 
 Defined facts of this role :
 
-- `system_sudo_version`
-- `system_portage_directory_initial`
+- `system_distribution_stable` (`bool`) : `true` if the distribution version is prod ready
+- `system_portage_directory_initial` (`str`) : Path of the previous portage database directory if it changed
+- `system_sudo_version` (`str`) : The version of sudo
+
+Tags
+----
+
+Because some values are dispatched in multiple tasks. You can quickly update some of them with tags :
+
+- `proxies`
+- `sudoers`
+
+Usage :
+
+```sh
+ansible-playbook -t tag1[,tag2[,...]] my_play.yml
+```
 
 Tasks
 -----
@@ -32,6 +47,7 @@ System composents are managed throw separated tasks that could be called indepen
 
 Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 
+* [sudo](docs/sudo.md)
 * [hosts](docs/hosts.md)
 * [proxies](docs/proxies.md)
 * [packages](docs/packages.md)
@@ -47,22 +63,32 @@ Look at [`defaults/main.yml`](defaults/main.yml).
 ### Feature flipping
 
 ```yaml
+system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
-Disable or enable hosts management or firewalling.
+Enable/disable some features by setting them to `true`/`false`.
 
 ### Shared variables
 
 ```yaml
 system_bin_path: /usr/local/bin
+system_profile: server
+system_retries: 2
 ```
 
 Some distributions does not provide command line to easily know if a reboot is
 required, or if the packages cache is outdated. So we put scripts to do it.
 
 You can change those scripts location throw the `system_bin_path`.
+
+The `system_profile` can impact the behaviour of some parts of the system,
+for example the packages to install (or not).
+
+If You have some network troubles during installation, you can increase the
+`system_retries` value.
 
 Dependencies
 ------------

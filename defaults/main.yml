@@ -1,31 +1,40 @@
 ---
+# Feature flipping
 system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 
+# Shared variables
+system_bin_path: /usr/local/bin
+system_profile: server
+system_retries: 2
+
+# Sudo
 system_sudo_nopasswd: true
 system_sudo_group: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
 system_sudo_defaults: []
 
+# Hosts
 system_hosts_domain: localdomain
 system_hosts_localhost: "{{ inventory_hostname }}"
 system_hosts_localhost_aliases: []
 system_hosts_custom: []
 
+# Users and groups management
 system_users_admin_group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
 system_users_groups: []
 system_users: []
 
-system_bin_path: /usr/local/bin
-system_profile: server
-
+# Package management
 system_packages_upgrade: false
 system_packages_cache_age: 7
 
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_portage_directory: /var/db/repos/gentoo
 
+# Firewall
 system_firewall_default_zone: public
 
+# SSL
 system_ca_certificates: []

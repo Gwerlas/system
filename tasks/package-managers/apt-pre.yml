@@ -1,0 +1,9 @@
+---
+- name: APT - Sources list
+  when: system_apt_mirrors is defined or system_apt_default_mirrors is defined
+  become: true
+  ansible.builtin.template:
+    src: apt/sources.list.j2
+    dest: /etc/apt/sources.list
+    mode: 0644
+  notify: cache update
