@@ -3,6 +3,12 @@
   hosts: all
   tasks:
 
+    - name: Check host FQDN
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - ansible_fqdn == inventory_hostname + '.mydomain.tld'
+
     - name: Command line tools
       ansible.builtin.command: "{{ item }} --version"
       changed_when: false
@@ -10,11 +16,21 @@
         - rsync
         - zsh
 
-    - name: Check host FQDN
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - ansible_fqdn == inventory_hostname + '.mydomain.tld'
+    - name: NTP Status
+      when: ansible_service_mgr == 'systemd'
+      block:
+        - name: Systemd
+          ansible.builtin.command:
+            cmd: timedatectl show -p NTPSynchronized --value
+          register: result
+          failed_when: result.stdout != 'yes'
+          changed_when: false
+        - name: NTP Server
+          ansible.builtin.command:
+            cmd: timedatectl show-timesync --property ServerName --value
+          register: result
+          failed_when: result.stdout not match('\d.fr.pool.ntp.org')
+          changed_when: false
 
     - name: Check sudo rules
       ansible.builtin.command: sudo -l

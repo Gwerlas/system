@@ -27,7 +27,35 @@ You can change the max age throw the `system_packages_cache_max_age` variable.
 could update their cache automatically or, at the opposit, could ignore some cache
 update explicitly asked.
 
-### Archlinux User Repository (AUR)
+### APT
+
+You can customize the APT mirror like this :
+
+```yaml
+system_apt_default_mirror: ftp://ftp.fr.debian.org/debian/
+```
+
+Or completely customize the APT sources like this :
+
+```yaml
+system_apt_default_mirrors:
+  - url: "ftp://my-apt-mirror"
+    branches:
+      - debian
+      - debian-security
+    sections:
+      - main
+      - contrib
+```
+
+The generated `/etc/apt/sources.list` will be :
+
+```
+deb ftp://my-apt-mirror debian main contrib
+deb ftp://my-apt-mirror debian-security main contrib
+```
+
+### AUR (Archlinux User Repository)
 
 If your package manager is Pacman (ArchLinux based distros), we add the [Yay][]
 AUR helper for desktop nodes.

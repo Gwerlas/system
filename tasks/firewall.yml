@@ -29,7 +29,7 @@
     default_release: "{{ system_firewall_package_release | default(omit) }}"
   register: result
   until: result.failed == false
-  retries: 5
+  retries: "{{ system_retries }}"
 
 - name: Firewall - Service
   become: true

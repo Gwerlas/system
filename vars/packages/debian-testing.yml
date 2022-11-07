@@ -1,6 +1,0 @@
----
-system_apt_default_mirrors:
-  - url: https://deb.debian.org/debian
-    branch: testing
-    sections:
-      - main

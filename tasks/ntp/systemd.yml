@@ -1,0 +1,26 @@
+---
+- name: Systemd - Get version
+  ansible.builtin.command:
+    cmd: systemctl --version
+  changed_when: false
+  register: result
+
+- name: Systemd - Store version
+  ansible.builtin.set_fact:
+    cacheable: true
+    system_systemd_version: "{{ (result.stdout_lines[0] | split(' '))[1] }}"
+
+- name: Systemd - NTP - Get status
+  ansible.builtin.command:
+    cmd: "{{ 'timedatectl show -p NTP --value' if system_systemd_version is version('237', '>') else 'timedatectl' }}"
+  register: result
+  changed_when: false
+
+- name: Systemd - NTP - Enable NTP
+  when: |
+    system_systemd_version is version('237', '>') | ternary(
+      result.stdout != 'yes',
+      result.stdout is search('NTP enabled: no'))
+  become: true
+  ansible.builtin.command:
+    cmd: timedatectl set-ntp true

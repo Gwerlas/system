@@ -1,0 +1,10 @@
+---
+- name: NTP - Timesyncd - NTP Servers
+  when: system_ntp_servers is defined
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/timesyncd.conf
+    insertafter: '[Time]'
+    line: "NTP={{ system_ntp_servers | join(' ') }}"
+    regex: "^#?NTP="
+  notify: restart systemd-timesyncd

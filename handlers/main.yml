@@ -1,37 +1,43 @@
 ---
-- name: Portage
-  ansible.builtin.import_tasks: portage.yml
+- name: Service managers
+  ansible.builtin.import_tasks: service_mgr.yml
 
-- name: OpenRC
-  ansible.builtin.import_tasks: openrc.yml
+- name: Package managers
+  ansible.builtin.import_tasks: pkg_mgr.yml
 
-- name: Package manager update cache
-  listen: cache update
-  become: true
-  ansible.builtin.package:
-    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
-    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
-  register: result
-  until: result.failed == false
-  retries: 5
-
-- name: Package manager update marker
-  listen: cache update
-  when: system_packages_update_policy.marker is defined
-  become: true
-  ansible.builtin.file:
-    path: "{{ system_packages_update_policy.marker }}"
-    state: touch
-    modification_time: now
-    mode: 0644
-
-- name: Restart systemd-logind or hostname services
+- name: Restart services impacted by changed hostname
   listen:
     - restart hostname
     - restart logind
   become: true
   ansible.builtin.service:
     name: "{{ (ansible_service_mgr == 'systemd') | ternary('systemd-logind', 'hostname') }}"
+    state: restarted
+
+- name: Chrony service restart
+  listen:
+    - restart chronyd
+    - restart chrony
+  become: true
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted
+
+- name: NTPd service restart
+  listen:
+    - restart ntpd
+    - restart ntp
+  become: true
+  ansible.builtin.service:
+    name: "{{ system_ntp_service | default('ntpd') }}"
+    state: restarted
+
+- name: Timesyncd service restart
+  listen:
+    - restart systemd-timesyncd
+  become: true
+  ansible.builtin.service:
+    name: systemd-timesyncd
     state: restarted
 
 - name: Grub make configuration

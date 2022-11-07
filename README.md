@@ -22,9 +22,8 @@ Facts
 
 Defined facts of this role :
 
-- `system_distribution_stable` (`bool`) : `true` if the distribution version is prod ready
-- `system_portage_directory_initial` (`str`) : Path of the previous portage database directory if it changed
-- `system_sudo_version` (`str`) : The version of sudo
+- `system_portage_directory_initial`
+- `system_sudo_version`
 
 Tags
 ----
@@ -52,6 +51,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 * [proxies](docs/proxies.md)
 * [packages](docs/packages.md)
 * [reboot](docs/reboot.md)
+* [time](docs/time.md)
 * [users](docs/users.md)
 * [firewall](docs/firewall.md)
 
@@ -66,6 +66,7 @@ Look at [`defaults/main.yml`](defaults/main.yml).
 system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
+system_manage_time: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 

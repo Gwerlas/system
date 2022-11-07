@@ -1,13 +1,4 @@
 ---
-- name: Packages - Is stable fact
-  ansible.builtin.set_fact:
-    cacheable: true
-    system_distribution_stable: |
-      {{
-        ['devel', 'NA', 'rawhide', 'testing', 'unstable'] |
-        intersect(ansible_distribution_major_version | split('/')) | length == 0
-      }}
-
 - name: Packages - OS family settings
   ansible.builtin.include_vars: "packages/{{ ansible_os_family | lower }}-like.yml"
 
@@ -26,7 +17,7 @@
   vars:
     params:
       files:
-        - "{{ ansible_distribution | lower }}{{ system_distribution_stable | ternary(ansible_distribution_major_version, '-testing') }}.yml"
+        - "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}.yml"
         - empty.yml
       paths:
         - vars/packages
@@ -66,7 +57,7 @@
     name: "{{ system_packages.common + (system_packages[system_profile] | default([])) }}"
   register: result
   until: result.failed == false
-  retries: 5
+  retries: "{{ system_retries }}"
 
 - name: Packages - Update
   when:
@@ -79,7 +70,7 @@
     upgrade: "{{ system_packages_upgrade_policy.upgrade | default(omit) }}"
   register: result
   until: result.failed == false
-  retries: 5
+  retries: "{{ system_retries }}"
 
 - name: Packages - Package managers post operations
   ansible.builtin.include_tasks:

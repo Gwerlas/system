@@ -40,10 +40,10 @@ platforms:
     box: generic/ubuntu2204
     memory: 4096
     provider_raw_config_args: *raw_config
-  # - name: ubuntu2210
-  #   box: generic/ubuntu2210
-  #   memory: 2048
-  #   provider_raw_config_args: *raw_config
+  - name: ubuntu2210
+    box: generic/ubuntu2210
+    memory: 2048
+    provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible

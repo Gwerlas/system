@@ -1,0 +1,9 @@
+---
+- name: NTP - Configuration
+  when: system_ntp_servers is defined
+  become: true
+  ansible.builtin.template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
+    mode: 0644
+  notify: restart ntpd

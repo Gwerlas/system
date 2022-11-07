@@ -1,0 +1,41 @@
+---
+- name: Portage - Rebuild packages that need to be rebuilt
+  listen: emerge --newuse
+  become: true
+  community.general.portage:
+    deep: true
+    newuse: true
+    update: "{{ system_packages_upgrade }}"
+    package: '@world'
+
+- name: Portage - Clean dependencies
+  listen: emerge --newuse
+  become: true
+  community.general.portage:
+    depclean: true
+
+- name: Portage - Kernel modules rebuild
+  listen: emerge @module-rebuild
+  become: true
+  community.general.portage:
+    package: '@module-rebuild'
+
+- name: Cache update
+  listen: cache update
+  become: true
+  ansible.builtin.package:
+    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
+    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+
+- name: Cache update marker
+  listen: cache update
+  when: system_packages_update_policy.marker is defined
+  become: true
+  ansible.builtin.file:
+    path: "{{ system_packages_update_policy.marker }}"
+    state: touch
+    modification_time: now
+    mode: 0644

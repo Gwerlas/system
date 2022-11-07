@@ -1,0 +1,5 @@
+---
+system_ntp_package: net-misc/ntp
+system_ntp_services:
+  - ntp-client
+  - ntpd

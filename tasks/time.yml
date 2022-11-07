@@ -1,0 +1,53 @@
+---
+- name: Time - OS family settings
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_os_family | lower }}-like.yml"
+        - package.yml
+      paths:
+        - vars/time
+
+- name: Time - Zone
+  when: system_timezone is defined
+  become: true
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+
+- name: Time - NTP
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_service_mgr }}.yml"
+        - package.yml
+      paths:
+        - ntp
+
+- name: Time - NTP - Chrony
+  ansible.builtin.stat:
+    path: /etc/chrony.conf
+  register: result
+
+- name: Time - NTP - Chrony
+  when: result.stat.exists
+  ansible.builtin.import_tasks: ntp/chrony.yml
+
+- name: Time - NTP - NTPd
+  ansible.builtin.stat:
+    path: /etc/ntp.conf
+  register: result
+
+- name: Time - NTP - NTPd
+  when: result.stat.exists
+  ansible.builtin.import_tasks: ntp/ntpd.yml
+
+- name: Time - NTP - Timesyncd
+  ansible.builtin.stat:
+    path: /etc/systemd/timesyncd.conf
+  register: result
+
+- name: Time - NTP - Timesyncd
+  when: result.stat.exists
+  ansible.builtin.import_tasks: ntp/timesyncd.yml
