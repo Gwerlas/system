@@ -6,10 +6,12 @@ Requirements
 
 Install and configure :
 
+* docker
 * libvirt
 * vagrant
 * vagrant-libvirt plugin
 * molecule
+* molecule-docker
 * molecule-vagrant
 
 Run tests

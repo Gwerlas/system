@@ -14,13 +14,5 @@
 - name: Packages
   ansible.builtin.import_tasks: packages.yml
 
-- name: Time
-  when: system_manage_time
-  ansible.builtin.import_tasks: time.yml
-
 - name: Users
   ansible.builtin.import_tasks: users.yml
-
-- name: Firewall
-  when: system_manage_firewall
-  ansible.builtin.import_tasks: firewall.yml

@@ -5,4 +5,4 @@
         ".gitlab-ci.yml": "yaml",
         "molecule.yml": "yaml",
     }
-}  
+}

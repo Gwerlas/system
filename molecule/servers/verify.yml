@@ -16,22 +16,6 @@
         - rsync
         - zsh
 
-    - name: NTP Status
-      when: ansible_service_mgr == 'systemd'
-      block:
-        - name: Systemd
-          ansible.builtin.command:
-            cmd: timedatectl show -p NTPSynchronized --value
-          register: result
-          failed_when: result.stdout != 'yes'
-          changed_when: false
-        - name: NTP Server
-          ansible.builtin.command:
-            cmd: timedatectl show-timesync --property ServerName --value
-          register: result
-          failed_when: result.stdout not match('\d.fr.pool.ntp.org')
-          changed_when: false
-
     - name: Check sudo rules
       ansible.builtin.command: sudo -l
       register: result

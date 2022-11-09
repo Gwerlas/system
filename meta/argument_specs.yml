@@ -11,29 +11,12 @@ argument_specs:
         type: bool
         default: "false for containers"
         description: Enable/Disable hosts names management.
-      system_manage_firewall:
+      system_manage_proxies:
         type: bool
-        default: "false for containers"
-        description: Enable/Disable firewalling.
+        default: "false if any proxy setting given"
+        description: Enable/Disable proxies settings.
 
-  sudo:
-    short_description: Configure sudo rules.
-    options:
-      system_sudo_defaults:
-        type: list
-        elements: str
-        default: "[]"
-        description: Sudoers 'Defaults' parameter list.
-      system_sudo_nopasswd:
-        type: bool
-        default: "true"
-        description: Add NOPASSWD to system_sudo_group.
-      system_sudo_group:
-        type: str
-        default: "'sudo' for Debian like distros, 'wheel' otherwise"
-        description: Name of the group with all permissions.
-
-  hosts-names:
+  hosts:
     short_description: Configure system hostname and /etc/hosts file.
     options:
       system_hosts_domain:
@@ -51,40 +34,6 @@ argument_specs:
         elements: dict
         default: "[]"
         description: List of external custom hosts.
-
-  users:
-    short_description: Users and groups management
-    options:
-      system_users:
-        type: list
-        elements: dict
-        default: "[]"
-        description: List of system users.
-      system_users_groups:
-        type: list
-        elements: dict
-        default: "[]"
-        description: List of system groups
-      system_users_admin_group:
-        type: str
-        default: "'adm' for Debian like distros, 'wheel' otherwise"
-        description: Name of the admin group.
-
-  proxies:
-    short_description: Configure network proxies
-    options:
-      system_http_proxy:
-        default: "null"
-        description: Proxy server for HTTP connections
-      system_https_proxy:
-        default: "null"
-        description: Proxy server for HTTPs connections
-      system_ftp_proxy:
-        default: "null"
-        description: Proxy server for FTP connections
-      system_no_proxy:
-        default: "null"
-        description: Comma-separated list of domain extensions proxy should not be used for
 
   packages:
     short_description: Configure the package manager and install/update the system
@@ -106,6 +55,22 @@ argument_specs:
         choices:
           - server
 
+  proxies:
+    short_description: Configure network proxies
+    options:
+      system_http_proxy:
+        default: "null"
+        description: Proxy server for HTTP connections
+      system_https_proxy:
+        default: "null"
+        description: Proxy server for HTTPs connections
+      system_ftp_proxy:
+        default: "null"
+        description: Proxy server for FTP connections
+      system_no_proxy:
+        default: "null"
+        description: Comma-separated list of domain extensions proxy should not be used for
+
   reboot:
     short_description: Reboot the system if needed
     options:
@@ -113,19 +78,37 @@ argument_specs:
         default: /usr/local/bin
         description: Path location for our scripts
 
-  firewall:
-    short_description: Install and configure firewalld.
+  sudo:
+    short_description: Configure sudo rules.
     options:
-      system_firewall_default_zone:
-        default: public
-        description: The name of the default zone.
-        choices:
-          - drop
-          - block
-          - public
-          - external
-          - dmz
-          - work
-          - home
-          - internal
-          - trusted
+      system_sudo_defaults:
+        type: list
+        elements: str
+        default: "[]"
+        description: Sudoers 'Defaults' parameter list.
+      system_sudo_nopasswd:
+        type: bool
+        default: "true"
+        description: Add NOPASSWD to system_sudo_group.
+      system_sudo_group:
+        type: str
+        default: "'sudo' for Debian like distros, 'wheel' otherwise"
+        description: Name of the group with all permissions.
+
+  users:
+    short_description: Users and groups management
+    options:
+      system_users:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of system users.
+      system_users_groups:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of system groups
+      system_users_admin_group:
+        type: str
+        default: "'adm' for Debian like distros, 'wheel' otherwise"
+        description: Name of the admin group.

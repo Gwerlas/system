@@ -1,4 +1,4 @@
 ---
-- name: Verify role with the server profile (default)
+- name: Verify role for Stream distributions
   hosts: all
   tasks:

@@ -51,9 +51,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 * [proxies](docs/proxies.md)
 * [packages](docs/packages.md)
 * [reboot](docs/reboot.md)
-* [time](docs/time.md)
 * [users](docs/users.md)
-* [firewall](docs/firewall.md)
 
 Role Variables
 --------------
@@ -66,8 +64,6 @@ Look at [`defaults/main.yml`](defaults/main.yml).
 system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
-system_manage_time: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_manage_firewall: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
 Enable/disable some features by setting them to `true`/`false`.
@@ -134,14 +130,7 @@ Use just one task :
     - name: Update the package manager cache
       ansible.builtin.import_role:
         name: gwerlas.system
-        tasks_from: update
-    - name: Firewalling
-      ansible.builtin.import_role:
-        name: gwerlas.system
-        tasks_from: firewall
-        vars:
-          rules:
-            - http
+        tasks_from: packages
 ```
 
 License

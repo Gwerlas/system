@@ -14,32 +14,6 @@
     name: "{{ (ansible_service_mgr == 'systemd') | ternary('systemd-logind', 'hostname') }}"
     state: restarted
 
-- name: Chrony service restart
-  listen:
-    - restart chronyd
-    - restart chrony
-  become: true
-  ansible.builtin.service:
-    name: chronyd
-    state: restarted
-
-- name: NTPd service restart
-  listen:
-    - restart ntpd
-    - restart ntp
-  become: true
-  ansible.builtin.service:
-    name: "{{ system_ntp_service | default('ntpd') }}"
-    state: restarted
-
-- name: Timesyncd service restart
-  listen:
-    - restart systemd-timesyncd
-  become: true
-  ansible.builtin.service:
-    name: systemd-timesyncd
-    state: restarted
-
 - name: Grub make configuration
   listen: grub-mkconfig
   become: true
