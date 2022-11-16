@@ -6,10 +6,15 @@ system_packages_upgrade_policy:
 system_packages_update_policy:
   marker: /var/cache/gwsys
 
+system_packages_unattended_upgrades:
+  - apt-listchanges
+  - unattended-upgrades
+
 system_packages:
-  common:
-    - ca-certificates
-    - rsync
-    - zsh
+  common: |
+    {{
+      ['ca-certificates', 'rsync', 'zsh'] +
+      (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades, []))
+    }}
   desktop:
     - usbutils

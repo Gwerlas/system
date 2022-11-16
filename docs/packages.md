@@ -90,10 +90,10 @@ So, we install it if it's missing.
 
 [portage module documentation]: https://docs.ansible.com/ansible/latest/collections/community/general/portage_module.html
 
-Packages update
+Packages upgrade
 ---------------
 
-The `system_packages_upgrade` set to `true` will update the system packages and reboot
+The `system_packages_upgrade` set to `true` will upgrade the system packages and reboot
 the machine if needed.
 
 If you have Waterfall or V-Cycle deployments, You should call it at first
@@ -117,3 +117,11 @@ only to keep idempotence control. Here an exemple of `molecule/default/prepare.y
       vars:
         system_packages_upgrade: true
 ```
+
+Unattended upgrade
+------------------
+
+The `system_packages_upgrade_unattended` set to `true` will plan your node to be
+silently upgraded every nights.
+
+Notes : Debian like distros only, at this day.

@@ -27,6 +27,7 @@ system_users: []
 
 # Package management
 system_packages_upgrade: false
+system_packages_upgrade_unattended: false
 system_packages_cache_age: 7
 
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"

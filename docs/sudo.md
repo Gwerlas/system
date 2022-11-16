@@ -43,7 +43,16 @@ If You want sudo asks password for `system_sudo_group`, set `system_sudo_nopassw
 
 You can set a lot of `Defaults` option (eg. "SUDOERS OPTIONS" section from the sudoers(5) man page).
 
-For example, to reproduce the RedHat default behaviour :
+For example, to reproduce the Debian default behaviour :
+
+```yaml
+system_sudo_defaults:
+  - env_reset
+  - mail_badpass
+  - secure_path: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+```
+
+Or the RedHat default behaviour :
 
 ```yaml
 system_sudo_defaults:
