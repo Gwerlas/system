@@ -4,11 +4,3 @@ system_packages_update_policy:
 
 system_packages_upgrade_policy:
   upgrade: true
-
-system_packages:
-  common:
-    - ca-certificates
-    - rsync
-    - zsh
-  desktop:
-    - usbutils

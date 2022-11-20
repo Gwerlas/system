@@ -91,7 +91,7 @@ So, we install it if it's missing.
 [portage module documentation]: https://docs.ansible.com/ansible/latest/collections/community/general/portage_module.html
 
 Packages upgrade
----------------
+----------------
 
 The `system_packages_upgrade` set to `true` will upgrade the system packages and reboot
 the machine if needed.
@@ -125,3 +125,30 @@ The `system_packages_upgrade_unattended` set to `true` will plan your node to be
 silently upgraded every nights.
 
 Notes : Debian like distros only, at this day.
+
+Dynamic package list
+--------------------
+
+Some packages will be dynamically enabled depending of the given data.
+
+### User shells
+
+The user shells will be automatically added to the package list.
+
+The example will automatically add `zsh` to the list of packages to install on the node :
+
+```yaml
+---
+- name: My Zsh user
+  hosts: all
+  tasks:
+    - name: Include gwerlas.system
+      ansible.builtin.include_role:
+        name: gwerlas.system
+        tasks_from: users
+      vars:
+        system_users:
+          - name: jane
+            shell: /bin/zsh
+
+```

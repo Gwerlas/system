@@ -51,10 +51,9 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Packages - Base system tools
-  when: system_packages is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_packages.common + (system_packages[system_profile] | default([])) }}"
+    name: "{{ system_packages_computed }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"

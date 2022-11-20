@@ -12,3 +12,5 @@
       ansible.builtin.command:
         cmd: zsh --version
       changed_when: false
+      register: result
+      failed_when: result.rc == 0

@@ -10,11 +10,8 @@ system_packages_unattended_upgrades:
   - apt-listchanges
   - unattended-upgrades
 
-system_packages:
-  common: |
-    {{
-      ['ca-certificates', 'rsync', 'zsh'] +
-      (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades, []))
-    }}
-  desktop:
-    - usbutils
+system_packages.common: |
+  {{
+    ['rsync'] +
+    (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades, []))
+  }}

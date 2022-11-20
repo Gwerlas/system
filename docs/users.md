@@ -6,8 +6,10 @@ Users and groups management.
 ZSH
 ---
 
-A sample configuration is stored in `/etc/skel` and will be used
-by each new users. They will be able to customize their ZSH settings.
+If some users have `zsh` as `shell`, a sample configuration is stored
+in `/etc/skel` and will be copied in each new users home directory.
+
+The users will be able to customize their ZSH settings later.
 
 Variables
 ---------

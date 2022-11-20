@@ -8,14 +8,12 @@ system_packages_update_policy:
 #   update: true
 #   name: '@world'
 
-system_packages:
-  common:
-    - app-misc/ca-certificates
-    - app-shells/zsh
-    - dev-vcs/git
-    - net-misc/rsync
-  desktop:
-    - sys-apps/usbutils
+system_packages.ca_certificates: app-misc/ca-certificates
+system_packages.common:
+  - dev-vcs/git
+  - net-misc/rsync
+system_packages.desktop:
+  - sys-apps/usbutils
 
 system_portage_profile:
   desktop: default/linux/amd64/17.1/desktop

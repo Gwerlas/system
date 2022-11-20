@@ -6,10 +6,4 @@ system_packages_upgrade_policy:
   name: '*'
   state: latest
 
-system_packages:
-  common:
-    - ca-certificates
-    - rsync
-    - zsh
-  desktop:
-    - usbutils
+system_packages.ca_certificates: ca-certificates

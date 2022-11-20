@@ -1,26 +1,11 @@
 ---
+- name: ZSH
+  when: "'zsh' in system_packages_computed"
+  ansible.builtin.import_tasks: zsh.yml
+
 - name: Users and groups management
   become: true
   block:
-    - name: Users - Skeleton - ZSH - Directory
-      ansible.builtin.file:
-        path: "/etc/skel/.zsh"
-        state: directory
-        mode: 0700
-
-    - name: Users - Skeleton - ZSH - Files
-      ansible.builtin.copy:
-        dest: "/etc/skel/{{ system_users_skeleton_zsh_config_file }}"
-        src: "{{ system_users_skeleton_zsh_config_file }}"
-        mode: 0600
-      loop:
-        - .zshrc
-        - .zsh/history
-        - .zsh/prompt
-        - .zsh/prompt_git
-      loop_control:
-        loop_var: system_users_skeleton_zsh_config_file
-
     - name: Users - Groups
       ansible.builtin.group:
         name: "{{ system_group.name }}"
