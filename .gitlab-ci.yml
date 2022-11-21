@@ -3,3 +3,9 @@ molecule:
   services:
     - docker:20.10-dind
   script: molecule test
+
+import:
+  image: gwerlas/ansible
+  script: ansible-galaxy role import --token $GALAXY_TOKEN Gwerlas system
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

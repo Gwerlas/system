@@ -36,5 +36,5 @@ system_packages_computed: |
 
 # SSL
 system_ca:
-  path: /usr/local/share/ca-certificates
+  path: /etc/ssl/certs
   command: update-ca-certificates
