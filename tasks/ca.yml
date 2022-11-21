@@ -1,5 +1,7 @@
 ---
 - name: CA certificates
+  tags:
+    - ca
   become: true
   ansible.builtin.copy:
     src: "{{ system_ca_certificate }}"
