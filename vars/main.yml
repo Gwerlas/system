@@ -30,6 +30,7 @@ system_packages_computed: |
     system_packages.common
     + (system_users | selectattr('shell', 'defined') | rejectattr('system', '==', true) | map(attribute='shell') | map('basename') | sort | unique)
     + (system_packages[system_profile] | default([]))
+    + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])
   }}
 

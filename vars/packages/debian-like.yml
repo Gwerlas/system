@@ -9,9 +9,3 @@ system_packages_update_policy:
 system_packages_unattended_upgrades:
   - apt-listchanges
   - unattended-upgrades
-
-system_packages.common: |
-  {{
-    ['rsync'] +
-    (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades, []))
-  }}
