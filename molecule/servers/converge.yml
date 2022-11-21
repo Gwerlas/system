@@ -64,5 +64,10 @@
             shell: /bin/zsh
           - name: john
             group: users
+          - name: my_service
+            shell: /usr/bin/nologin
+            system: true
+            state: present
+            uid: 107
         system_users_groups:
           - name: my_company

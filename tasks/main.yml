@@ -16,3 +16,7 @@
 
 - name: Users
   ansible.builtin.import_tasks: users.yml
+
+- name: CA certificates
+  when: system_ca_certificates | length > 0
+  ansible.builtin.import_tasks: ca.yml

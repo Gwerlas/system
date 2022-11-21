@@ -1,0 +1,11 @@
+---
+- name: CA certificates
+  become: true
+  ansible.builtin.copy:
+    src: "{{ system_ca_certificate }}"
+    dest: "{{ system_ca.path }}"
+    mode: 0644
+  loop: "{{ system_ca_certificates }}"
+  loop_control:
+    loop_var: system_ca_certificate
+  notify: update ca

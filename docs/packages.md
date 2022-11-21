@@ -152,3 +152,9 @@ The example will automatically add `zsh` to the list of packages to install on t
             shell: /bin/zsh
 
 ```
+
+## CA certificates
+
+The CA package will be automatically added to the package list
+if at least one CA certificate file is given in the
+`system_ca_certificates` variable.

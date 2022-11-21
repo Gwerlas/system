@@ -5,6 +5,12 @@
 - name: Package managers
   ansible.builtin.import_tasks: pkg_mgr.yml
 
+- name: Update CA certificates
+  listen: update ca
+  become: true
+  ansible.builtin.command:
+    cmd: "{{ system_ca.command }}"
+
 - name: Restart services impacted by changed hostname
   listen:
     - restart hostname

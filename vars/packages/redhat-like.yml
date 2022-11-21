@@ -6,4 +6,6 @@ system_packages_upgrade_policy:
   name: '*'
   state: latest
 
-system_packages.ca_certificates: ca-certificates
+system_ca:
+  path: /etc/pki/ca-trust/source/anchors
+  command: update-ca-trust
