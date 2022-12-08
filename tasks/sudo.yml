@@ -31,12 +31,26 @@
     state: directory
     mode: 0750
 
-- name: Sudo - Config file
-  tags:
-    - sudoers
+- name: Sudo - Config files
   become: true
-  ansible.builtin.template:
-    src: sudoers.j2
-    dest: /etc/sudoers
-    mode: 0440
-    validate: visudo -cf %s
+  environment:
+    PATH: /sbin:/usr/sbin:/usr/local/sbin
+  block:
+    - name: Sudo - Config file
+      tags:
+        - sudoers
+      ansible.builtin.template:
+        src: sudoers.j2
+        dest: /etc/sudoers
+        mode: 0440
+        validate: visudo -cf %s
+
+    - name: Sudo - Proxies
+      tags:
+        - sudoers
+        - proxies
+      ansible.builtin.template:
+        src: sudoers.d/50-proxy.j2
+        dest: /etc/sudoers.d/50-proxy
+        mode: 0440
+        validate: visudo -cf %s
