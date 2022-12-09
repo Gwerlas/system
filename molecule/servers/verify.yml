@@ -51,3 +51,12 @@
       register: result
       changed_when: false
       failed_when: result.stdout != 'administrators'
+
+    - name: Check jane's SSH key
+      become: true
+      ansible.posix.authorized_key:
+        key: ssh-rsa AAAA test
+        user: jane
+        state: present
+      register: result
+      failed_when: result is changed
