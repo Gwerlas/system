@@ -68,6 +68,9 @@
             shell: /usr/bin/nologin
             system: true
             state: present
-            uid: 107
+            uid: 207
         system_users_groups:
           - name: my_company
+        system_users_keys:
+          - user: jane
+            key: ssh-rsa AAAA test

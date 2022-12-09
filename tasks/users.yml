@@ -66,3 +66,19 @@
       loop: "{{ system_users }}"
       loop_control:
         loop_var: system_user
+
+    - name: Users - Keys
+      ansible.posix.authorized_key:
+        comment: "{{ key.comment | default(omit) }}"
+        exclusive: "{{ key.exclusive | default(omit) }}"
+        follow: "{{ key.follow | default(omit) }}"
+        key: "{{ key.key }}"
+        key_options: "{{ key.key_options | default(omit) }}"
+        manage_dir: "{{ key.manage_dir | default(omit) }}"
+        path: "{{ key.path | default(omit) }}"
+        state: "{{ key.state | default(omit) }}"
+        user: "{{ key.user }}"
+        validate_certs: "{{ key.validate_certs | default(omit) }}"
+      loop: "{{ system_users_keys }}"
+      loop_control:
+        loop_var: key
