@@ -108,13 +108,13 @@ First deployment :
         system_packages_upgrade: true
 ```
 
-Distribution update, rolling update by ~10% slices :
+Distribution update, 10 steps rolling update :
 
 ```yaml
 ---
 - name: Rolling update
   hosts: all
-  serial: (hostvars | length / 10) | round(0, 'ceil') | int
+  serial: "10%"
   roles:
     - name: gwerlas.system
       vars:

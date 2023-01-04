@@ -14,6 +14,7 @@
       changed_when: false
       with_items:
         - rsync
+        - wget
         - zsh
 
     - name: Check sudo rules

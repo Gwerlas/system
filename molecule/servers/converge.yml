@@ -74,3 +74,5 @@
         system_users_keys:
           - user: jane
             key: ssh-rsa AAAA test
+        system_packages_custom:
+          - wget

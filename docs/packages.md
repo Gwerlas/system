@@ -3,13 +3,29 @@ Packages
 
 Install system tools. Also for Gentoo configure the compilation profile.
 
+Variables
+---------
+
+```yaml
+system_packages_upgrade: false
+system_packages_upgrade_unattended: false
+system_packages_cache_age: 7
+system_packages_custom: []
+```
+
+Facts
+-----
+
+The `system_packages_computed` fact contains the list of packages expected
+to be installed.
+
 Profile
 -------
 
 Available profiles :
 
 - `desktop`
-- `server`
+- `server` (default)
 
 Packages managers
 -----------------
@@ -23,7 +39,7 @@ we update it if it is older than one week.
 
 You can change the max age throw the `system_packages_cache_max_age` variable.
 
-**Be careful** because some distributions package managers (RedHat like for example)
+**Be careful** some distributions package managers (RedHat like for example)
 could update their cache automatically or, at the opposit, could ignore some cache
 update explicitly asked.
 
@@ -39,7 +55,7 @@ Or completely customize the APT sources like this :
 
 ```yaml
 system_apt_default_mirrors:
-  - url: "ftp://my-apt-mirror"
+  - url: ftp://my-apt-mirror
     branches:
       - debian
       - debian-security
@@ -79,7 +95,7 @@ fact `system_portage_directory_initial` is set with the previous portage directo
 
 If the ansible user is not `root`, he will be added to the `portage` system group.
 
-The portage configuration files and directories are writeable for this group.
+The portage configuration files and directories are writeables for this group.
 
 #### Ansible dependencies
 
@@ -125,6 +141,14 @@ The `system_packages_upgrade_unattended` set to `true` will plan your node to be
 silently upgraded every nights.
 
 Notes : Debian like distros only, at this day.
+
+Static package list
+-------------------
+
+You can install a list of packages through the `system_packages_custom` variable.
+
+This list won't be computed, so You have to give the real package name for the
+target Linux distribution.
 
 Dynamic package list
 --------------------

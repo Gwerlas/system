@@ -5,7 +5,8 @@ molecule:
   script: molecule test
 
 import:
+  stage: deploy
   image: gwerlas/ansible
   script: ansible-galaxy role import --token $GALAXY_TOKEN Gwerlas system
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
