@@ -25,6 +25,23 @@ system_packages:
   desktop:
     - usbutils
 
+system_packages_computed: |
+  {{
+    ( system_packages_custom
+    + system_packages.common
+    + ( system_users |
+        rejectattr('system', 'defined') |
+        selectattr('shell', 'defined') |
+        map(attribute='shell') |
+        map('basename') |
+        sort |
+        unique)
+    + (system_packages[system_profile] | default([]))
+    + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
+    + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])
+    ) | sort | unique
+  }}
+
 # SSL
 system_ca:
   path: /usr/local/share/ca-certificates

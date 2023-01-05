@@ -22,6 +22,7 @@ Facts
 
 Defined facts of this role :
 
+- `system_packages_computed`
 - `system_portage_directory_initial`
 - `system_sudo_version`
 
@@ -103,7 +104,7 @@ First deployment :
 - name: System preparation
   hosts: all
   roles:
-    - name: gwerlas.system
+    - role: gwerlas.system
       vars:
         system_packages_upgrade: true
 ```
@@ -114,9 +115,9 @@ Distribution update, 10 steps rolling update :
 ---
 - name: Rolling update
   hosts: all
-  serial: "10%"
+  serial: 10%
   roles:
-    - name: gwerlas.system
+    - role: gwerlas.system
       vars:
         system_packages_upgrade: true
 ```
