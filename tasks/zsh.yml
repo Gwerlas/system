@@ -6,16 +6,26 @@
     state: directory
     mode: 0700
 
-- name: Zsh - Skeleton files
+- name: Zsh - Skeletons raw files
+  when:
+    - system_zsh_files is defined
   become: true
   ansible.builtin.copy:
     dest: "/etc/skel/{{ system_zsh_skel_file }}"
     src: "{{ system_zsh_skel_file }}"
     mode: 0600
-  loop:
-    - .zshrc
-    - .zsh/history
-    - .zsh/prompt
-    - .zsh/prompt_git
+  loop: "{{ system_zsh_files }}"
   loop_control:
     loop_var: system_zsh_skel_file
+
+- name: Zsh - Skeletons from templates
+  when:
+    - system_zsh_templates is defined
+  become: true
+  ansible.builtin.template:
+    dest: "/etc/skel/{{ system_zsh_skel_template }}"
+    src: "{{ system_zsh_skel_template }}.j2"
+    mode: 0600
+  loop: "{{ system_zsh_templates }}"
+  loop_control:
+    loop_var: system_zsh_skel_template

@@ -1,4 +1,10 @@
+setopt prompt_subst
+
 autoload -Uz promptinit
 promptinit
 
-PROMPT='%{$fg[green]%}%(4~|%-1~/…/%2~|%3~)%{$reset_color%}%# '
+autoload -U colors
+colors
+
+# Prompt expansion : https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
+PROMPT='%{$fg[green]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%(4~|%-1~/…/%2~|%3~)%{$reset_color%}%# '

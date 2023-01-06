@@ -51,6 +51,8 @@ in `/etc/skel` and will be copied in each new users home directory.
 
 The users will be able to customize their ZSH settings later.
 
+See [ZSH Configuration](zsh.md) for more details.
+
 SSH Keys
 --------
 

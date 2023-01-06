@@ -61,3 +61,31 @@
         state: present
       register: result
       failed_when: result is changed
+
+    - name: ZSH configuration that should exists
+      become: true
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/skel/.zshrc
+        - /etc/skel/.zsh/history
+        - /home/jane/.zshrc
+        - /home/jane/.zsh/history
+        - /home/john/.zshrc
+        - /home/john/.zsh/history
+      register: result
+      failed_when: not result.stat.exists
+
+    - name: ZSH configuration that should not exists
+      become: true
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/skel/.zsh/prompt
+        - /etc/skel/.zsh/prompt_git
+        - /home/jane/.zsh/prompt
+        - /home/jane/.zsh/prompt_git
+        - /home/john/.zsh/prompt
+        - /home/john/.zsh/prompt_git
+      register: result
+      failed_when: result.stat.exists
