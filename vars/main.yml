@@ -17,6 +17,18 @@ system_hosts_loopback:
 
 system_hosts: "{{ system_hosts_loopback + system_hosts_custom }}"
 
+# Users
+system_users_shells: |
+  {{
+    system_users |
+    rejectattr('system', 'defined') |
+    selectattr('shell', 'defined') |
+    map(attribute='shell') |
+    map('basename') |
+    sort |
+    unique
+  }}
+
 # Packages
 system_packages:
   ca_certificates: ca-certificates
@@ -29,13 +41,7 @@ system_packages_computed: |
   {{
     ( system_packages_custom
     + system_packages.common
-    + ( system_users |
-        rejectattr('system', 'defined') |
-        selectattr('shell', 'defined') |
-        map(attribute='shell') |
-        map('basename') |
-        sort |
-        unique)
+    + system_users_shells
     + (system_packages[system_profile] | default([]))
     + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])

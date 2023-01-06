@@ -76,3 +76,6 @@
             key: ssh-rsa AAAA test
         system_packages_custom:
           - wget
+        system_zsh_files:
+          - .zshrc
+          - .zsh/history

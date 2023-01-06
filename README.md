@@ -53,6 +53,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 * [packages](docs/packages.md)
 * [reboot](docs/reboot.md)
 * [users](docs/users.md)
+* [zsh](docs/zsh.md)
 * [ca](docs/ca.md)
 
 Role Variables

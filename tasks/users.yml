@@ -1,6 +1,6 @@
 ---
 - name: ZSH
-  when: "'zsh' in system_packages_computed"
+  when: "'zsh' in system_users_shells"
   ansible.builtin.import_tasks: zsh.yml
 
 - name: Users and groups management
