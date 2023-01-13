@@ -1,4 +1,14 @@
 ---
+- name: CA - Load variables
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_os_family | lower }}-like.yml"
+        - other.yml
+      paths:
+        - vars/ca
+
 - name: CA certificates
   tags:
     - ca

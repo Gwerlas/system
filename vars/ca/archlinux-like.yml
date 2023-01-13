@@ -1,0 +1,5 @@
+---
+system_ca:
+  path: /etc/ca-certificates/trust-source/anchors
+  command: update-ca-trust
+  bundle: /etc/ssl/cert.pem

@@ -1,0 +1,5 @@
+---
+system_ca:
+  path: /etc/pki/ca-trust/source/anchors
+  command: update-ca-trust
+  bundle: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem

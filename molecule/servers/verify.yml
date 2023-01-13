@@ -30,21 +30,31 @@
 
     - name: Check groups
       ansible.builtin.group:
-        name: "{{ item }}"
-        state: present
+        name: "{{ item.name }}"
+        state: "{{ item.state }}"
       loop:
-        - administrators
-        - gods
-        - my_company
-        - my_team
+        - name: administrators
+          state: present
+        - name: gods
+          state: present
+        - name: my_company
+          state: present
+        - name: my_team
+          state: present
+        - name: villains
+          state: absent
 
     - name: Check users
       ansible.builtin.user:
-        name: "{{ item }}"
-        state: present
+        name: "{{ item.name }}"
+        state: "{{ item.state }}"
       loop:
-        - jane
-        - john
+        - name: jane
+          state: present
+        - name: john
+          state: present
+        - name: drno
+          state: absent
 
     - name: Check jane's group
       ansible.builtin.command:
@@ -89,3 +99,24 @@
         - /home/john/.zsh/prompt_git
       register: result
       failed_when: result.stat.exists
+
+    - name: Load CA variables
+      ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+      vars:
+        params:
+          files:
+            - "{{ ansible_os_family | lower }}-like.yml"
+            - other.yml
+          paths:
+            - vars/ca
+
+    - name: Get cert headers
+      ansible.builtin.command:
+        cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ system_ca.bundle }}"
+      changed_when: false
+      register: result
+
+    - name: Check Gwerlas CA
+      ansible.builtin.assert:
+        that:
+          - "'GWERLAS CA' in result.stdout"

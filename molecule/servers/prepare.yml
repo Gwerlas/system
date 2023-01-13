@@ -1,0 +1,16 @@
+---
+- name: Fixtures
+  hosts: all
+  tasks:
+    - name: User and group to removed
+      become: true
+      block:
+        - name: Group
+          ansible.builtin.group:
+            name: villains
+
+        - name: User
+          ansible.builtin.user:
+            name: drno
+            comment: Dr No
+            group: villains

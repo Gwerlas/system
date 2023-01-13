@@ -55,6 +55,8 @@
               - host7.domain.tld
         system_users_admin_group: administrators
         system_users:
+          - name: drno
+            state: absent
           - name: jane
             comment: System administrator
             group: "{{ system_users_admin_group }}"
@@ -71,6 +73,8 @@
             uid: 207
         system_users_groups:
           - name: my_company
+          - name: villains
+            state: absent
         system_users_keys:
           - user: jane
             key: ssh-rsa AAAA test
@@ -79,3 +83,5 @@
         system_zsh_files:
           - .zshrc
           - .zsh/history
+        system_ca_certificates:
+          - ca.crt

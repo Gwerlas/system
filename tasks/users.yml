@@ -6,7 +6,26 @@
 - name: Users and groups management
   become: true
   block:
-    - name: Users - Groups
+    - name: Users - Parse data
+      ansible.builtin.set_fact:
+        system_groups_present: |
+          {{
+            (system_users_groups | selectattr('state', 'undefined'))
+          + (system_users_groups | selectattr('state', 'defined') | selectattr('state', '!=', 'absent'))
+          }}
+        system_groups_absent: |
+          {{
+            system_users_groups |
+            selectattr('state', 'defined') |
+            selectattr('state', '==', 'absent')
+          }}
+        system_users_present: |
+          {{
+            (system_users | selectattr('state', 'undefined'))
+          + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+          }}
+
+    - name: Users - Groups to be present
       ansible.builtin.group:
         name: "{{ system_group.name }}"
         gid: "{{ system_group.gid | default(omit) }}"
@@ -14,7 +33,7 @@
         non_unique: "{{ system_group.non_unique | default(omit) }}"
         state: "{{ system_group.state | default(omit) }}"
         system: "{{ system_group.system | default(omit) }}"
-      loop: "{{ system_users_groups }}"
+      loop: "{{ system_groups_present }}"
       loop_control:
         loop_var: system_group
 
@@ -24,8 +43,8 @@
       loop: |
         {{ (
           [system_users_admin_group]
-        + (system_users | selectattr('group', 'defined') | map(attribute='group'))
-        + (system_users | selectattr('groups', 'defined') | map(attribute='groups'))
+        + (system_users_present | selectattr('group', 'defined') | map(attribute='group'))
+        + (system_users_present | selectattr('groups', 'defined') | map(attribute='groups'))
         ) | flatten | sort | unique }}
       loop_control:
         loop_var: system_group
@@ -82,3 +101,15 @@
       loop: "{{ system_users_keys }}"
       loop_control:
         loop_var: key
+
+    - name: Users - Groups to be absent
+      ansible.builtin.group:
+        name: "{{ system_group.name }}"
+        gid: "{{ system_group.gid | default(omit) }}"
+        local: "{{ system_group.local | default(omit) }}"
+        non_unique: "{{ system_group.non_unique | default(omit) }}"
+        state: absent
+        system: "{{ system_group.system | default(omit) }}"
+      loop: "{{ system_groups_absent }}"
+      loop_control:
+        loop_var: system_group
