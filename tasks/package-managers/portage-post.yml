@@ -54,3 +54,6 @@
     newuse: true
     update: true
     package: '@world'
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

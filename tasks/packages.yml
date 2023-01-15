@@ -35,6 +35,16 @@
 - name: Packages - Update
   ansible.builtin.import_tasks: packages/update.yml
 
+- name: Packages - Package managers post update
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}-post.yml"
+        - empty.yml
+      paths:
+        - package-managers
+
 - name: Packages - Persist computed list as fact
   ansible.builtin.set_fact:
     cacheable: true
@@ -65,16 +75,6 @@
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
-
-- name: Packages - Package managers post operations
-  ansible.builtin.include_tasks:
-    file: "{{ item }}"
-  with_first_found:
-    - files:
-        - "{{ ansible_pkg_mgr }}-post.yml"
-        - empty.yml
-      paths:
-        - package-managers
 
 - name: Packages - Reboot if needed
   ansible.builtin.import_tasks: reboot.yml
