@@ -1,0 +1,22 @@
+---
+- name: Networks - Load variables
+  when: system_networks_defaults is not defined
+  ansible.builtin.import_tasks: vars.yml
+
+- name: Networks - Prune unmanaged interfaces
+  when: system_networks_interfaces_prune
+  ansible.builtin.import_tasks: networks/prune.yml
+
+- name: Networks - Distribution rules
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family | lower }}-like.yml"
+        - empty.yml
+      paths:
+        - networks
+
+- name: Networks - Interfaces configuration from template
+  when: system_networks_defaults.template is defined
+  ansible.builtin.import_tasks: networks/from-template.yml

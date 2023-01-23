@@ -1,3 +1,0 @@
----
-system_reboot_detection_policy:
-  package: yum-utils

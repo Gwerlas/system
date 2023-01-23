@@ -1,26 +1,7 @@
 ---
-- name: Packages - OS family settings
-  ansible.builtin.include_vars: "packages/{{ ansible_os_family | lower }}-like.yml"
-
-- name: Packages - Distribution settings
-  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - "{{ ansible_distribution | lower }}.yml"
-        - empty.yml
-      paths:
-        - vars/packages
-
-- name: Packages - Release settings
-  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}.yml"
-        - empty.yml
-      paths:
-        - vars/packages
+- name: Packages - Load variables
+  when: system_packages is not defined
+  ansible.builtin.import_tasks: vars.yml
 
 - name: Packages - Package manager preparation
   ansible.builtin.include_tasks:

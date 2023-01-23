@@ -48,13 +48,13 @@ update explicitly asked.
 You can customize the APT mirror like this :
 
 ```yaml
-system_apt_default_mirror: ftp://ftp.fr.debian.org/debian/
+system_apt_mirror: ftp://ftp.fr.debian.org/debian/
 ```
 
 Or completely customize the APT sources like this :
 
 ```yaml
-system_apt_default_mirrors:
+system_apt_mirrors:
   - url: ftp://my-apt-mirror
     branches:
       - debian
@@ -182,3 +182,8 @@ The example will automatically add `zsh` to the list of packages to install on t
 The CA package will be automatically added to the package list
 if at least one CA certificate file is given in the
 `system_ca_certificates` variable.
+
+## Network types
+
+If you manage your networks interfaces with this role, we try to install the
+required packages to the system.

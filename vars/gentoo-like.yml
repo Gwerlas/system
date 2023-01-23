@@ -1,12 +1,11 @@
 ---
+system_ca:
+  path: /usr/local/share/ca-certificates
+  command: update-ca-certificates
+  bundle: /etc/ssl/certs/ca-certificates.crt
+
 system_packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
-
-# system_packages_upgrade_policy:
-#   deep: true
-#   newuse: true
-#   update: true
-#   name: '@world'
 
 system_packages.ca_certificates: app-misc/ca-certificates
 system_packages.common:

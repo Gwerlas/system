@@ -1,0 +1,41 @@
+# {{ ansible_managed }}
+
+DEVICE={{ system_netiface.name }}
+BOOTPROTO={{ system_netiface.bootproto | default('none') }}
+ONBOOT={{ system_netiface.onboot | default('yes') }}
+TYPE={{ system_netiface.type }}
+{% if system_netiface.bootproto | default('yes') != 'dhcp' %}
+{% if system_netiface.ip is defined %}
+IPADDR={{ system_netiface.ip | ansible.utils.ipaddr('address') }}
+NETMASK={{ system_netiface.ip | ansible.utils.ipaddr('netmask') }}
+IPV6INIT=no
+{% if system_netiface.gateway is defined %}
+GATEWAY={{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
+{% endif %}
+{% endif %}
+{% endif %}
+NM_CONTROLLED=no
+USERCTL=no
+{% if system_netiface.bridge is defined %}
+BRIDGE={{ system_netiface.bridge }}
+{% endif %}
+{% if system_netiface.mtu is defined %}
+MTU={{ system_netiface.mtu }}
+{% endif %}
+{% if system_netiface.vlan is defined %}
+VLAN={{ system_netiface.vlan }}
+{% endif %}
+{% if system_netiface.master is defined %}
+MASTER={{ system_netiface.master }}
+SLAVE=yes
+{% endif %}
+{% if system_netiface.bonding_opts is defined %}
+BONDING_OPTS={{ system_netiface.bonding_opts }}
+BONDING_MASTER=yes
+{% endif %}
+{% if system_netiface.defroute is defined %}
+DEFROUTE={{ system_netiface.defroute }}
+{% endif %}
+{% if system_netiface.eththool_opts is defined %}
+ETHTOOL_OPTS={{ system_netiface.eththool_opts }}
+{% endif %}

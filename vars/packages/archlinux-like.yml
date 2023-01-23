@@ -1,6 +1,0 @@
----
-system_packages_update_policy:
-  path: /var/lib/pacman/sync
-
-system_packages_upgrade_policy:
-  upgrade: true

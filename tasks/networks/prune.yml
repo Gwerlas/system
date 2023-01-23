@@ -1,0 +1,48 @@
+---
+- name: Networks - Prune unmanaged interfaces
+  when: system_networks_defaults.ifaces_confdir is defined
+  block:
+    - name: Networks - Get existing interface configuration files
+      ansible.builtin.find:
+        paths:
+          - "{{ system_networks_defaults.ifaces_confdir }}"
+      register: result
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: |
+          {{
+            result.files |
+            map('basename') |
+            difference(
+              system_networks_interfaces |
+              map(attribute='name') |
+              sort |
+              unique |
+              lower
+            )
+          }}
+
+    - name: Breakpoint
+      ansible.builtin.fail:
+
+    - name: Networks - Remove useless interfaces configuration files
+      become: true
+      ansible.builtin.file:
+        state: absent
+        path: "{{ system_networks_iface_configfile }}"
+      loop: |
+        {{
+          result.files |
+          map('basename') |
+          difference(
+            system_networks_interfaces |
+            map(attribute='name') |
+            sort |
+            unique |
+            lower
+          )
+        }}
+      loop_control:
+        loop_var: system_networks_iface_configfile
+      notify: "{{ system_networks_restart_handler }}"

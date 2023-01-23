@@ -1,0 +1,21 @@
+---
+- name: Networks - Interfaces configuration from template
+  become: true
+  block:
+    - name: Networks - Interfaces configuration - Directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ system_networks_defaults.template.dest | dirname }}"
+        mode: 0755
+
+    - name: Networks - Interfaces configuration - Files
+      ansible.builtin.template:
+        src: "{{ system_networks_defaults.template.src }}"
+        dest: "{{ system_networks_defaults.template.dest | format(system_netiface.name) }}"
+        mode: 0644
+      loop: "{{ system_networks_interfaces }}"
+      loop_control:
+        loop_var: system_netiface
+      notify: "{{ system_networks_restart_handler }}"
+      register: result
+      until: result is succeeded

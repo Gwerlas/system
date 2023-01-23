@@ -1,5 +1,0 @@
----
-system_ca:
-  path: /usr/local/share/ca-certificates
-  command: update-ca-certificates
-  bundle: /etc/ssl/certs/ca-certificates.crt

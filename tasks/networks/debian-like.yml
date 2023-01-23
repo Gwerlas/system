@@ -1,0 +1,7 @@
+---
+- name: Networks - Debian like - Interfaces source directory
+  become: true
+  ansible.builtin.copy:
+    src: network/interfaces
+    dest: /etc/network/interfaces
+    mode: 0644

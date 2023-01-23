@@ -1,4 +1,7 @@
 ---
+- name: Load variables
+  ansible.builtin.import_tasks: vars.yml
+
 - name: Sudo
   when: system_manage_sudo
   ansible.builtin.import_tasks: sudo.yml
@@ -20,3 +23,7 @@
 - name: CA certificates
   when: system_ca_certificates | length > 0
   ansible.builtin.import_tasks: ca.yml
+
+- name: Network management
+  when: system_networks_interfaces | length > 0
+  ansible.builtin.import_tasks: networks.yml

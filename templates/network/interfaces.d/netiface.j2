@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+{% if system_netiface.description is defined %}
+# {{ system_netiface.description }}
+{% endif %}
+
+{% if system_netiface.onboot %}
+auto {{ system_netiface.name }}
+{% endif %}
+iface {{ system_netiface.name }} inet {{ system_netiface.bootproto | default('manual') }}
+{% if system_netiface.ip is defined %}
+    address {{ system_netiface.ip | ansible.utils.ipaddr }}
+{% endif %}
+{% if system_netiface.gateway is defined %}
+    gateway {{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
+{% endif %}
+{% if system_netiface.options is defined %}
+{% for option in system_netiface.options %}
+    {{ option }}
+{% endfor %}
+{% endif %}
+
+{% if system_netiface.routes is defined %}
+{% for route in system_netiface.routes %}
+    down ip route add {{ route }} dev {{ item.name }}
+    up ip route add {{ route }} dev {{ item.name }}
+{% endfor %}
+{% endif %}

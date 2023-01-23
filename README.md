@@ -17,6 +17,8 @@ Requirements
 
 This role as been writen to be run as non root user, so Sudo has to be installed and configured.
 
+For network configuration, the `netaddr` python package is required.
+
 Facts
 -----
 
@@ -55,6 +57,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 * [users](docs/users.md)
 * [zsh](docs/zsh.md)
 * [ca](docs/ca.md)
+* [network](docs/network.md)
 
 Role Variables
 --------------
