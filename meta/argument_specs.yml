@@ -35,6 +35,27 @@ argument_specs:
         default: "[]"
         description: List of external custom hosts.
 
+  networks:
+    short_description: Configure network interfaces.
+    options:
+      system_networks_interfaces:
+        type: list
+        elements: dict
+        default: "[]"
+        description: List of interfaces to manage
+      system_networks_interfaces_prune:
+        type: bool
+        default: "true"
+        description: Remove the unmanaged interfaces
+      system_networks_restart_handler:
+        type: str
+        default: reboot
+        choices:
+          - restart network service
+          - skip
+          - reboot
+        description: Choose the manner to restart the network
+
   packages:
     short_description: Configure the package manager and install/update the system
     options:

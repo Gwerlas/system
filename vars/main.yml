@@ -29,8 +29,19 @@ system_users_shells: |
     unique
   }}
 
+# Networks
+system_networks_types: |
+  {{
+    system_networks_interfaces |
+    map(attribute='type') |
+    map('lower') |
+    sort |
+    unique
+  }}
+
 # Packages
 system_packages:
+  bridge: bridge-utils
   ca_certificates: ca-certificates
   common:
     - rsync
@@ -45,5 +56,6 @@ system_packages_computed: |
     + (system_packages[system_profile] | default([]))
     + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])
+    + (system_networks_types | intersect(system_packages.keys() | list) | map('extract', system_packages))
     ) | sort | unique
   }}

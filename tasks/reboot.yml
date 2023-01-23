@@ -1,13 +1,7 @@
 ---
 - name: Reboot - Load variables
-  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - "{{ ansible_os_family | lower }}-like.yml"
-        - other.yml
-      paths:
-        - vars/reboot
+  when: system_reboot_detection_policy is not defined
+  ansible.builtin.import_tasks: vars.yml
 
 - name: Reboot
   when:

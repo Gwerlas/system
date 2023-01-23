@@ -1,0 +1,35 @@
+---
+system_ca:
+  path: /usr/local/share/ca-certificates
+  command: update-ca-certificates
+  bundle: /etc/ssl/certs/ca-certificates.crt
+
+system_networks_defaults:
+  service_name: networking
+  template:
+    src: network/interfaces.d/netiface.j2
+    dest: /etc/network/interfaces.d/%s
+
+system_packages_upgrade_policy:
+  upgrade: dist
+  autoremove: true
+
+system_packages_update_policy:
+  marker: /var/cache/gwsys
+
+system_packages_unattended_upgrades:
+  - apt-listchanges
+  - unattended-upgrades
+
+system_packages:
+  bond: ifenslave
+  bridge: bridge-utils
+  ca_certificates: ca-certificates
+  common:
+    - rsync
+  desktop:
+    - usbutils
+  vlan: vlan
+
+system_reboot_detection_policy:
+  cmd: test ! -f /var/run/reboot-required

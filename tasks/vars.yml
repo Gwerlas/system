@@ -1,0 +1,23 @@
+---
+- name: Packages - OS family settings
+  ansible.builtin.include_vars: "{{ ansible_os_family | lower }}-like.yml"
+
+- name: Packages - Distribution settings
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution | lower }}.yml"
+        - empty.yml
+      paths:
+        - vars
+
+- name: Packages - Release settings
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}.yml"
+        - empty.yml
+      paths:
+        - vars

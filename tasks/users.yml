@@ -85,6 +85,7 @@
       loop: "{{ system_users }}"
       loop_control:
         loop_var: system_user
+      no_log: true
 
     - name: Users - Keys
       ansible.posix.authorized_key:

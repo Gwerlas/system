@@ -37,3 +37,8 @@ system_portage_directory: /var/db/repos/gentoo
 
 # SSL
 system_ca_certificates: []
+
+# Networks
+system_networks_restart_handler: reboot
+system_networks_interfaces: []
+system_networks_interfaces_prune: true

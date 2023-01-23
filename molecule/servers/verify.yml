@@ -108,7 +108,7 @@
             - "{{ ansible_os_family | lower }}-like.yml"
             - other.yml
           paths:
-            - vars/ca
+            - vars
 
     - name: Get cert headers
       ansible.builtin.command:

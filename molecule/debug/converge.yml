@@ -1,0 +1,34 @@
+---
+- name: Converge customization
+  hosts: all
+  tasks:
+    - name: Include gwerlas.system
+      ansible.builtin.include_role:
+        name: gwerlas.system
+        tasks_from: networks
+      vars:
+        system_networks_interfaces:
+          - name: eth0
+            ip: 192.168.1.7
+            gateway: 192.168.1.254
+            type: Ethernet
+            onboot: true
+            bootproto: static
+          - name: eth1
+            ip: 192.168.1.7
+            gateway: 192.168.1.254
+            type: bond
+            onboot: true
+            bootproto: static
+          - name: eth0
+            ip: 192.168.1.7
+            gateway: 192.168.1.254
+            type: vlan
+            onboot: true
+            bootproto: static
+          - name: eth0
+            ip: 192.168.1.7
+            gateway: 192.168.1.254
+            type: bridge
+            onboot: true
+            bootproto: static
