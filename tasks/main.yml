@@ -25,5 +25,7 @@
   ansible.builtin.import_tasks: ca.yml
 
 - name: Network management
-  when: system_networks_interfaces | length > 0
+  when:
+    - system_manage_networks
+    - system_networks_interfaces | length > 0
   ansible.builtin.import_tasks: networks.yml

@@ -10,6 +10,18 @@ Configure network interfaces.
 Variables
 ---------
 
+### Feature flipping
+
+By default, networks should be managed by DHCP and/or your provisionner (foreman, cobbler, cloud-init, etc.).
+
+```yaml
+system_manage_networks: false
+```
+
+To enable network management set `system_manage_networks` to `true`.
+
+### Network interfaces
+
 ```yaml
 system_networks_restart_handler: reboot
 system_networks_interfaces: []
