@@ -14,6 +14,10 @@ Install and configure :
 * molecule-docker
 * molecule-vagrant
 
+If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
+
+[blog post]: https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/
+
 Run tests
 ---------
 

@@ -1,8 +1,11 @@
 # {{ ansible_managed }}
+{% if system_netiface.description is defined %}
+# {{ system_netiface.description }}
+{% endif %}
 
 DEVICE={{ system_netiface.name }}
 BOOTPROTO={{ system_netiface.bootproto | default('none') }}
-ONBOOT={{ system_netiface.onboot | default('yes') }}
+ONBOOT={{ 'yes' if system_netiface.onboot else 'no' }}
 TYPE={{ system_netiface.type }}
 {% if system_netiface.bootproto | default('yes') != 'dhcp' %}
 {% if system_netiface.ip is defined %}

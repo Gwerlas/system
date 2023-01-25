@@ -2,6 +2,19 @@
 - name: Load variables
   ansible.builtin.import_tasks: vars.yml
 
+- name: Proxies
+  when: system_manage_proxies
+  ansible.builtin.import_tasks: proxies.yml
+
+- name: Packages
+  ansible.builtin.import_tasks: packages.yml
+
+- name: Network management
+  when:
+    - system_manage_networks
+    - system_networks_interfaces | length > 0
+  ansible.builtin.import_tasks: networks.yml
+
 - name: Sudo
   when: system_manage_sudo
   ansible.builtin.import_tasks: sudo.yml
@@ -10,22 +23,9 @@
   when: system_manage_hosts
   ansible.builtin.import_tasks: hosts.yml
 
-- name: Proxies
-  when: system_manage_proxies
-  ansible.builtin.import_tasks: proxies.yml
-
-- name: Packages
-  ansible.builtin.import_tasks: packages.yml
-
 - name: Users
   ansible.builtin.import_tasks: users.yml
 
 - name: CA certificates
   when: system_ca_certificates | length > 0
   ansible.builtin.import_tasks: ca.yml
-
-- name: Network management
-  when:
-    - system_manage_networks
-    - system_networks_interfaces | length > 0
-  ansible.builtin.import_tasks: networks.yml

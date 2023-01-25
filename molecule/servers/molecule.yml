@@ -8,6 +8,12 @@ driver:
 platforms:
   - name: debian10
     box: debian/buster64
+    groups:
+      - debian_like
+    interfaces: &interfaces
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
     provider_raw_config_args: &raw_config
       - "cpu_mode = 'host-passthrough'"
       - "disk_bus = 'virtio'"
@@ -17,32 +23,50 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
   - name: debian11
     box: debian/bullseye64
+    groups:
+      - debian_like
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: el7
     box: centos/7
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: el8
     box: almalinux/8
     memory: 2048
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: el9
     box: almalinux/9
     memory: 2048
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: ubuntu1804
     box: generic/ubuntu1804
+    groups:
+      - debian_like
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: ubuntu2004
     box: generic/ubuntu2004
+    groups:
+      - debian_like
     memory: 2048
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: ubuntu2204
     box: generic/ubuntu2204
+    groups:
+      - debian_like
     memory: 4096
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
   - name: ubuntu2210
     box: generic/ubuntu2210
+    groups:
+      - debian_like
     memory: 2048
+    interfaces: *interfaces
     provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
