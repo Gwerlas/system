@@ -9,6 +9,7 @@ platforms:
   - name: debian10
     box: debian/buster64
     groups:
+      - debian
       - debian_like
     interfaces: &interfaces
       - auto_config: true
@@ -24,6 +25,7 @@ platforms:
   - name: debian11
     box: debian/bullseye64
     groups:
+      - debian
       - debian_like
     interfaces: *interfaces
     provider_raw_config_args: *raw_config
@@ -71,5 +73,9 @@ platforms:
 lint: ansible-lint
 provisioner:
   name: ansible
+  inventory:
+    links:
+      group_vars: inventory/group_vars
+      host_vars: inventory/host_vars
 verifier:
   name: ansible

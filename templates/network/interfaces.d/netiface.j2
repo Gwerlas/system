@@ -3,7 +3,7 @@
 # {{ system_netiface.description }}
 {% endif %}
 
-{% if system_netiface.onboot %}
+{% if (system_netiface.onboot | default(true)) %}
 auto {{ system_netiface.name }}
 {% endif %}
 iface {{ system_netiface.name }} inet {{ system_netiface.bootproto | default('manual') }}
@@ -21,7 +21,7 @@ iface {{ system_netiface.name }} inet {{ system_netiface.bootproto | default('ma
 
 {% if system_netiface.routes is defined %}
 {% for route in system_netiface.routes %}
-    down ip route add {{ route }} dev {{ item.name }}
-    up ip route add {{ route }} dev {{ item.name }}
+    down ip route add {{ route }} dev {{ system_netiface.name }}
+    up ip route add {{ route }} dev {{ system_netiface.name }}
 {% endfor %}
 {% endif %}

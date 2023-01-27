@@ -33,6 +33,7 @@ system_users_shells: |
 system_networks_types: |
   {{
     system_networks_interfaces |
+    selectattr('type', 'defined') |
     map(attribute='type') |
     map('lower') |
     sort |

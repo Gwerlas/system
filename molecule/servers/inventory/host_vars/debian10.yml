@@ -1,0 +1,11 @@
+---
+system_networks_interfaces:
+  - name: eth0
+    description: Public network
+    bootproto: dhcp
+  - name: eth1
+    description: Private network
+    bootproto: static
+    ip: 192.168.250.10/24
+    routes:
+      - 192.168.250.0/24

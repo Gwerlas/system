@@ -1,0 +1,4 @@
+---
+system_zsh_files:
+  - .zshrc
+  - .zsh/history

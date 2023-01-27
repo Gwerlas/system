@@ -120,3 +120,11 @@
       ansible.builtin.assert:
         that:
           - "'GWERLAS CA' in result.stdout"
+
+- name: Check network configuration
+  hosts: debian
+  tasks:
+    - name: Private network
+      ansible.builtin.assert:
+        that:
+          - ansible_eth1.ipv4.network == "192.168.250.0"
