@@ -1,0 +1,19 @@
+---
+- name: Verify role with Systemd Timesyncd
+  hosts: all
+  tasks:
+    - name: Synchronisation
+      ansible.builtin.command:
+        cmd: timedatectl
+      register: result
+      failed_when: |
+        (result.rc > 0) or
+        ('synchronized: yes' not in result.stdout)
+      changed_when: false
+
+    - name: Service
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
+      register: result
+      failed_when: result.rc == 0
+      changed_when: false

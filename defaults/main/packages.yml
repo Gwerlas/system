@@ -1,0 +1,8 @@
+---
+system_packages_upgrade: false
+system_packages_upgrade_unattended: false
+system_packages_cache_age: 7
+system_packages_custom: []
+
+system_archlinux_user_repository: "{{ system_profile != 'server' }}"
+system_portage_directory: /var/db/repos/gentoo

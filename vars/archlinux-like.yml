@@ -12,3 +12,5 @@ system_packages_upgrade_policy:
 
 system_reboot_detection_policy:
   use_template: true
+
+default_time_backend: timesync

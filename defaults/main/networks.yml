@@ -1,0 +1,4 @@
+---
+system_networks_restart_handler: reboot
+system_networks_interfaces: []
+system_networks_interfaces_prune: true

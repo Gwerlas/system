@@ -1,0 +1,10 @@
+---
+- name: Verify role with NTP servers
+  hosts: all
+  tasks:
+    - name: NTP Server
+      ansible.builtin.command:
+        cmd: ntpq -p
+      changed_when: false
+      environment:
+        PATH: /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin

@@ -25,11 +25,26 @@ system_packages:
   bond: ifenslave
   bridge: bridge-utils
   ca_certificates: ca-certificates
+  chrony: chrony
   common:
     - rsync
   desktop:
     - usbutils
+  ntp: ntp
+  timesync: systemd-timesyncd
   vlan: vlan
 
 system_reboot_detection_policy:
   cmd: test ! -f /var/run/reboot-required
+
+default_time_backend: timesync
+time_backends:
+  chrony:
+    config: chrony.conf
+    service: chrony.service
+  ntp:
+    config: ntp.conf
+    service: ntp.service
+  timesync:
+    config: systemd/timesyncd.conf
+    service: systemd-timesyncd.service

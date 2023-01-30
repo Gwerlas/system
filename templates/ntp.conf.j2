@@ -1,0 +1,45 @@
+# {{ ansible_managed }}
+
+driftfile {{ system_time_ntpd_driftfile }}
+
+restrict default {{ system_time_ntpd_restrict_defaults | join(' ') }}
+
+{% for restrict in system_time_ntpd_restricts %}
+restrict {{ restrict.ip }}{% if restrict.netmask is defined %} mask {{ restrict.netmask }}{% endif %}{% if restrict.options is defined %} {{ restrict.options | join(' ') }}{% endif %}
+
+{% endfor %}
+
+{% for server in system_time_servers %}
+server {{ server }}
+
+{% endfor %}
+
+{% for fudge in system_time_ntpd_fudges %}
+server {{ fudge.hostname }}
+fudge {{ fudge.hostname }} stratum {{ fudge.stratum }}
+
+{% endfor %}
+
+includefile {{ system_time_ntpd_includefile }}
+
+keys {{ system_time_ntpd_keys }}
+
+{% if system_time_ntpd_trustedkey is defined %}
+trustedkey {{ system_time_ntpd_trustedkey | join(' ') }}
+{% endif %}
+
+{% if system_time_ntpd_requestkey is defined %}
+requestkey {{ system_time_ntpd_requestkey }}
+{% endif %}
+
+{% if system_time_ntpd_controlkey is defined %}
+controlkey {{ system_time_ntpd_controlkey }}
+{% endif %}
+
+{% if system_time_ntpd_statistics is defined %}
+statistics {{ system_time_ntpd_statistics | join(' ') }}
+{% endif %}
+
+{% if system_time_ntpd_disable | length > 0 %}
+disable {{ system_time_ntpd_disable | join(' ') }}
+{% endif %}

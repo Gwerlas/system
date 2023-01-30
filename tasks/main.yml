@@ -29,3 +29,6 @@
 - name: CA certificates
   when: system_ca_certificates | length > 0
   ansible.builtin.import_tasks: ca.yml
+
+- name: Time
+  ansible.builtin.import_tasks: time.yml

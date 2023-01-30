@@ -39,6 +39,14 @@
   ansible.builtin.debug:
     msg: "You've to restart the network yourself !"
 
+- name: Time service restart
+  listen:
+    - restart time service
+  become: true
+  ansible.builtin.service:
+    name: "{{ system_time_service }}"
+    state: restarted
+
 - name: Reboot
   listen:
     - grub-mkconfig

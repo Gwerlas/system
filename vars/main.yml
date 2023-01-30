@@ -44,10 +44,12 @@ system_networks_types: |
 system_packages:
   bridge: bridge-utils
   ca_certificates: ca-certificates
+  chrony: chrony
   common:
     - rsync
   desktop:
     - usbutils
+  ntp: ntp
 
 system_packages_computed: |
   {{
@@ -58,5 +60,19 @@ system_packages_computed: |
     + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])
     + (system_networks_types | intersect(system_packages.keys() | list) | map('extract', system_packages))
+    + (system_manage_timesync and time_backend_name in system_packages) | ternary([system_packages[time_backend_name]], [])
     ) | sort | unique
   }}
+
+# Time
+time_backend_name: "{{ system_time_backend | default(default_time_backend | default('chrony')) }}"
+time_backends:
+  chrony:
+    config: chrony.conf
+    service: chronyd.service
+  ntp:
+    config: ntp.conf
+    service: ntpd.service
+  timesync:
+    config: systemd/timesyncd.conf
+    service: systemd-timesyncd.service

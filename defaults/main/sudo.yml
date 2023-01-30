@@ -1,0 +1,4 @@
+---
+system_sudo_nopasswd: true
+system_sudo_group: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+system_sudo_defaults: []

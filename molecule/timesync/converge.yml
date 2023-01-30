@@ -1,0 +1,14 @@
+---
+- name: Converge NTP
+  hosts: all
+  tasks:
+    - name: Include role
+      ansible.builtin.include_role:
+        name: gwerlas.system
+      vars:
+        system_manage_timesync: true
+        system_time_servers:
+          - 0.fr.pool.ntp.org
+          - 1.fr.pool.ntp.org
+          - 2.fr.pool.ntp.org
+          - 3.fr.pool.ntp.org

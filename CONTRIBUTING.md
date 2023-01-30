@@ -40,6 +40,12 @@ Test stream distros in vagrant/libvirt VMs as `vagrant` user :
 molecule test -s stream
 ```
 
+Test NTPd with custom NTP pool configured :
+
+```sh
+molecule test -s ntp
+```
+
 Develop / Debug
 ---------------
 

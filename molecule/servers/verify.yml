@@ -121,6 +121,20 @@
         that:
           - "'GWERLAS CA' in result.stdout"
 
+    - name: Chrony
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
+      changed_when: false
+
+    - name: Systemd
+      ansible.builtin.command:
+        cmd: timedatectl
+      register: result
+      failed_when: |
+        (result.rc > 0) or
+        ('synchronized: yes' not in result.stdout)
+      changed_when: false
+
 - name: Check network configuration
   hosts: debian
   tasks:

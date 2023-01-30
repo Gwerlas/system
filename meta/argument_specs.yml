@@ -121,8 +121,18 @@ argument_specs:
         default: "'sudo' for Debian like distros, 'wheel' otherwise"
         description: Name of the group with all permissions.
 
+  time:
+    short_description: Time and date management.
+    options:
+      system_time_backend:
+        choices:
+          - chrony
+          - ntp
+          - timesync
+        description: Name of the backend to use.
+
   users:
-    short_description: Users and groups management
+    short_description: Users and groups management.
     options:
       system_users:
         type: list

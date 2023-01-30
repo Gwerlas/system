@@ -7,12 +7,16 @@ system_ca:
 system_packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
-system_packages.ca_certificates: app-misc/ca-certificates
-system_packages.common:
-  - dev-vcs/git
-  - net-misc/rsync
-system_packages.desktop:
-  - sys-apps/usbutils
+system_packages:
+  bridge: net-misc/bridge-utils
+  ca_certificates: app-misc/ca-certificates
+  chrony: net-misc/chrony
+  common:
+    - dev-vcs/git
+    - net-misc/rsync
+  desktop:
+    - sys-apps/usbutils
+  ntp: net-misc/ntp
 
 system_portage_profile:
   desktop: default/linux/amd64/17.1/desktop

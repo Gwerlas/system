@@ -27,6 +27,7 @@ Defined facts of this role :
 - `system_packages_computed`
 - `system_portage_directory_initial`
 - `system_sudo_version`
+- `system_time_service`
 
 Tags
 ----
@@ -58,6 +59,7 @@ Of course, all tasks are ran throw the `main.yml`. See each task documentation :
 * [zsh](docs/zsh.md)
 * [ca](docs/ca.md)
 * [network](docs/network.md)
+* [time](docs/time.md)
 
 Role Variables
 --------------
@@ -68,9 +70,10 @@ Look at [`defaults/main.yml`](defaults/main.yml).
 
 ```yaml
 system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_manage_hosts: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_hosts: false
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_networks: false
+system_manage_timesync: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
 Enable/disable some features by setting them to `true`/`false`.
@@ -138,6 +141,24 @@ Use just one task :
       ansible.builtin.import_role:
         name: gwerlas.system
         tasks_from: packages
+```
+
+Use the legacy `ntp` package for time synchronisation, and a list of custom
+NTP servers :
+
+```yaml
+---
+- name: NTPd
+  hosts: all
+  roles:
+    - name: gwerlas.system
+      vars:
+        system_time_backend: ntp
+        system_time_servers:
+          - 0.fr.pool.ntp.org
+          - 1.fr.pool.ntp.org
+          - 2.fr.pool.ntp.org
+          - 3.fr.pool.ntp.org
 ```
 
 License

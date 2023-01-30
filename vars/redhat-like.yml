@@ -19,3 +19,22 @@ system_packages_upgrade_policy:
 
 system_reboot_detection_policy:
   package: yum-utils
+
+system_packages:
+  bridge: bridge-utils
+  ca_certificates: ca-certificates
+  chrony: chrony
+  common:
+    - rsync
+  desktop:
+    - usbutils
+  timesync: systemd-timesyncd
+
+default_time_backend: timesync
+time_backends:
+  timesync:
+    config: systemd/timesyncd.conf
+    service: systemd-timesyncd.service
+  chrony:
+    config: chrony.conf
+    service: chronyd.service
