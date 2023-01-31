@@ -4,7 +4,7 @@
   vars:
     params:
       files:
-        - "{{ file }}"
+        - "{{ vars_file }}"
         - empty.yml
       paths:
         - vars
@@ -16,4 +16,4 @@
     - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}.yml" # ubuntu-bionic
     - "{{ ansible_service_mgr }}.yml"                                                     # openrc
   loop_control:
-    loop_var: file
+    loop_var: vars_file

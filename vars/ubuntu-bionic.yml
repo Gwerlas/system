@@ -10,3 +10,5 @@ system_packages:
     - usbutils
   ntp: ntp
   vlan: vlan
+
+default_time_backend: chrony

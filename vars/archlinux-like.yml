@@ -10,6 +10,16 @@ system_packages_update_policy:
 system_packages_upgrade_policy:
   upgrade: true
 
+system_packages:
+  bridge: bridge-utils
+  ca_certificates: ca-certificates
+  chrony: chrony
+  common:
+    - rsync
+  desktop:
+    - usbutils
+  ntp: ntp
+
 system_reboot_detection_policy:
   use_template: true
 

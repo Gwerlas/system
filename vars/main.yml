@@ -41,16 +41,6 @@ system_networks_types: |
   }}
 
 # Packages
-system_packages:
-  bridge: bridge-utils
-  ca_certificates: ca-certificates
-  chrony: chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
-  ntp: ntp
-
 system_packages_computed: |
   {{
     ( system_packages_custom

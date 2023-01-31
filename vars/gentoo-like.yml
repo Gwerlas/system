@@ -21,3 +21,5 @@ system_packages:
 system_portage_profile:
   desktop: default/linux/amd64/17.1/desktop
   server: default/linux/amd64/17.1/no-multilib
+
+default_time_backend: timesync

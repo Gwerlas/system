@@ -1,4 +1,5 @@
 ---
+default_time_backend: chrony
 time_backends:
   chrony:
     config: chrony.conf
