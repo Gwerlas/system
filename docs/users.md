@@ -10,7 +10,6 @@ Variables
 system_users_admin_group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
 system_users_groups: []
 system_users: []
-system_users_keys: []
 ```
 
 Users and groups
@@ -56,18 +55,20 @@ See [ZSH Configuration](zsh.md) for more details.
 SSH Keys
 --------
 
-Users' keys is a list of dictionaries with the same structure documented in the
-[Ansible authorized_keys module][] documentation.
+Users' `authorized_keys` is a list of objects looking like the
+[Ansible authorized_keys module][] except for the `user` field ofcourse.
 
 Example :
 
 ```yaml
-system_users_keys:
-  - user: jane
-    key: ssh-rsa AAAA test
-    state: absent
-  - user: joe
-    key: https://github.com/joe.keys
+system_users:
+  - name: jane
+    authorized_keys:
+      - key: ssh-rsa AAAA test
+        state: absent
+  - name: joe
+    authorized_keys:
+      - key: https://github.com/joe.keys
 ```
 
 [Ansible authorized_keys module]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/authorized_key_module.html

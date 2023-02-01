@@ -19,17 +19,17 @@ argument_specs:
   hosts:
     short_description: Configure system hostname and /etc/hosts file.
     options:
-      system_hosts_domain:
+      system_domain:
         description: Local domain name.
-      system_hosts_localhost:
+      system_hostname:
         default: "{{ inventory_hostname }}"
         description: Local host name.
-      system_hosts_localhost_aliases:
+      system_hostnames:
         type: list
         elements: str
         default: "[]"
         description: List of additional names for local host.
-      system_hosts_custom:
+      system_hosts:
         type: list
         elements: dict
         default: "[]"
@@ -62,7 +62,7 @@ argument_specs:
       system_bin_path:
         default: /usr/local/bin
         description: Path location for our scripts
-      system_packages_custom:
+      system_packages:
         type: list
         elements: str
         default: "[]"

@@ -32,10 +32,10 @@
 
 - name: Cache update marker
   listen: cache update
-  when: system_packages_update_policy.marker is defined
+  when: packages_update_policy.marker is defined
   become: true
   ansible.builtin.file:
-    path: "{{ system_packages_update_policy.marker }}"
+    path: "{{ packages_update_policy.marker }}"
     state: touch
     modification_time: now
     mode: 0644

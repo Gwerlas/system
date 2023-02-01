@@ -1,34 +1,40 @@
 ---
-system_ca:
+default_ca:
   path: /etc/pki/ca-trust/source/anchors
   command: update-ca-trust
   bundle: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
 
-system_networks_defaults:
+default_networks:
   service_name: network
   template:
     src: sysconfig/network-scripts/ifcfg.j2
     dest: /etc/sysconfig/network-scripts/ifcfg-%s
 
-system_packages_update_policy:
+packages_update_policy:
   path: "/var/cache/{{ ansible_pkg_mgr }}"
 
-system_packages_upgrade_policy:
+packages_upgrade_policy:
   name: '*'
   state: latest
 
-system_reboot_detection_policy:
+reboot_detection_policy:
   package: yum-utils
 
-system_packages:
-  bridge: bridge-utils
-  ca_certificates: ca-certificates
-  chrony: chrony
+packages:
+  bridge:
+    - bridge-utils
+  ca_certificates:
+    - ca-certificates
+  chrony:
+    - chrony
   common:
     - rsync
   desktop:
     - usbutils
-  timesync: systemd-timesyncd
+  timesync:
+    - systemd-timesyncd
+  unattended_upgrades:
+    - dnf-automatic
 
 default_time_backend: timesync
 time_backends:

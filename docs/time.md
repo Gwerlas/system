@@ -3,12 +3,6 @@ Time
 
 Time and date management.
 
-Facts
------
-
-The `system_time_service` give You the name of the time service if You need to
-manage it later.
-
 Variables
 ---------
 
@@ -27,6 +21,12 @@ You can force enabling or disabling it defining the `system_manage_timesync` to 
 When no `system_time_backend` is given, we use systemd to configure the time
 synchronisation if the distribution support it, else we install and configure
 chrony.
+
+Available backends :
+
+- `timesync` (default)
+- `chrony` (default when timesync is not supported)
+- `ntp` (deprecated)
 
 ### Custom time servers
 

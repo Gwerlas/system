@@ -1,24 +1,24 @@
 ---
 # Hosts
-system_hosts_localhosts: |
+local_hostnames: |
   {{
-    ( [system_hosts_localhost] + system_hosts_localhost_aliases ) |
-    product(['', '.' + system_hosts_domain]) |
+    ( [system_hostname] + system_hostnames ) |
+    product(['', '.' + system_domain]) |
     map('join')
   }}
 
-system_hosts_loopback:
+local_ips:
   - ip: "127.0.0.1"
     names: ['localhost']
   - ip: "127.0.1.1"
-    names: "{{ system_hosts_localhosts }}"
+    names: "{{ local_hostnames }}"
   - ip: "::1"
-    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + system_hosts_localhosts }}"
+    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + local_hostnames }}"
 
-system_hosts: "{{ system_hosts_loopback + system_hosts_custom }}"
+hosts: "{{ local_ips + system_hosts }}"
 
 # Users
-system_users_shells: |
+users_shells: |
   {{
     system_users |
     rejectattr('system', 'defined') |
@@ -30,7 +30,7 @@ system_users_shells: |
   }}
 
 # Networks
-system_networks_types: |
+networks_types: |
   {{
     system_networks_interfaces |
     selectattr('type', 'defined') |
@@ -41,17 +41,17 @@ system_networks_types: |
   }}
 
 # Packages
-system_packages_computed: |
+packages_computed: |
   {{
-    ( system_packages_custom
-    + system_packages.common
-    + system_users_shells
-    + (system_packages[system_profile] | default([]))
+    ( system_packages
+    + packages.common
+    + users_shells
+    + (packages[system_profile] | default([]))
     + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
-    + (system_ca_certificates | length > 0) | ternary([system_packages.ca_certificates], [])
-    + (system_networks_types | intersect(system_packages.keys() | list) | map('extract', system_packages))
-    + (system_manage_timesync and time_backend_name in system_packages) | ternary([system_packages[time_backend_name]], [])
-    ) | sort | unique
+    + (system_ca_certificates | length > 0) | ternary(packages.ca_certificates, [])
+    + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
+    + (system_manage_timesync and time_backend_name in packages) | ternary(packages[time_backend_name], [])
+    ) | flatten | sort | unique
   }}
 
 # Time

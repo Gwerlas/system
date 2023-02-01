@@ -27,7 +27,6 @@ Defined facts of this role :
 - `system_packages_computed`
 - `system_portage_directory_initial`
 - `system_sudo_version`
-- `system_time_service`
 
 Tags
 ----
@@ -36,6 +35,7 @@ Because some values are dispatched in multiple tasks. You can quickly update som
 
 - `proxies`
 - `sudoers`
+- `users`
 
 Usage :
 

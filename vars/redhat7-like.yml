@@ -1,13 +1,17 @@
 ---
-system_packages:
-  bridge: bridge-utils
-  ca_certificates: ca-certificates
-  chrony: chrony
+packages:
+  bridge:
+    - bridge-utils
+  ca_certificates:
+    - ca-certificates
+  chrony:
+    - chrony
   common:
     - rsync
   desktop:
     - usbutils
-  ntp: ntp
+  ntp:
+    - ntp
 
 default_time_backend: chrony
 time_backends:

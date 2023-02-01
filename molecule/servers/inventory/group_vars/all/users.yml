@@ -1,14 +1,19 @@
 ---
 system_users_admin_group: administrators
+
 system_users:
   - name: drno
     state: absent
+    authorized_keys:
+      - key: ssh-rsa BBBB test
   - name: jane
     comment: System administrator
     group: "{{ system_users_admin_group }}"
     groups:
       - "{{ system_sudo_group }}"
       - my_team
+    authorized_keys:
+      - key: ssh-rsa AAAA test
     shell: /bin/zsh
   - name: john
     group: users
@@ -17,10 +22,8 @@ system_users:
     system: true
     state: present
     uid: 207
+
 system_users_groups:
   - name: my_company
   - name: villains
     state: absent
-system_users_keys:
-  - user: jane
-    key: ssh-rsa AAAA test

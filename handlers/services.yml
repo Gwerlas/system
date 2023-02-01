@@ -1,0 +1,18 @@
+---
+- name: OpenRC
+  when: ansible_service_mgr == "openrc"
+  ansible.builtin.import_tasks: openrc.yml
+
+- name: Systemd
+  when: ansible_service_mgr == "systemd"
+  ansible.builtin.import_tasks: systemd.yml
+
+- name: Time service restart
+  listen:
+    - restart time service
+  become: true
+  vars:
+    time_backend: "{{ time_backends[time_backend_name] }}"
+  ansible.builtin.service:
+    name: "{{ time_backend.service }}"
+    state: restarted

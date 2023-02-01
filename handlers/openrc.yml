@@ -1,0 +1,19 @@
+---
+- name: OpenRC - Auto merge /etc/conf.d/hostname
+  listen:
+    - restart hostname
+    - restart logind
+  become: true
+  ansible.builtin.command:
+    cmd: etc-update --automode -5 /etc/conf.d/hostname
+  register: result
+  changed_when: "'/etc/conf.d/hostname' in result.stdout"
+
+- name: OpenRC - Restart services impacted by changed hostname
+  listen:
+    - restart hostname
+    - restart logind
+  become: true
+  ansible.builtin.service:
+    name: hostname
+    state: restarted

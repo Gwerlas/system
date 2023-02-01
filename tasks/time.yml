@@ -24,27 +24,20 @@
             msg: "{{ time_backend_name }} not supported"
 
     - name: Wanted backend
+      become: true
       vars:
         time_backend: "{{ time_backends[time_backend_name] }}"
       block:
-        - name: Time - Facts
-          ansible.builtin.set_fact:
-            cacheable: true
-            system_time_service: "{{ time_backend.service }}"
+        - name: Time - Configuration file
+          when: system_time_servers | length > 0
+          ansible.builtin.template:
+            src: "{{ time_backend.config }}.j2"
+            dest: "/etc/{{ time_backend.config }}"
+            mode: 0644
+          notify: restart time service
 
-        - name: Setup
-          become: true
-          block:
-            - name: Time - Configuration file
-              when: system_time_servers | length > 0
-              ansible.builtin.template:
-                src: "{{ time_backend.config }}.j2"
-                dest: "/etc/{{ time_backend.config }}"
-                mode: 0644
-              notify: restart time service
-
-            - name: Time - Service
-              ansible.builtin.service:
-                name: "{{ time_backend.service }}"
-                state: started
-                enabled: true
+        - name: Time - Service
+          ansible.builtin.service:
+            name: "{{ time_backend.service }}"
+            state: started
+            enabled: true

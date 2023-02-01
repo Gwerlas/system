@@ -1,40 +1,46 @@
 ---
-system_ca:
+default_ca:
   path: /usr/local/share/ca-certificates
   command: update-ca-certificates
   bundle: /etc/ssl/certs/ca-certificates.crt
 
-system_networks_defaults:
+default_networks:
   service_name: networking
   template:
     src: network/interfaces.d/netiface.j2
     dest: /etc/network/interfaces.d/%s
 
-system_packages_upgrade_policy:
+packages_upgrade_policy:
   upgrade: dist
   autoremove: true
 
-system_packages_update_policy:
+packages_update_policy:
   marker: /var/cache/gwsys
 
-system_packages_unattended_upgrades:
-  - apt-listchanges
-  - unattended-upgrades
-
-system_packages:
-  bond: ifenslave
-  bridge: bridge-utils
-  ca_certificates: ca-certificates
-  chrony: chrony
+packages:
+  bond:
+    - ifenslave
+  bridge:
+    - bridge-utils
+  ca_certificates:
+    - ca-certificates
+  chrony:
+    - chrony
   common:
     - rsync
   desktop:
     - usbutils
-  ntp: ntp
-  timesync: systemd-timesyncd
-  vlan: vlan
+  ntp:
+    - ntp
+  timesync:
+    - systemd-timesyncd
+  unattended_upgrades:
+    - apt-listchanges
+    - unattended-upgrades
+  vlan:
+    - vlan
 
-system_reboot_detection_policy:
+reboot_detection_policy:
   cmd: test ! -f /var/run/reboot-required
 
 default_time_backend: timesync

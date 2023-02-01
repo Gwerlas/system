@@ -1,11 +1,11 @@
 ---
 - name: Networks - Prune unmanaged interfaces
-  when: system_networks_defaults.ifaces_confdir is defined
+  when: default_networks.ifaces_confdir is defined
   block:
     - name: Networks - Get existing interface configuration files
       ansible.builtin.find:
         paths:
-          - "{{ system_networks_defaults.ifaces_confdir }}"
+          - "{{ default_networks.ifaces_confdir }}"
       register: result
 
     - name: Debug

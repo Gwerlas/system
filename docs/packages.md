@@ -10,7 +10,7 @@ Variables
 system_packages_upgrade: false
 system_packages_upgrade_unattended: false
 system_packages_cache_age: 7
-system_packages_custom: []
+system_packages: []
 ```
 
 Facts
@@ -140,12 +140,18 @@ Unattended upgrade
 The `system_packages_upgrade_unattended` set to `true` will plan your node to be
 silently upgraded every nights.
 
-Notes : Debian like distros only, at this day.
+This feature is experimental, it is not yet possible to configure the service
+through this role, You have to do it yourself.
+
+Supported distros at this time :
+
+- Debian like
+- RedHat like version 8 or upper
 
 Static package list
 -------------------
 
-You can install a list of packages through the `system_packages_custom` variable.
+You can install a list of packages through the `system_packages` variable.
 
 This list won't be computed, so You have to give the real package name for the
 target Linux distribution.

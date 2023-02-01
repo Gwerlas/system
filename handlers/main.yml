@@ -1,6 +1,6 @@
 ---
-- name: Service managers
-  ansible.builtin.import_tasks: service_mgr.yml
+- name: Services
+  ansible.builtin.import_tasks: services.yml
 
 - name: Package managers
   ansible.builtin.import_tasks: pkg_mgr.yml
@@ -9,16 +9,7 @@
   listen: update ca
   become: true
   ansible.builtin.command:
-    cmd: "{{ system_ca.command }}"
-
-- name: Restart services impacted by changed hostname
-  listen:
-    - restart hostname
-    - restart logind
-  become: true
-  ansible.builtin.service:
-    name: "{{ (ansible_service_mgr == 'systemd') | ternary('systemd-logind', 'hostname') }}"
-    state: restarted
+    cmd: "{{ default_ca.command }}"
 
 - name: Grub make configuration
   listen: grub-mkconfig
@@ -31,21 +22,13 @@
     - restart network service
   become: true
   ansible.builtin.service:
-    name: "{{ system_networks_defaults.service_name }}"
+    name: "{{ default_networks.service_name }}"
 
 - name: Skip network restart
   listen:
     - skip
   ansible.builtin.debug:
     msg: "You've to restart the network yourself !"
-
-- name: Time service restart
-  listen:
-    - restart time service
-  become: true
-  ansible.builtin.service:
-    name: "{{ system_time_service }}"
-    state: restarted
 
 - name: Reboot
   listen:

@@ -1,6 +1,6 @@
 ---
 - name: Packages - Load variables
-  when: system_packages is undefined
+  when: packages is undefined
   ansible.builtin.import_tasks: vars.yml
 
 - name: Packages - Package manager preparation
@@ -26,33 +26,33 @@
       paths:
         - package-managers
 
-- name: Packages - Persist computed list as fact
-  ansible.builtin.set_fact:
-    cacheable: true
-    system_packages_computed: "{{ system_packages_computed }}"
-
 - name: Packages - Debug
   ansible.builtin.debug:
-    var: system_packages_computed
+    var: packages_computed
     verbosity: 1
 
 - name: Packages - Base system tools
   become: true
   ansible.builtin.package:
-    name: "{{ system_packages_computed }}"
+    name: "{{ packages_computed }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
 
+- name: Packages - Persist computed list as fact
+  ansible.builtin.set_fact:
+    cacheable: true
+    system_packages_computed: "{{ packages_computed }}"
+
 - name: Packages - Upgrade
   when:
     - system_packages_upgrade
-    - system_packages_upgrade_policy is defined
+    - packages_upgrade_policy is defined
   become: true
   ansible.builtin.package:
-    name: "{{ system_packages_upgrade_policy.name | default(omit) }}"
-    state: "{{ system_packages_upgrade_policy.state | default(omit) }}"
-    upgrade: "{{ system_packages_upgrade_policy.upgrade | default(omit) }}"
+    name: "{{ packages_upgrade_policy.name | default(omit) }}"
+    state: "{{ packages_upgrade_policy.state | default(omit) }}"
+    upgrade: "{{ packages_upgrade_policy.upgrade | default(omit) }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
