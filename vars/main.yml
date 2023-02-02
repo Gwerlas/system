@@ -15,7 +15,7 @@ local_ips:
   - ip: "::1"
     names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + local_hostnames }}"
 
-hosts: "{{ local_ips + system_hosts }}"
+etc_hosts: "{{ local_ips + system_hosts }}"
 
 # Users
 users_shells: |
@@ -47,7 +47,7 @@ packages_computed: |
     + packages.common
     + users_shells
     + (packages[system_profile] | default([]))
-    + (system_packages_upgrade_unattended | ternary(system_packages_unattended_upgrades | default([]), []))
+    + (system_packages_upgrade_unattended | ternary(packages.unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary(packages.ca_certificates, [])
     + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
     + (system_manage_timesync and time_backend_name in packages) | ternary(packages[time_backend_name], [])
