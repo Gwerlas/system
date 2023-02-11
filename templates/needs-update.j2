@@ -12,7 +12,7 @@
 set -e
 
 test_dir() {
-  local matches=$(find "$1" -type f -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
+  local matches=$(find "$1" -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
   test $matches -gt 0  
 }
 

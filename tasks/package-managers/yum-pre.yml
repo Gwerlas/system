@@ -1,0 +1,7 @@
+---
+- name: EPEL
+  become: true
+  when: system_el7_use_epel
+  ansible.builtin.package:
+    name: epel-release
+    state: present

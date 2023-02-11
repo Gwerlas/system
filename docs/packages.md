@@ -81,6 +81,11 @@ You can force enable / disable setting the `system_archlinux_user_repository` to
 
 [Yay]: https://github.com/Jguer/yay/blob/next/README.md
 
+### EPEL (Extra Packages for Enterprise Linux)
+
+You can enable EPEL repository for EL7 setting the `system_el7_use_epel`
+variable to `true`.
+
 ### Portage
 
 #### Cache directory

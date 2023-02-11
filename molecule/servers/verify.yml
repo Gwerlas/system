@@ -142,3 +142,12 @@
       ansible.builtin.assert:
         that:
           - ansible_eth1.ipv4.network == "192.168.250.0"
+
+- name: Check EPEL
+  hosts: el7
+  gather_facts: false
+  tasks:
+    - name: Repository file
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/epel.repo
+        state: file
