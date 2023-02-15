@@ -9,6 +9,10 @@
         mode: 0755
 
     - name: Networks - Interfaces configuration - Files
+      when: |
+        (not system_netiface.name in ansible_interfaces)
+        or
+        (system_networks_check_mode == 'files')
       ansible.builtin.template:
         src: "{{ default_networks.template.src }}"
         dest: "{{ default_networks.template.dest | format(system_netiface.name) }}"

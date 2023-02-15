@@ -31,9 +31,3 @@
       changed_when: result.rc == 1
       failed_when: result.rc > 1
       notify: reboot
-
-- name: Reboot - Trigger handlers
-  ansible.builtin.meta: flush_handlers
-
-- name: Reboot - Wait for connection
-  ansible.builtin.wait_for_connection:

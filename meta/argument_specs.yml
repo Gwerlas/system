@@ -38,6 +38,13 @@ argument_specs:
   networks:
     short_description: Configure network interfaces.
     options:
+      system_networks_check_mode:
+        type: str
+        default: files
+        description: Which mode to check if an interface have to be configured or not
+        choices:
+          - facts
+          - files
       system_networks_interfaces:
         type: list
         elements: dict

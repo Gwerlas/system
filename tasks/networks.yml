@@ -20,6 +20,3 @@
 - name: Networks - Interfaces configuration from template
   when: default_networks.template is defined
   ansible.builtin.import_tasks: networks/from-template.yml
-
-- name: Networks - Restart to take effect
-  ansible.builtin.meta: flush_handlers

@@ -12,7 +12,8 @@ Variables
 
 ### Feature flipping
 
-By default, networks should be managed by DHCP and/or your provisionner (foreman, cobbler, cloud-init, etc.).
+By default, networks should be managed by DHCP and/or your provisionner
+(foreman, cobbler, cloud-init, etc.).
 
 ```yaml
 system_manage_networks: false
@@ -23,10 +24,16 @@ To enable network management set `system_manage_networks` to `true`.
 ### Network interfaces
 
 ```yaml
+system_networks_check_mode: files
 system_networks_restart_handler: reboot
 system_networks_interfaces: []
 system_networks_interfaces_prune: true
 ```
+
+The `system_networks_check_mode` set to `facts` will skip the network
+configuration if the interface is present in the Ansible facts.
+
+This mode is faster than `files`, but configuration changes won't be applied.
 
 Examples
 --------
