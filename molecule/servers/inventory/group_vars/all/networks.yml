@@ -1,4 +1,2 @@
 ---
 system_manage_networks: true
-
-system_networks_check_mode: facts
