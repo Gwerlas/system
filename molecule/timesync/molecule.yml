@@ -25,10 +25,10 @@ platforms:
     box: generic/centos8s
     memory: 2048
     provider_raw_config_args: *raw_config
-  # - name: el9
-  #   box: generic/centos9s
-  #   memory: 2048
-  #   provider_raw_config_args: *raw_config
+  - name: el9   # https://bugzilla.redhat.com/show_bug.cgi?id=1970865
+    box: generic/centos9s
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: ubuntu1804
     box: generic/ubuntu1804
     provider_raw_config_args: *raw_config

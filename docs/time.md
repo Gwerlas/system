@@ -11,10 +11,10 @@ Variables
 By default, time synchronisation management is disabled for containers.
 
 ```yaml
-system_manage_timesync: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_time: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
-You can force enabling or disabling it defining the `system_manage_timesync` to `true` or `false`.
+You can force enabling or disabling it defining the `system_manage_time` to `true` or `false`.
 
 ### Time backend
 
@@ -94,3 +94,11 @@ system_time_ntpd_fudges: []
 system_time_ntpd_disable:
   - monitor
 ```
+
+### Timesync on RedHat like
+
+Systemd's timesync is not supported by RedHat.
+
+To use timesyncd on EL8 or newer, You'll need to [install EPEL][].
+
+[install EPEL]: packages.md#epel-extra-packages-for-enterprise-linux

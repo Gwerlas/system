@@ -73,7 +73,7 @@ system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 system_manage_hosts: false
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_networks: false
-system_manage_timesync: "{{ 'container' not in ansible_virtualization_tech_guest }}"
+system_manage_time: "{{ 'container' not in ansible_virtualization_tech_guest }}"
 ```
 
 Enable/disable some features by setting them to `true`/`false`.

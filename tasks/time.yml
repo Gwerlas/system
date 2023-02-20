@@ -10,7 +10,7 @@
     name: "{{ system_time_zone }}"
 
 - name: Backend
-  when: system_manage_timesync
+  when: system_manage_time
   block:
     - name: Checks
       when: time_backend_name not in time_backends

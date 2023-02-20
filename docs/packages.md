@@ -83,8 +83,15 @@ You can force enable / disable setting the `system_archlinux_user_repository` to
 
 ### EPEL (Extra Packages for Enterprise Linux)
 
-You can enable EPEL repository for EL7 setting the `system_el7_use_epel`
-variable to `true`.
+The Extra Packages for Enterprise Linux are enabled by default.
+
+You can disable it by setting the `system_el_use_epel` variable to `false`.
+
+> **Warning**
+>
+> If You disable EPEL repositories, some features, like bridging or time
+> synchronization won't work since `bridge-utils` and `systemd-timesync`
+> packages are in.
 
 ### Portage
 

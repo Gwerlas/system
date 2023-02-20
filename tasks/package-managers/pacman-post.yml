@@ -15,6 +15,7 @@
           community.general.pacman:
             name:
               - base-devel
+              - fakeroot
               - git
 
         - name: Pacman - AUR - Yay - Clone Yay from github

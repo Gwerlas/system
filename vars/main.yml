@@ -46,11 +46,11 @@ packages_computed: |
     ( system_packages
     + packages.common
     + users_shells
-    + (packages[system_profile] | default([]))
+    + ((system_profile in packages) | ternary(packages[system_profile], []))
     + (system_packages_upgrade_unattended | ternary(packages.unattended_upgrades | default([]), []))
     + (system_ca_certificates | length > 0) | ternary(packages.ca_certificates, [])
     + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
-    + (system_manage_timesync and time_backend_name in packages) | ternary(packages[time_backend_name], [])
+    + (system_manage_time and time_backend_name in packages) | ternary(packages[time_backend_name], [])
     ) | flatten | sort | unique
   }}
 
