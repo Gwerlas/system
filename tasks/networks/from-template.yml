@@ -6,7 +6,7 @@
       ansible.builtin.file:
         state: directory
         path: "{{ default_networks.template.dest | dirname }}"
-        mode: 0755
+        mode: "0755"
 
     - name: Networks - Interfaces configuration - Files
       when: |
@@ -16,7 +16,7 @@
       ansible.builtin.template:
         src: "{{ default_networks.template.src }}"
         dest: "{{ default_networks.template.dest | format(system_netiface.name) }}"
-        mode: 0644
+        mode: "0644"
       loop: "{{ system_networks_interfaces }}"
       loop_control:
         loop_var: system_netiface

@@ -38,4 +38,4 @@
     path: "{{ packages_update_policy.marker }}"
     state: touch
     modification_time: now
-    mode: 0644
+    mode: "0644"

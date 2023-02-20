@@ -7,11 +7,13 @@
 auto {{ system_netiface.name }}
 {% endif %}
 iface {{ system_netiface.name }} inet {{ system_netiface.bootproto | default('manual') }}
+{% if bootproto != 'dhcp' %}
 {% if system_netiface.ip is defined %}
     address {{ system_netiface.ip | ansible.utils.ipaddr }}
 {% endif %}
 {% if system_netiface.gateway is defined %}
     gateway {{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
+{% endif %}
 {% endif %}
 {% if system_netiface.options is defined %}
 {% for option in system_netiface.options %}

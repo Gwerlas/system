@@ -4,7 +4,7 @@
   ansible.builtin.template:
     src: needs-update.j2
     dest: "{{ system_bin_path }}/needs-update"
-    mode: 0755
+    mode: "0755"
 
 - name: Packages - Cache update detection
   ansible.builtin.command:

@@ -11,7 +11,7 @@
         dest: "/etc/portage/{{ system_portage_kernel_file }}"
         owner: "{{ ansible_user_id }}"
         group: portage
-        mode: 0664
+        mode: "0664"
       loop:
         - package.license/kernel
         - package.use/kernel

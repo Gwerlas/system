@@ -25,7 +25,7 @@
         line: "PORTDIR=\"{{ system_portage_directory }}\""
         regex: ^PORTDIR=
         group: portage
-        mode: 0664
+        mode: "0664"
       notify: cache update
 
     - name: Portage - Cache - Predefined Portage directory
@@ -48,7 +48,7 @@
               ansible.builtin.file:
                 path: "{{ system_portage_directory | dirname }}"
                 state: directory
-                mode: 0755
+                mode: "0755"
 
             - name: Portage - Cache - Portdir - Move data
               ansible.builtin.command:
@@ -64,7 +64,7 @@
     path: "{{ system_portage_configuration_directory }}"
     state: directory
     group: portage
-    mode: 0775
+    mode: "0775"
   loop:
     - /etc/portage/
     - /etc/portage/package.license
@@ -94,7 +94,7 @@
     dest: "/etc/portage/package.use/{{ system_portage_use_file }}"
     owner: "{{ ansible_user_id }}"
     group: portage
-    mode: 0664
+    mode: "0664"
   loop:
     - kernel
     - python

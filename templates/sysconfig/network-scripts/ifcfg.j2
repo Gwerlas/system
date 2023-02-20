@@ -3,15 +3,17 @@
 # {{ system_netiface.description }}
 {% endif %}
 
+{% set bootproto = system_netiface.bootproto | default('none') %}
 DEVICE={{ system_netiface.name }}
-BOOTPROTO={{ system_netiface.bootproto | default('none') }}
+BOOTPROTO={{ bootproto }}
 ONBOOT={{ 'yes' if system_netiface.onboot else 'no' }}
 TYPE={{ system_netiface.type }}
-{% if system_netiface.bootproto | default('yes') != 'dhcp' %}
+{% if bootproto != 'dhcp' %}
 {% if system_netiface.ip is defined %}
 IPADDR={{ system_netiface.ip | ansible.utils.ipaddr('address') }}
 NETMASK={{ system_netiface.ip | ansible.utils.ipaddr('netmask') }}
-IPV6INIT=no
+IPV6INIT="yes"
+IPV6_AUTOCONF="yes"
 {% if system_netiface.gateway is defined %}
 GATEWAY={{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
 {% endif %}
@@ -35,9 +37,6 @@ SLAVE=yes
 {% if system_netiface.bonding_opts is defined %}
 BONDING_OPTS={{ system_netiface.bonding_opts }}
 BONDING_MASTER=yes
-{% endif %}
-{% if system_netiface.defroute is defined %}
-DEFROUTE={{ system_netiface.defroute }}
 {% endif %}
 {% if system_netiface.eththool_opts is defined %}
 ETHTOOL_OPTS={{ system_netiface.eththool_opts }}

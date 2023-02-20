@@ -37,4 +37,4 @@
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
         dest: /usr/share/ansible/yay
-        mode: 0755
+        mode: "0755"

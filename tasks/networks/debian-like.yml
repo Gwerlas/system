@@ -5,4 +5,4 @@
   ansible.builtin.copy:
     src: network/interfaces
     dest: /etc/network/interfaces
-    mode: 0644
+    mode: "0644"

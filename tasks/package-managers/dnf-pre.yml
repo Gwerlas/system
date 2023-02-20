@@ -2,6 +2,6 @@
 - name: EPEL
   become: true
   when: system_el_use_epel
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: epel-release
     state: present
