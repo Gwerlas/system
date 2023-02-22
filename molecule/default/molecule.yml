@@ -2,63 +2,77 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: vagrant
+  provider:
+    name: libvirt
+  provision: true
 platforms:
   - name: archlinux
-    image: gwerlas/ansible-guest-archlinux
-    pre_build_mage: true
-    volumes: &volumes
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    box: archlinux/archlinux
+    provider_raw_config_args: &raw_config
+      - "cpu_mode = 'host-passthrough'"
+      - "disk_bus = 'virtio'"
+      - "nic_model_type = 'virtio'"
+      - "video_type = 'virtio'"
+      - "disk_driver :cache => 'writeback'"
+      - "storage :file, bus: 'virtio', cache: 'writeback'"
+    instance_raw_config_args:
+      - 'vm.provision :shell, inline: "pacman -Syu --noconfirm git net-tools python3 sudo unzip which"'
   - name: debian10
-    image: gwerlas/ansible-guest-debian:buster
-    pre_build_mage: true
-    volumes: *volumes
+    box: debian/buster64
+    provider_raw_config_args: *raw_config
   - name: debian11
-    image: gwerlas/ansible-guest-debian:bullseye
-    pre_build_mage: true
-    volumes: *volumes
+    box: debian/bullseye64
+    provider_raw_config_args: *raw_config
   - name: debian12
-    image: gwerlas/ansible-guest-debian:bookworm
-    pre_build_mage: true
-    volumes: *volumes
+    box: debian/testing64
+    provider_raw_config_args: *raw_config
   - name: el7
-    image: gwerlas/ansible-guest-centos:7
-    pre_build_mage: true
-    volumes: *volumes
+    box: centos/7
+    provider_raw_config_args: *raw_config
   - name: el8
-    image: gwerlas/ansible-guest-almalinux:8
-    pre_build_mage: true
-    volumes: *volumes
+    box: almalinux/8
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: el8s
+    box: generic/centos8s
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: el9
-    image: gwerlas/ansible-guest-almalinux:9
-    pre_build_mage: true
-    volumes: *volumes
+    box: almalinux/9
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: el9s
+    box: generic/centos9s
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: gentoo
-    image: gwerlas/ansible-guest-gentoo
-    pre_build_mage: true
-    volumes: *volumes
+    box: generic/gentoo
+    cpus: 4
+    memory: 8192
+    provider_raw_config_args:
+      - "cpu_mode = 'host-passthrough'"
+      - "nic_model_type = 'virtio'"
+      - "video_type = 'virtio'"
+      - "disk_driver :cache => 'writeback'"
+      - "storage :file, bus: 'virtio', cache: 'writeback'"
   - name: ubuntu1804
-    image: gwerlas/ansible-guest-ubuntu:18.04
-    pre_build_mage: true
-    volumes: *volumes
+    box: generic/ubuntu1804
+    provider_raw_config_args: *raw_config
   - name: ubuntu2004
-    image: gwerlas/ansible-guest-ubuntu:20.04
-    pre_build_mage: true
-    volumes: *volumes
+    box: generic/ubuntu2004
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: ubuntu2204
-    image: gwerlas/ansible-guest-ubuntu:22.04
-    pre_build_mage: true
-    volumes: *volumes
+    box: generic/ubuntu2204
+    memory: 4096
+    provider_raw_config_args: *raw_config
   - name: ubuntu2210
-    image: gwerlas/ansible-guest-ubuntu:22.10
-    pre_build_mage: true
-    volumes: *volumes
+    box: generic/ubuntu2210
+    memory: 2048
+    provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible
-  inventory:
-    group_vars:
-      all:
-        ansible_user: ansible
 verifier:
   name: ansible

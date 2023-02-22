@@ -24,6 +24,12 @@ Run tests
 Quick tests of the role without any options, ran in docker containers as `ansible` user :
 
 ```sh
+molecule test -s docker
+```
+
+Test the role with its defaults values in a VM of each supported distro :
+
+```sh
 molecule test
 ```
 
@@ -40,10 +46,12 @@ Test stream distros in vagrant/libvirt VMs as `vagrant` user :
 molecule test -s stream
 ```
 
-Test NTPd with custom NTP pool configured :
+Test each time synchronization service :
 
 ```sh
+molecule test -s chrony
 molecule test -s ntp
+molecule test -s timesync
 ```
 
 Develop / Debug

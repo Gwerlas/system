@@ -3,3 +3,5 @@
   hosts: all
   roles:
     - role: gwerlas.system
+      vars:
+        time_backend_name: chrony

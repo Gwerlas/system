@@ -1,7 +1,6 @@
 ---
 - name: Verify role with the server profile (default)
   hosts: all
-  gather_facts: false
   tasks:
     - name: Rsync
       ansible.posix.synchronize:
@@ -14,3 +13,13 @@
       changed_when: false
       register: result
       failed_when: result.rc == 0
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == "systemd"
+      ansible.builtin.command:
+        cmd: timedatectl
+      register: result
+      failed_when: |
+        (result.rc > 0) or
+        ('synchronized: yes' not in result.stdout)
+      changed_when: false

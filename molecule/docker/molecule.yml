@@ -1,0 +1,64 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: archlinux
+    image: gwerlas/ansible-guest-archlinux
+    pre_build_mage: true
+    volumes: &volumes
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - name: debian10
+    image: gwerlas/ansible-guest-debian:buster
+    pre_build_mage: true
+    volumes: *volumes
+  - name: debian11
+    image: gwerlas/ansible-guest-debian:bullseye
+    pre_build_mage: true
+    volumes: *volumes
+  - name: debian12
+    image: gwerlas/ansible-guest-debian:bookworm
+    pre_build_mage: true
+    volumes: *volumes
+  - name: el7
+    image: gwerlas/ansible-guest-centos:7
+    pre_build_mage: true
+    volumes: *volumes
+  - name: el8
+    image: gwerlas/ansible-guest-almalinux:8
+    pre_build_mage: true
+    volumes: *volumes
+  - name: el9
+    image: gwerlas/ansible-guest-almalinux:9
+    pre_build_mage: true
+    volumes: *volumes
+  - name: gentoo
+    image: gwerlas/ansible-guest-gentoo
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu1804
+    image: gwerlas/ansible-guest-ubuntu:18.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu2004
+    image: gwerlas/ansible-guest-ubuntu:20.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu2204
+    image: gwerlas/ansible-guest-ubuntu:22.04
+    pre_build_mage: true
+    volumes: *volumes
+  - name: ubuntu2210
+    image: gwerlas/ansible-guest-ubuntu:22.10
+    pre_build_mage: true
+    volumes: *volumes
+lint: ansible-lint
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        ansible_user: ansible
+verifier:
+  name: ansible
