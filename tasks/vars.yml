@@ -7,7 +7,7 @@
         - "{{ vars_file }}"
         - empty.yml
       paths:
-        - vars
+        - "{{ role_path }}/vars"
   loop:
     - "{{ ansible_os_family | lower }}-like.yml"                                          # debian-like,  redhat-like, etc.
     - "{{ ansible_distribution | lower }}.yml"                                            # debian,       fedora,      ubuntu

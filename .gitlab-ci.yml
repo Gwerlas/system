@@ -4,6 +4,9 @@ molecule:
     - docker:20.10-dind
   script: molecule test -s docker
   timeout: 2h
+  variables:
+    DOCKER_CLIENT_TIMEOUT: "240"
+    COMPOSE_HTTP_TIMEOUT: "240"
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
