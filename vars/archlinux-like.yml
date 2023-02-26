@@ -11,14 +11,18 @@ packages_upgrade_policy:
   upgrade: true
 
 packages:
-  bridge: bridge-utils
-  ca_certificates: ca-certificates
-  chrony: chrony
+  bridge:
+    - bridge-utils
+  ca_certificates:
+    - ca-certificates
+  chrony:
+    - chrony
   common:
     - rsync
   desktop:
     - usbutils
-  ntp: ntp
+  ntp:
+    - ntp
 
 reboot_detection_policy:
   use_template: true

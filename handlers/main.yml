@@ -1,9 +1,9 @@
 ---
 - name: Services
-  ansible.builtin.import_tasks: services.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/services.yml"
 
 - name: Package managers
-  ansible.builtin.import_tasks: pkg_mgr.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/pkg_mgr.yml"
 
 - name: Update CA certificates
   listen: update ca

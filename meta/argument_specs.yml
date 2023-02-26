@@ -86,6 +86,7 @@ argument_specs:
         default: server
         description: Type of the node
         choices:
+          - desktop
           - server
 
   proxies:

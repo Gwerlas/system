@@ -1,7 +1,7 @@
 ---
 - name: Time - Load variables
   when: default_time_backend is undefined
-  ansible.builtin.import_tasks: vars.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
 
 - name: Time - Zone
   when: system_time_zone is defined

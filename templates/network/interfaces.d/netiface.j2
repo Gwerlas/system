@@ -3,10 +3,11 @@
 # {{ system_netiface.description }}
 {% endif %}
 
+{% set bootproto = system_netiface.bootproto | default('dhcp') %}
 {% if (system_netiface.onboot | default(true)) %}
 auto {{ system_netiface.name }}
 {% endif %}
-iface {{ system_netiface.name }} inet {{ system_netiface.bootproto | default('manual') }}
+iface {{ system_netiface.name }} inet {{ bootproto }}
 {% if bootproto != 'dhcp' %}
 {% if system_netiface.ip is defined %}
     address {{ system_netiface.ip | ansible.utils.ipaddr }}

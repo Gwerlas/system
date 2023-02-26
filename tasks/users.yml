@@ -1,7 +1,7 @@
 ---
 - name: ZSH
   when: "'zsh' in users_shells"
-  ansible.builtin.import_tasks: zsh.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/zsh.yml"
 
 - name: Users and groups management
   become: true

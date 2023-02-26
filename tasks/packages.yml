@@ -1,7 +1,7 @@
 ---
 - name: Packages - Load variables
   when: packages is undefined
-  ansible.builtin.import_tasks: vars.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
 
 - name: Packages - Package manager preparation
   ansible.builtin.include_tasks:
@@ -11,10 +11,10 @@
         - "{{ ansible_pkg_mgr }}-pre.yml"
         - empty.yml
       paths:
-        - package-managers
+        - "{{ role_path }}/tasks/package-managers"
 
 - name: Packages - Update
-  ansible.builtin.import_tasks: packages/update.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/update.yml"
 
 - name: Packages - Package managers post update
   ansible.builtin.include_tasks:
@@ -24,7 +24,7 @@
         - "{{ ansible_pkg_mgr }}-post.yml"
         - empty.yml
       paths:
-        - package-managers
+        - "{{ role_path }}/tasks/package-managers"
 
 - name: Packages - Debug
   ansible.builtin.debug:
@@ -58,4 +58,4 @@
   retries: "{{ system_retries }}"
 
 - name: Packages - Reboot if needed
-  ansible.builtin.import_tasks: reboot.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/reboot.yml"

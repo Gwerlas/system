@@ -1,11 +1,11 @@
 ---
 - name: OpenRC
   when: ansible_service_mgr == "openrc"
-  ansible.builtin.import_tasks: openrc.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/openrc.yml"
 
 - name: Systemd
   when: ansible_service_mgr == "systemd"
-  ansible.builtin.import_tasks: systemd.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/systemd.yml"
 
 - name: Time service restart
   listen:

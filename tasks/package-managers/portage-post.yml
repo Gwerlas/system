@@ -3,7 +3,7 @@
   when: "'container' not in ansible_virtualization_tech_guest"
   block:
     - name: Portage - Profile
-      ansible.builtin.import_tasks: portage-profile.yml
+      ansible.builtin.import_tasks: "{{ role_path }}/tasks/package-managers/portage-profile.yml"
 
     - name: Portage - Kernel related packages settings
       ansible.builtin.copy:

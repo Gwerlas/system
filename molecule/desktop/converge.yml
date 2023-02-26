@@ -1,0 +1,11 @@
+---
+- name: Converge customization
+  hosts: all
+  tasks:
+    - name: Include gwerlas.system
+      ansible.builtin.include_role:
+        name: gwerlas.system
+      vars:
+        system_retries: 5
+        system_packages_upgrade: true
+        system_profile: desktop

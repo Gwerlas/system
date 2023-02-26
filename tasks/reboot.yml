@@ -1,7 +1,7 @@
 ---
 - name: Reboot - Load variables
   when: reboot_detection_policy is undefined
-  ansible.builtin.import_tasks: vars.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
 
 - name: Reboot
   when:

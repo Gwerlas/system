@@ -3,10 +3,10 @@
 # {{ system_netiface.description }}
 {% endif %}
 
-{% set bootproto = system_netiface.bootproto | default('none') %}
+{% set bootproto = system_netiface.bootproto | default('dhcp') %}
 DEVICE={{ system_netiface.name }}
 BOOTPROTO={{ bootproto }}
-ONBOOT={{ 'yes' if system_netiface.onboot else 'no' }}
+ONBOOT={{ 'yes' if (system_netiface.onboot | default(true)) else 'no' }}
 TYPE={{ system_netiface.type }}
 {% if bootproto != 'dhcp' %}
 {% if system_netiface.ip is defined %}

@@ -1,0 +1,18 @@
+---
+# No package epel-release available.
+system_el_use_epel: false
+
+# No package systemd-timesyncd available.
+packages:
+  bridge:
+    - bridge-utils
+  ca_certificates:
+    - ca-certificates
+  chrony:
+    - chrony
+  common:
+    - rsync
+  desktop:
+    - usbutils
+  unattended_upgrades:
+    - dnf-automatic

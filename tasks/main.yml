@@ -4,31 +4,31 @@
 
 - name: Proxies
   when: system_manage_proxies
-  ansible.builtin.import_tasks: proxies.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/proxies.yml"
 
 - name: Hosts
   when: system_manage_hosts
-  ansible.builtin.import_tasks: hosts.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/hosts.yml"
 
 - name: Packages
-  ansible.builtin.import_tasks: packages.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
 
 - name: Network management
   when:
     - system_manage_networks
     - system_networks_interfaces | length > 0
-  ansible.builtin.import_tasks: networks.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
 
 - name: Sudo
   when: system_manage_sudo
-  ansible.builtin.import_tasks: sudo.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/sudo.yml"
 
 - name: Users
-  ansible.builtin.import_tasks: users.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/users.yml"
 
 - name: CA certificates
   when: system_ca_certificates | length > 0
-  ansible.builtin.import_tasks: ca.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/ca.yml"
 
 - name: Time
-  ansible.builtin.import_tasks: time.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/time.yml"
