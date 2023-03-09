@@ -1,0 +1,140 @@
+---
+- name: Storages
+  become: true
+  block:
+    - name: Storages - Unmount before removing
+      ansible.posix.mount:
+        path: "{{ path }}"
+        state: absent
+      loop: |
+        {{
+          (system_storages_partitions + system_storages_lvol) |
+          selectattr('mount', 'defined') |
+          selectattr('state', 'defined') |
+          selectattr('state', '==', 'absent') |
+          map(attribute='mount') |
+          sort | reverse
+        }}
+      loop_control:
+        loop_var: path
+
+    - name: Storages - Partitions
+      when: system_storages_partitions | length > 0
+      community.general.parted:
+        align: "{{ part.align | default(omit) }}"
+        device: "{{ part.device }}"
+        flags: "{{ part.flags | default(omit) }}"
+        fs_type: "{{ part.fs_type | default('ext4') }}"
+        label: "{{ part.label | default(omit) }}"
+        name: "{{ part.name | default(omit) }}"
+        number: "{{ part.number | default(1) }}"
+        part_end: "{{ part.part_end | default(omit) }}"
+        part_start: "{{ part.part_start | default(omit) }}"
+        part_type: "{{ part.part_type | default(omit) }}"
+        resize: "{{ part.resize | default(true) }}"
+        state: "{{ part.state | default('present') }}"
+        unit: "{{ part.unit | default(omit) }}"
+      loop: "{{ system_storages_partitions }}"
+      loop_control:
+        loop_var: part
+
+    - name: Storages - Volume groups
+      when: system_storages_vg | length > 0
+      community.general.lvg:
+        force: "{{ lvm.force | default(omit) }}"
+        pesize: "{{ lvm.pesize | default(omit) }}"
+        pv_options: "{{ lvm.pv_options | default(omit) }}"
+        pvresize: "{{ lvm.pvresize | default(true) }}"
+        pvs: "{{ lvm.pvs | default(omit) }}"
+        state: "{{ lvm.state | default('present') }}"
+        vg: "{{ lvm.vg }}"
+        vg_options: "{{ lvm.vg_options | default(omit) }}"
+      loop: "{{ system_storages_vg }}"
+      loop_control:
+        loop_var: lvm
+
+    - name: Storages - Logical volumes
+      when: system_storages_lvol | length > 0
+      community.general.lvol:
+        active: "{{ lvm.active | default(omit) }}"
+        force: "{{ lvm.force | default(omit) }}"
+        lv: "{{ lvm.lv }}"
+        opts: "{{ lvm.lv_options | default(omit) }}"
+        pvs: "{{ lvm.pvs | default(omit) }}"
+        resizefs: "{{ lvm.resizefs | default(true) }}"
+        shrink: "{{ lvm.shrink | default(omit) }}"
+        size: "{{ lvm.size | default('100%FREE') }}"
+        snapshot: "{{ lvm.snapshot | default(omit) }}"
+        state: "{{ lvm.state | default('present') }}"
+        thinpool: "{{ lvm.thinpool | default(omit) }}"
+        vg: "{{ lvm.vg }}"
+      loop: "{{ system_storages_lvol }}"
+      loop_control:
+        loop_var: lvm
+
+    - name: Storages - Mount point
+      vars:
+        mounts: |
+          {{
+            ((
+              (
+                (system_storages_partitions | selectattr('state', 'undefined')) +
+                (system_storages_partitions | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+              ) |
+              to_json | from_json |
+              community.general.json_query('[?mount].{
+                fstype: not_null(fs_type, `ext4`),
+                group: not_null(group, `root`),
+                mode: not_null(group, `0755`),
+                owner: not_null(group, `root`),
+                path: mount,
+                resize: not_null(resize, `true`),
+                src: join(``, [device, to_string(not_null(number, `1`))])
+              }')
+            ) + (
+              (
+                (system_storages_lvol | selectattr('state', 'undefined')) +
+                (system_storages_lvol | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+              ) |
+              to_json | from_json |
+              community.general.json_query('[?mount].{
+                fstype: not_null(fstype, `ext4`),
+                group: not_null(group, `root`),
+                mode: not_null(group, `0755`),
+                owner: not_null(group, `root`),
+                path: mount,
+                resize: not_null(resizefs, `true`),
+                src: join(`/`, [``, `dev`, `mapper`, join(`-`, [vg, lv])])
+              }')
+            )) | sort(attribute='path')
+          }}
+      block:
+        - name: Storages - Filesystem
+          community.general.filesystem:
+            fstype: "{{ device.fstype }}"
+            dev: "{{ device.src }}"
+            resizefs: "{{ device.resize }}"
+          loop: "{{ mounts }}"
+          loop_control:
+            loop_var: device
+
+        - name: Storages - Directory
+          ansible.builtin.file:
+            path: "{{ mount.path }}"
+            state: directory
+            owner: "{{ mount.owner }}"
+            group: "{{ mount.group }}"
+            mode: "{{ mount.mode }}"
+          loop: "{{ mounts }}"
+          loop_control:
+            loop_var: mount
+
+        - name: Storages - Mount
+          ansible.posix.mount:
+            path: "{{ mount.path }}"
+            src: "{{ mount.src }}"
+            state: mounted
+            fstype: "{{ mount.fstype }}"
+          loop: "{{ mounts }}"
+          loop_control:
+            loop_var: mount

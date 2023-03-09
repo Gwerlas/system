@@ -135,6 +135,11 @@
         ('synchronized: yes' not in result.stdout)
       changed_when: false
 
+    - name: Backups storage
+      ansible.builtin.assert:
+        that:
+          - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
+
 - name: Check network configuration
   hosts: debian
   tasks:

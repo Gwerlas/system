@@ -1,0 +1,4 @@
+---
+system_bin_path: /usr/local/bin
+system_profile: server
+system_retries: 2

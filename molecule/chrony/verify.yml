@@ -1,8 +1,0 @@
----
-- name: Verify chrony
-  hosts: all
-  tasks:
-    - name: Time synchronisation
-      ansible.builtin.command:
-        cmd: chronyc sourcestats
-      changed_when: false

@@ -51,6 +51,7 @@ packages_computed: |
     + (system_ca_certificates | length > 0) | ternary(packages.ca_certificates, [])
     + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
     + (system_manage_time and time_backend_name in packages) | ternary(packages[time_backend_name], [])
+    + (system_manage_storages | ternary(packages.parted | default(['parted']), []))
     ) | flatten | sort | unique
   }}
 

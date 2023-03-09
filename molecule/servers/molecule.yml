@@ -15,61 +15,71 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: dhcp
-    provider_raw_config_args: &raw_config
+    provider_raw_config_args: &provider
       - "cpu_mode = 'host-passthrough'"
       - "disk_bus = 'virtio'"
       - "nic_model_type = 'virtio'"
       - "video_type = 'virtio'"
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
+    instance_raw_config_args: &instance
+      - 'vm.disk :disk, size: "1GB", name: "vdb"'
   - name: debian11
     box: debian/bullseye64
     groups:
       - debian
       - debian_like
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: el7
     box: centos/7
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: el8
     box: almalinux/8
     memory: 2048
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: el9
     box: almalinux/9
     memory: 2048
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: ubuntu1804
     box: generic/ubuntu1804
     groups:
       - debian_like
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: ubuntu2004
     box: generic/ubuntu2004
     groups:
       - debian_like
     memory: 2048
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: ubuntu2204
     box: generic/ubuntu2204
     groups:
       - debian_like
     memory: 4096
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
   - name: ubuntu2210
     box: generic/ubuntu2210
     groups:
       - debian_like
     memory: 2048
     interfaces: *interfaces
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
 lint: ansible-lint
 provisioner:
   name: ansible

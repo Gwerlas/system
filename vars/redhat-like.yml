@@ -31,6 +31,9 @@ packages:
     - rsync
   desktop:
     - usbutils
+  parted:
+    - lvm2
+    - parted
   timesync:
     - systemd-timesyncd
   unattended_upgrades:

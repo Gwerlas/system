@@ -19,6 +19,10 @@
     - system_networks_interfaces | length > 0
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
 
+- name: Storages
+  when: system_manage_storages
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/storages.yml"
+
 - name: Sudo
   when: system_manage_sudo
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/sudo.yml"
@@ -31,4 +35,5 @@
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/ca.yml"
 
 - name: Time
+  when: system_manage_time
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/time.yml"

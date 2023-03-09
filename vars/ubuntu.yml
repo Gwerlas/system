@@ -1,7 +1,7 @@
 ---
-system_apt_default_mirror: http://us.archive.ubuntu.com
-system_apt_default_mirrors:
-  - url: "{{ system_apt_mirror | default(system_apt_default_mirror) }}/ubuntu"
+apt_default_mirror: http://us.archive.ubuntu.com
+apt_default_mirrors:
+  - url: "{{ system_apt_mirror | default(apt_default_mirror) }}/ubuntu"
     branches:
       - "{{ ansible_distribution_release }}"
       - "{{ ansible_distribution_release }}-updates"

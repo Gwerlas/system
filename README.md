@@ -17,7 +17,18 @@ Requirements
 
 This role as been writen to be run as non root user, so Sudo has to be installed and configured.
 
-For network configuration, the `netaddr` python package is required.
+For network configuration, the [`netaddr` Python package][netaddr] is
+required, You also need the [`ansible.utils`][ansible.utils] Ansible module.
+
+For filesystems management, the [`jmespath` Python package][jmespath] is
+required, You also need the [`community.general`][community.general] and
+[`ansible.posix`][ansible.posix] Ansible modules.
+
+[jmespath]: https://jmespath.org/
+[netaddr]: https://netaddr.readthedocs.io/en/latest/
+[ansible.posix]: https://galaxy.ansible.com/ansible/posix
+[ansible.utils]: https://galaxy.ansible.com/ansible/utils
+[community.general]: https://galaxy.ansible.com/community/general
 
 Facts
 -----
@@ -46,39 +57,35 @@ ansible-playbook -t tag1[,tag2[,...]] my_play.yml
 Tasks
 -----
 
-System composents are managed throw separated tasks that could be called independently.
+System composents are managed through separated tasks that could be called
+independently.
 
-Of course, all tasks are ran throw the `main.yml`. See each task documentation :
+Of course, all tasks are called in the `main.yml`. See each task documentation :
 
-* [sudo](docs/sudo.md)
-* [hosts](docs/hosts.md)
 * [proxies](docs/proxies.md)
+* [hosts](docs/hosts.md)
 * [packages](docs/packages.md)
-* [reboot](docs/reboot.md)
+* [networks](docs/networks.md)
+* [storages](docs/storages.md)
+* [sudo](docs/sudo.md)
 * [users](docs/users.md)
 * [zsh](docs/zsh.md)
 * [ca](docs/ca.md)
-* [network](docs/network.md)
 * [time](docs/time.md)
+* [reboot](docs/reboot.md)
 
 Role Variables
 --------------
 
-Look at [`defaults/main.yml`](defaults/main.yml).
-
 ### Feature flipping
 
-```yaml
-system_manage_sudo: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-system_manage_hosts: false
-system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
-system_manage_networks: false
-system_manage_time: "{{ 'container' not in ansible_virtualization_tech_guest }}"
-```
+Look at [`defaults/main/feature-flipping.yml`](defaults/main/feature-flipping.yml).
 
 Enable/disable some features by setting them to `true`/`false`.
 
 ### Shared variables
+
+Look at [`defaults/main/shared.yml`](defaults/main/shared.yml).
 
 ```yaml
 system_bin_path: /usr/local/bin
@@ -89,7 +96,7 @@ system_retries: 2
 Some distributions does not provide command line to easily know if a reboot is
 required, or if the packages cache is outdated. So we put scripts to do it.
 
-You can change those scripts location throw the `system_bin_path`.
+You can change those scripts location through the `system_bin_path`.
 
 The `system_profile` can impact the behaviour of some parts of the system,
 for example the packages to install (or not).
@@ -105,19 +112,7 @@ None.
 Example Playbook
 ----------------
 
-First deployment :
-
-```yaml
----
-- name: System preparation
-  hosts: all
-  roles:
-    - role: gwerlas.system
-      vars:
-        system_packages_upgrade: true
-```
-
-Distribution update, 10 steps rolling update :
+First deployment or distribution upgrade, 10 steps rolling update :
 
 ```yaml
 ---
@@ -134,31 +129,13 @@ Use just one task :
 
 ```yaml
 ---
-- name: Firewalling
+- name: System packages
   hosts: all
   tasks:
     - name: Update the package manager cache
       ansible.builtin.import_role:
         name: gwerlas.system
         tasks_from: packages
-```
-
-Use the legacy `ntp` package for time synchronisation, and a list of custom
-NTP servers :
-
-```yaml
----
-- name: NTPd
-  hosts: all
-  roles:
-    - name: gwerlas.system
-      vars:
-        system_time_backend: ntp
-        system_time_servers:
-          - 0.fr.pool.ntp.org
-          - 1.fr.pool.ntp.org
-          - 2.fr.pool.ntp.org
-          - 3.fr.pool.ntp.org
 ```
 
 License

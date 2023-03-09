@@ -9,7 +9,6 @@
         state: stopped
 
     - name: APT - Sources list
-      when: system_apt_mirrors is defined or system_apt_default_mirrors is defined
       ansible.builtin.template:
         src: apt/sources.list.j2
         dest: /etc/apt/sources.list

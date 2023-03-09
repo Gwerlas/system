@@ -15,8 +15,8 @@ system_users: []
 Users and groups
 ----------------
 
-Users and groups are lists of dictionaries with the same structure documented respectively in the
-[Ansible user module][] and [Ansible group module][].
+Users and groups are lists of dictionaries with the same structure documented
+respectively in the [Ansible user module][] and [Ansible group module][].
 
 The users' groups and the groups listed in `system_users_groups` will
 be created if missing.
