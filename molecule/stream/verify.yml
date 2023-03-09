@@ -8,6 +8,7 @@
         dest: /tmp/verify.yml
 
     - name: Time synchronisation
+      when: ansible_service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: timedatectl
       register: result
@@ -15,4 +16,10 @@
         (result.rc > 0) or
         ('synchronized: yes' not in result.stdout) or
         ('service: active' not in result.stdout)
+      changed_when: false
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'openrc'
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
       changed_when: false

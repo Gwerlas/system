@@ -1,5 +1,3 @@
 ---
-system_el_use_epel: true
-
 system_packages:
   - wget

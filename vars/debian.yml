@@ -1,16 +1,15 @@
 ---
-system_debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
-system_apt_default_mirror: https://deb.debian.org
-system_apt_default_sections:
+apt_default_mirror: https://deb.debian.org
+apt_default_sections:
   - main
-system_apt_default_mirrors:
-  - url: "{{ system_apt_mirror | default(system_apt_default_mirror) }}/debian"
+apt_default_mirrors:
+  - url: "{{ apt_mirror }}/debian"
     branches:
-      - "{{ system_debian_release }}"
-      - "{{ system_debian_release }}-updates"
-      - "{{ system_debian_release }}-backports"
-    sections: "{{ system_apt_sections | default(system_apt_default_sections) }}"
-  - url: "{{ system_apt_mirror | default(system_apt_default_mirror) }}/debian-security"
+      - "{{ debian_release }}"
+      - "{{ debian_release }}-updates"
+      - "{{ debian_release }}-backports"
+    sections: "{{ apt_sections }}"
+  - url: "{{ apt_mirror }}/debian-security"
     branches:
-      - "{{ system_debian_release }}{{ '-security' if ansible_distribution_major_version >= '11' else '' }}/updates"
-    sections: "{{ system_apt_sections | default(system_apt_default_sections) }}"
+      - "{{ debian_release }}{{ '-security' if ansible_distribution_major_version >= '11' else '' }}/updates"
+    sections: "{{ apt_sections }}"

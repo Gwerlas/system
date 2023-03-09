@@ -9,35 +9,32 @@
   community.general.timezone:
     name: "{{ system_time_zone }}"
 
-- name: Backend
-  when: system_manage_time
+- name: Checks
+  when: time_backend_name not in time_backends
   block:
-    - name: Checks
-      when: time_backend_name not in time_backends
-      block:
-        - name: Debug
-          ansible.builtin.debug:
-            var: time_backends
+    - name: Debug
+      ansible.builtin.debug:
+        var: time_backends
 
-        - name: Check the backend
-          ansible.builtin.fail:
-            msg: "{{ time_backend_name }} not supported"
+    - name: Check the backend
+      ansible.builtin.fail:
+        msg: "{{ time_backend_name }} not supported"
 
-    - name: Wanted backend
-      become: true
-      vars:
-        time_backend: "{{ time_backends[time_backend_name] }}"
-      block:
-        - name: Time - Configuration file
-          when: system_time_servers | length > 0
-          ansible.builtin.template:
-            src: "{{ time_backend.config }}.j2"
-            dest: "/etc/{{ time_backend.config }}"
-            mode: "0644"
-          notify: restart time service
+- name: Wanted backend
+  become: true
+  vars:
+    time_backend: "{{ time_backends[time_backend_name] }}"
+  block:
+    - name: Time - Configuration file
+      when: system_time_servers | length > 0
+      ansible.builtin.template:
+        src: "{{ time_backend.config }}.j2"
+        dest: "/etc/{{ time_backend.config }}"
+        mode: "0644"
+      notify: restart time service
 
-        - name: Time - Service
-          ansible.builtin.service:
-            name: "{{ time_backend.service }}"
-            state: started
-            enabled: true
+    - name: Time - Service
+      ansible.builtin.service:
+        name: "{{ time_backend.service }}"
+        state: started
+        enabled: true

@@ -12,6 +12,9 @@ packages:
     - usbutils
   ntp:
     - ntp
+  parted:
+    - lvm2
+    - parted
 
 default_time_backend: chrony
 time_backends:

@@ -1,4 +1,9 @@
 ---
+apt_mirror: "{{ system_apt_mirror | default(apt_default_mirror) }}"
+apt_sections: "{{ system_apt_sections | default(apt_default_sections) }}"
+
+debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
+
 default_ca:
   path: /usr/local/share/ca-certificates
   command: update-ca-certificates
@@ -32,6 +37,9 @@ packages:
     - usbutils
   ntp:
     - ntp
+  parted:
+    - lvm2
+    - parted
   timesync:
     - systemd-timesyncd
   unattended_upgrades:

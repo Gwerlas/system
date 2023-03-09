@@ -102,3 +102,24 @@ Systemd's timesync is not supported by RedHat.
 To use timesyncd on EL8 or newer, You'll need to [install EPEL][].
 
 [install EPEL]: packages.md#epel-extra-packages-for-enterprise-linux
+
+Examples
+--------
+
+Use the legacy `ntp` package for time synchronisation, and a list of custom
+NTP servers :
+
+```yaml
+---
+- name: NTPd
+  hosts: all
+  roles:
+    - name: gwerlas.system
+      vars:
+        system_time_backend: ntp
+        system_time_servers:
+          - 0.fr.pool.ntp.org
+          - 1.fr.pool.ntp.org
+          - 2.fr.pool.ntp.org
+          - 3.fr.pool.ntp.org
+```

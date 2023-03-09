@@ -129,6 +129,25 @@ argument_specs:
         default: "'sudo' for Debian like distros, 'wheel' otherwise"
         description: Name of the group with all permissions.
 
+  storages:
+    short_description: Create block devices and LVM, format and mount them.
+    options:
+      system_storages_partitions:
+        type: list
+        elements: dict
+        default: "[]"
+        description: Configure block device partitions.
+      system_storages_lvol:
+        type: list
+        elements: dict
+        default: "[]"
+        description: Configure LVM logical volumes.
+      system_storages_vg:
+        type: list
+        elements: dict
+        default: "[]"
+        description: Configure LVM volume groups.
+
   time:
     short_description: Time and date management.
     options:

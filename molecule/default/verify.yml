@@ -23,3 +23,9 @@
         (result.rc > 0) or
         ('synchronized: yes' not in result.stdout)
       changed_when: false
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'openrc'
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
+      changed_when: false
