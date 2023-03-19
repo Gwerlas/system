@@ -1,4 +1,24 @@
 ---
+- name: Cache update
+  listen: cache update
+  become: true
+  ansible.builtin.package:
+    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
+    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+
+- name: Cache update marker
+  listen: cache update
+  when: packages_update_policy.marker is defined
+  become: true
+  ansible.builtin.file:
+    path: "{{ packages_update_policy.marker }}"
+    state: touch
+    modification_time: now
+    mode: "0644"
+
 - name: Portage - Rebuild packages that need to be rebuilt
   listen: emerge --newuse
   become: true
@@ -19,23 +39,3 @@
   become: true
   community.general.portage:
     package: '@module-rebuild'
-
-- name: Cache update
-  listen: cache update
-  become: true
-  ansible.builtin.package:
-    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
-    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
-
-- name: Cache update marker
-  listen: cache update
-  when: packages_update_policy.marker is defined
-  become: true
-  ansible.builtin.file:
-    path: "{{ packages_update_policy.marker }}"
-    state: touch
-    modification_time: now
-    mode: "0644"

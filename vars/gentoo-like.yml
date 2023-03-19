@@ -4,6 +4,10 @@ default_ca:
   command: update-ca-certificates
   bundle: /etc/ssl/certs/ca-certificates.crt
 
+default_portage_directory: /var/db/repos/gentoo
+
+default_time_backend: timesync
+
 packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
@@ -22,8 +26,8 @@ packages:
   ntp:
     - net-misc/ntp
 
+python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
+
 system_portage_profile:
   desktop: default/linux/amd64/17.1/desktop
   server: default/linux/amd64/17.1/no-multilib
-
-default_time_backend: timesync

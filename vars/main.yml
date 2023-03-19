@@ -1,4 +1,7 @@
 ---
+# Runtime
+in_container: "{{ 'container' in ansible_virtualization_tech_guest }}"
+
 # Hosts
 local_hostnames: |
   {{

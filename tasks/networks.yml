@@ -1,7 +1,7 @@
 ---
 - name: Networks - Load variables
   when: default_networks is undefined
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Networks - Prune unmanaged interfaces
   when: system_networks_interfaces_prune

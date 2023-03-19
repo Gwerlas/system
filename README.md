@@ -36,7 +36,6 @@ Facts
 Defined facts of this role :
 
 - `system_packages_computed`
-- `system_portage_directory_initial`
 - `system_sudo_version`
 
 Tags

@@ -1,0 +1,12 @@
+---
+- name: Portage - System rolling upgrade
+  when: system_packages_upgrade
+  become: true
+  community.general.portage:
+    deep: true
+    newuse: true
+    update: true
+    package: '@world'
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

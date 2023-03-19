@@ -1,6 +1,6 @@
 ---
 - name: Load variables
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Proxies
   when: system_manage_proxies

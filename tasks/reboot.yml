@@ -1,11 +1,11 @@
 ---
 - name: Reboot - Load variables
   when: reboot_detection_policy is undefined
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/vars.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Reboot
   when:
-    - "'container' not in ansible_virtualization_tech_guest"
+    - "not in_container"
     - reboot_detection_policy is defined
   block:
     - name: Reboot - Package providing the command that determine if a restart is needed

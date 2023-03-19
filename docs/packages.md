@@ -100,9 +100,6 @@ You can disable it by setting the `system_el_use_epel` variable to `false`.
 If your package manager is Portage (Gentoo based distros), You can change the
 portage manifests directory (`PORTDIR`) with the `system_portage_directory` setting.
 
-If the portage directory is changed, the old one will be removed. In this case, the
-fact `system_portage_directory_initial` is set with the previous portage directory path.
-
 #### System group
 
 If the ansible user is not `root`, he will be added to the `portage` system group.
