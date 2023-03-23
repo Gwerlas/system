@@ -1,5 +1,7 @@
 molecule:
   image: gwerlas/molecule
+  tags:
+    - saas-linux-large-amd64
   services:
     - name: docker:20.10-dind
       variables:
