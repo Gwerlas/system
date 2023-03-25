@@ -1,5 +1,5 @@
 ---
-- name: Converge customization
+- name: Converge with defaults settings
   hosts: all
   roles:
     - role: gwerlas.system

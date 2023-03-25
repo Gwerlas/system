@@ -10,12 +10,14 @@
   become: true
   ansible.builtin.command:
     cmd: "{{ default_ca.command }}"
+  changed_when: true
 
 - name: Grub make configuration
   listen: grub-mkconfig
   become: true
   ansible.builtin.command:
     cmd: grub-mkconfig -o /boot/grub/grub.cfg
+  changed_when: true
 
 - name: Restart network
   listen:

@@ -1,0 +1,13 @@
+---
+- name: Packages - Debug
+  ansible.builtin.debug:
+    var: packages_computed
+    verbosity: 1
+
+- name: Packages - Base system tools
+  become: true
+  ansible.builtin.package:
+    name: "{{ packages_computed }}"
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

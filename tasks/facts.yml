@@ -1,5 +1,5 @@
 ---
-- name: Variables
+- name: Facts - Local variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
@@ -17,3 +17,8 @@
     - "{{ ansible_service_mgr }}.yml"                                                     # openrc
   loop_control:
     loop_var: vars_file
+
+- name: Facts - Global
+  ansible.builtin.set_fact:
+    cacheable: true
+    system_packages_computed: "{{ packages_computed }}"

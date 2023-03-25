@@ -1,5 +1,5 @@
 ---
-- name: Portage - System rolling upgrade
+- name: Portage - Deep upgrade
   when: system_packages_upgrade
   become: true
   community.general.portage:

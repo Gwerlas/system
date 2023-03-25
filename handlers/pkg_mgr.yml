@@ -1,16 +1,6 @@
 ---
-- name: Cache update
-  listen: cache update
-  become: true
-  ansible.builtin.package:
-    sync: "{{ (ansible_pkg_mgr == 'portage') | ternary(true, omit) }}"
-    update_cache: "{{ (ansible_pkg_mgr != 'portage') | ternary(true, omit) }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
-
-- name: Cache update marker
-  listen: cache update
+- name: Packages - Cache update marker
+  listen: update marker
   when: packages_update_policy.marker is defined
   become: true
   ansible.builtin.file:

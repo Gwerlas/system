@@ -13,11 +13,3 @@
         src: apt/sources.list.j2
         dest: /etc/apt/sources.list
         mode: "0644"
-      notify: cache update
-
-    - name: APT - Unattended upgrade
-      when: system_packages_upgrade_unattended
-      ansible.builtin.template:
-        src: apt/apt.conf.d/20auto-upgrades.j2
-        dest: /etc/apt/apt.conf.d/20auto-upgrades
-        mode: "0644"

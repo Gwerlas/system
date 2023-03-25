@@ -1,0 +1,12 @@
+---
+- name: Packages - Distribution upgrade
+  ansible.builtin.include_tasks:
+    file: "{{ upg_task }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}.yml"
+        - other.yml
+      paths:
+        - "{{ role_path }}/tasks/packages/upgrade"
+  loop_control:
+    loop_var: upg_task

@@ -1,0 +1,12 @@
+---
+- name: Packages - Requirements
+  ansible.builtin.include_tasks:
+    file: "{{ req_task }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}.yml"
+      paths:
+        - "{{ role_path }}/tasks/packages/requirements"
+      skip: true
+  loop_control:
+    loop_var: req_task

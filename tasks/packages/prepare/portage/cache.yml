@@ -7,13 +7,13 @@
 - name: Portage - Cache - Configuration parameter
   vars:
     is_default: "{{ system_portage_directory == default_portage_directory }}"
+    line: PORTDIR="{{ system_portage_directory }}"
   become: true
   ansible.builtin.lineinfile:
     path: /etc/portage/make.conf
-    line: "{{ is_default | ternary(omit, 'PORTDIR=\"{{ system_portage_directory }}\"') }}"
+    line: "{{ is_default | ternary(omit, line) }}"
     regex: ^PORTDIR=
     state: "{{ is_default | ternary('absent', 'present') }}"
-  notify: cache update
 
 - name: Portage - Cache - Predefined Portage directory
   ansible.builtin.set_fact:
@@ -30,6 +30,7 @@
         path: "{{ system_portage_directory | dirname }}"
         state: directory
         mode: "0755"
+        recurse: true
 
     - name: Portage - Cache - Portdir - Move data
       ansible.builtin.command:

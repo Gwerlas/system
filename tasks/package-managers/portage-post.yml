@@ -1,8 +1,0 @@
----
-- name: Portage - Base system
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/portage/{{ portage_task }}.yml"
-  loop:
-    - kernel
-    - upgrade
-  loop_control:
-    loop_var: portage_task

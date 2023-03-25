@@ -1,0 +1,9 @@
+---
+- name: Cache update
+  become: true
+  ansible.builtin.package:
+    update_cache: true
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+  notify: update marker

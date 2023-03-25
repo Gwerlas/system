@@ -1,0 +1,12 @@
+---
+- name: Packages - Prepare
+  ansible.builtin.include_tasks:
+    file: "{{ prep_task }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}.yml"
+      paths:
+        - "{{ role_path }}/tasks/packages/prepare"
+      skip: true
+  loop_control:
+    loop_var: prep_task

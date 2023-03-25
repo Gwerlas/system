@@ -3,63 +3,16 @@
   when: packages is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: Packages - Package manager preparation
-  ansible.builtin.include_tasks:
-    file: "{{ pkg_task }}"
-  with_first_found:
-    - files:
-        - "{{ ansible_pkg_mgr }}-pre.yml"
-        - empty.yml
-      paths:
-        - "{{ role_path }}/tasks/package-managers"
+- name: Packages
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/{{ pkg_task }}.yml"
+  loop:
+    - prepare
+    - update
+    - requirements
+    - install
+    - upgrade
   loop_control:
     loop_var: pkg_task
-
-- name: Packages - Update
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/update.yml"
-
-- name: Packages - Package managers post update
-  ansible.builtin.include_tasks:
-    file: "{{ pkg_task }}"
-  with_first_found:
-    - files:
-        - "{{ ansible_pkg_mgr }}-post.yml"
-        - empty.yml
-      paths:
-        - "{{ role_path }}/tasks/package-managers"
-  loop_control:
-    loop_var: pkg_task
-
-- name: Packages - Debug
-  ansible.builtin.debug:
-    var: packages_computed
-    verbosity: 1
-
-- name: Packages - Base system tools
-  become: true
-  ansible.builtin.package:
-    name: "{{ packages_computed }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
-
-- name: Packages - Persist computed list as fact
-  ansible.builtin.set_fact:
-    cacheable: true
-    system_packages_computed: "{{ packages_computed }}"
-
-- name: Packages - Upgrade
-  when:
-    - system_packages_upgrade
-    - packages_upgrade_policy is defined
-  become: true
-  ansible.builtin.package:
-    name: "{{ packages_upgrade_policy.name | default(omit) }}"
-    state: "{{ packages_upgrade_policy.state | default(omit) }}"
-    upgrade: "{{ packages_upgrade_policy.upgrade | default(omit) }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
 
 - name: Packages - Reboot if needed
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/reboot.yml"

@@ -40,14 +40,6 @@
         src: /usr/src/linux-{{ (system_available_kernels.files | map(attribute='path') | map('regex_search', 'vmlinuz-(.*)', '\1') | last).0 }}
         dest: /usr/src/linux
         state: link
+        force: true
       notify:
         - emerge @module-rebuild
-
-    - name: Portage - Use flags
-      ansible.builtin.copy:
-        src: package.use/kernel
-        dest: /etc/portage/package.use/kernel
-        owner: "{{ ansible_user_id }}"
-        group: portage
-        mode: "0664"
-      notify: emerge --newuse
