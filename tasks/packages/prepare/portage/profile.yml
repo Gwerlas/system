@@ -11,4 +11,5 @@
     dest: /etc/portage/make.profile
     state: link
     force: true
+    follow: false
   notify: emerge --newuse

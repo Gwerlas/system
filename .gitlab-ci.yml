@@ -3,7 +3,7 @@ molecule:
   tags:
     - saas-linux-large-amd64
   services:
-    - name: docker:20.10-dind
+    - name: docker:23.0-dind
       variables:
         DOCKER_CLIENT_TIMEOUT: "240"
         COMPOSE_HTTP_TIMEOUT: "240"
