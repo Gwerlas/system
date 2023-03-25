@@ -33,10 +33,10 @@ platforms:
     image: gwerlas/ansible-guest-almalinux:9
     pre_build_mage: true
     volumes: *volumes
-  - name: gentoo
-    image: gwerlas/ansible-guest-gentoo
-    pre_build_mage: true
-    volumes: *volumes
+  # - name: gentoo
+  #   image: gwerlas/ansible-guest-gentoo
+  #   pre_build_mage: true
+  #   volumes: *volumes
   - name: ubuntu1804
     image: gwerlas/ansible-guest-ubuntu:18.04
     pre_build_mage: true
