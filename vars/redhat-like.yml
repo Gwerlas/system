@@ -39,11 +39,6 @@ packages:
   unattended_upgrades:
     - dnf-automatic
 
-default_time_backend: timesync
 time_backends:
-  timesync:
-    config: systemd/timesyncd.conf
-    service: systemd-timesyncd.service
-  chrony:
-    config: chrony.conf
-    service: chronyd.service
+  - chrony
+  - timesync

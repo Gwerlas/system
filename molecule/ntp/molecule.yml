@@ -18,15 +18,6 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Syu --noconfirm git net-tools python3 sudo unzip which"'
-  - name: debian10
-    box: debian/buster64
-    provider_raw_config_args: *raw_config
-  - name: debian11
-    box: debian/bullseye64
-    provider_raw_config_args: *raw_config
-  - name: el7
-    box: centos/7
-    provider_raw_config_args: *raw_config
   - name: gentoo
     box: generic/gentoo
     cpus: 4
@@ -37,6 +28,17 @@ platforms:
       - "video_type = 'virtio'"
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
+
+  # Debian like
+  - name: debian10
+    box: debian/buster64
+    provider_raw_config_args: *raw_config
+  - name: debian11
+    box: debian/bullseye64
+    provider_raw_config_args: *raw_config
+  - name: debian12
+    box: debian/testing64
+    provider_raw_config_args: *raw_config
   - name: ubuntu1804
     box: generic/ubuntu1804
     provider_raw_config_args: *raw_config
@@ -51,6 +53,11 @@ platforms:
   - name: ubuntu2210
     box: generic/ubuntu2210
     memory: 2048
+    provider_raw_config_args: *raw_config
+
+  # RedHat like
+  - name: centos7
+    box: centos/7
     provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:

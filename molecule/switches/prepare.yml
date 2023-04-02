@@ -1,0 +1,5 @@
+---
+- name: Prepare guests with the default values
+  hosts: all
+  roles:
+    - role: gwerlas.system

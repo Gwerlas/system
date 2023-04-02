@@ -3,3 +3,4 @@ system_networks_check_mode: files
 system_networks_restart_handler: reboot
 system_networks_interfaces: []
 system_networks_interfaces_prune: true
+system_networks_disable_ipv6: false

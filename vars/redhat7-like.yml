@@ -18,9 +18,5 @@ packages:
 
 default_time_backend: chrony
 time_backends:
-  chrony:
-    config: chrony.conf
-    service: chronyd
-  ntp:
-    config: ntp.conf
-    service: ntpd
+  - chrony
+  - ntp

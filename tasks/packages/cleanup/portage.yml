@@ -1,0 +1,6 @@
+---
+- name: Cleanup - Portage dependencies
+  become: true
+  community.general.portage:
+    depclean: true
+  notify: emerge --newuse

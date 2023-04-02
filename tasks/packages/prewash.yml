@@ -1,0 +1,34 @@
+---
+- name: Prewash - Services
+  when: not in_container
+  block:
+    - name: Prewash - Services - Facts
+      ansible.builtin.service_facts:
+
+    - name: Prewash - Services - Disable
+      become: true
+      ansible.builtin.service:
+        name: "{{ service }}"
+        state: stopped
+        enabled: false
+      loop: |
+        {{
+          time_backends |
+          intersect(services.values()) |
+          difference([time_backend_name]) |
+          intersect(ansible_facts.services.keys()) |
+          map('extract', services)
+        }}
+
+- name: Prewash - Packages
+  become: true
+  ansible.builtin.package:
+    name: |
+      {{
+        time_backends |
+        intersect(packages.keys()) |
+        difference([time_backend_name]) |
+        map('extract', packages) |
+        flatten
+      }}
+    state: absent

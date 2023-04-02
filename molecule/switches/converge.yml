@@ -1,0 +1,7 @@
+---
+- name: Change time backend
+  hosts: all
+  roles:
+    - role: gwerlas.system
+      vars:
+        system_time_backend: "{{ time_backends | difference([default_time_backend]) | last }}"

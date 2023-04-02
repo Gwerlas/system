@@ -1,0 +1,11 @@
+---
+# FIXME:
+#
+# Problem: The operation would result in removing the following protected packages:
+# dnf, grub2-pc, grub2-tools-minimal, kernel-core, sudo, systemd, systemd-udev, yum
+#
+# - name: Cleanup - DNF auto remove
+#   become: true
+#   ansible.builtin.dnf:
+#     name: '*'
+#     autoremove: true

@@ -11,8 +11,6 @@
   listen:
     - restart time service
   become: true
-  vars:
-    time_backend: "{{ time_backends[time_backend_name] }}"
   ansible.builtin.service:
-    name: "{{ time_backend.service }}"
+    name: "{{ services[time_backend_name] }}"
     state: restarted

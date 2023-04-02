@@ -26,5 +26,3 @@ packages:
 
 reboot_detection_policy:
   use_template: true
-
-default_time_backend: timesync

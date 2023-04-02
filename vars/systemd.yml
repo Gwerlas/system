@@ -1,0 +1,16 @@
+---
+services:
+  chrony: chronyd.service
+  ntp: ntpd.service
+  timesync: systemd-timesyncd.service
+
+templates:
+  chrony: chrony.conf
+  ntp: ntp.conf
+  timesync: systemd/timesyncd.conf
+
+default_time_backend: timesync
+time_backends:
+  - chrony
+  - ntp
+  - timesync

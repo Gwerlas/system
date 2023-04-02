@@ -6,8 +6,6 @@ default_ca:
 
 default_portage_directory: /var/db/repos/gentoo
 
-default_time_backend: timesync
-
 packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 

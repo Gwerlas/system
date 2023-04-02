@@ -32,9 +32,7 @@ galaxy_info:
         - all
     - name: Ubuntu
       versions:
-        - bionic
-        - focal
-        - jammy
+        - all
 
   galaxy_tags:
     - linux

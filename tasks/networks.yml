@@ -3,20 +3,36 @@
   when: default_networks is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: Networks - Prune unmanaged interfaces
-  when: system_networks_interfaces_prune
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/prune.yml"
+- name: Networks - IPv6 support
+  become: true
+  ansible.posix.sysctl:
+    key: net.ipv6.conf.all.disable_ipv6
+    value: "{{ system_networks_disable_ipv6 | ternary('1', omit) }}"
+    state: "{{ system_networks_disable_ipv6 | ternary('present', 'absent') }}"
+  notify: "{{ system_networks_restart_handler }}"
 
-- name: Networks - Distribution rules
-  ansible.builtin.include_tasks:
-    file: "{{ item }}"
-  with_first_found:
-    - files:
-        - "{{ ansible_os_family | lower }}-like.yml"
-        - empty.yml
-      paths:
-        - "{{ role_path }}/tasks/networks"
+- name: Networks - Interfaces
+  when:
+    - system_manage_networks
+    - system_networks_interfaces | length > 0
+  block:
+    - name: Networks - Prune unmanaged interfaces
+      when: system_networks_interfaces_prune
+      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/prune.yml"
 
-- name: Networks - Interfaces configuration from template
-  when: default_networks.template is defined
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/from-template.yml"
+    - name: Networks - Distribution rules
+      ansible.builtin.include_tasks:
+        file: "{{ item }}"
+      with_first_found:
+        - files:
+            - "{{ ansible_os_family | lower }}-like.yml"
+            - empty.yml
+          paths:
+            - "{{ role_path }}/tasks/networks"
+
+    - name: Networks - Interfaces configuration from template
+      when: default_networks.template is defined
+      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/from-template.yml"
+
+- name: Networks - Changes take effects immediately
+  ansible.builtin.meta: flush_handlers

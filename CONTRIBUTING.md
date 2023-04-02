@@ -11,8 +11,7 @@ Install and configure :
 * vagrant
 * vagrant-libvirt plugin
 * molecule
-* molecule-docker
-* molecule-vagrant
+* molecule-plugins
 
 If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
 

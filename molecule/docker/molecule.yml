@@ -9,6 +9,13 @@ platforms:
     pre_build_mage: true
     volumes: &volumes
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  # Unexpected freeze of Gitlab-CI pipelines
+  # - name: gentoo
+  #   image: gwerlas/ansible-guest-gentoo
+  #   pre_build_mage: true
+  #   volumes: *volumes
+
+  # Debian like
   - name: debian10
     image: gwerlas/ansible-guest-debian:buster
     pre_build_mage: true
@@ -21,22 +28,6 @@ platforms:
     image: gwerlas/ansible-guest-debian:bookworm
     pre_build_mage: true
     volumes: *volumes
-  - name: el7
-    image: gwerlas/ansible-guest-centos:7
-    pre_build_mage: true
-    volumes: *volumes
-  - name: el8
-    image: gwerlas/ansible-guest-almalinux:8
-    pre_build_mage: true
-    volumes: *volumes
-  - name: el9
-    image: gwerlas/ansible-guest-almalinux:9
-    pre_build_mage: true
-    volumes: *volumes
-  # - name: gentoo
-  #   image: gwerlas/ansible-guest-gentoo
-  #   pre_build_mage: true
-  #   volumes: *volumes
   - name: ubuntu1804
     image: gwerlas/ansible-guest-ubuntu:18.04
     pre_build_mage: true
@@ -51,6 +42,20 @@ platforms:
     volumes: *volumes
   - name: ubuntu2210
     image: gwerlas/ansible-guest-ubuntu:22.10
+    pre_build_mage: true
+    volumes: *volumes
+
+  # RedHat like
+  - name: centos7
+    image: gwerlas/ansible-guest-centos:7
+    pre_build_mage: true
+    volumes: *volumes
+  - name: alma8
+    image: gwerlas/ansible-guest-almalinux:8
+    pre_build_mage: true
+    volumes: *volumes
+  - name: alma9
+    image: gwerlas/ansible-guest-almalinux:9
     pre_build_mage: true
     volumes: *volumes
 lint: ansible-lint

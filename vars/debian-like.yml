@@ -51,14 +51,7 @@ packages:
 reboot_detection_policy:
   cmd: test ! -f /var/run/reboot-required
 
-default_time_backend: timesync
-time_backends:
-  chrony:
-    config: chrony.conf
-    service: chrony.service
-  ntp:
-    config: ntp.conf
-    service: ntp.service
-  timesync:
-    config: systemd/timesyncd.conf
-    service: systemd-timesyncd.service
+services:
+  chrony: chrony.service
+  ntp: ntp.service
+  timesync: systemd-timesyncd.service

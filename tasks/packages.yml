@@ -9,8 +9,10 @@
     - prepare
     - update
     - requirements
-    - install
+    - prewash
     - upgrade
+    - install
+    - cleanup
   loop_control:
     loop_var: pkg_task
 

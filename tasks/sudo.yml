@@ -34,7 +34,7 @@
 - name: Sudo - Config files
   become: true
   environment:
-    PATH: /sbin:/usr/sbin:/usr/local/sbin
+    PATH: /bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
   block:
     - name: Sudo - Config file
       tags:

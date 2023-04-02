@@ -1,6 +1,6 @@
 ---
 - name: Time - Load variables
-  when: default_time_backend is undefined
+  when: system_packages_computed is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Time - Zone
@@ -22,19 +22,17 @@
 
 - name: Wanted backend
   become: true
-  vars:
-    time_backend: "{{ time_backends[time_backend_name] }}"
   block:
     - name: Time - Configuration file
       when: system_time_servers | length > 0
       ansible.builtin.template:
-        src: "{{ time_backend.config }}.j2"
-        dest: "/etc/{{ time_backend.config }}"
+        src: "{{ templates[time_backend_name] }}.j2"
+        dest: "/etc/{{ templates[time_backend_name] }}"
         mode: "0644"
       notify: restart time service
 
     - name: Time - Service
       ansible.builtin.service:
-        name: "{{ time_backend.service }}"
+        name: "{{ services[time_backend_name] }}"
         state: started
         enabled: true

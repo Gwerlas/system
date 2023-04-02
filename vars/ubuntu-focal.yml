@@ -14,5 +14,11 @@ packages:
     - usbutils
   ntp:
     - ntp
+  parted:
+    - lvm2
+    - parted
+  unattended_upgrades:
+    - apt-listchanges
+    - unattended-upgrades
   vlan:
     - vlan

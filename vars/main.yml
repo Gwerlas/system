@@ -58,15 +58,19 @@ packages_computed: |
     ) | flatten | sort | unique
   }}
 
+# Services
+services:
+  chrony: chronyd
+  ntp: ntpd
+
+# Templates
+templates:
+  chrony: chrony.conf
+  ntp: ntp.conf
+
 # Time
-time_backend_name: "{{ system_time_backend | default(default_time_backend | default('chrony')) }}"
+default_time_backend: chrony
+time_backend_name: "{{ system_time_backend | default(default_time_backend) }}"
 time_backends:
-  chrony:
-    config: chrony.conf
-    service: chronyd.service
-  ntp:
-    config: ntp.conf
-    service: ntpd.service
-  timesync:
-    config: systemd/timesyncd.conf
-    service: systemd-timesyncd.service
+  - chrony
+  - ntp

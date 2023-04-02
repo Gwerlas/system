@@ -1,9 +1,6 @@
 ---
+# Disable timesync due to broken dependencies
 default_time_backend: chrony
 time_backends:
-  chrony:
-    config: chrony.conf
-    service: chrony.service
-  ntp:
-    config: ntp.conf
-    service: ntp.service
+  - chrony
+  - ntp
