@@ -6,6 +6,6 @@ system_networks_interfaces:
   - name: eth1
     description: Private network
     bootproto: static
-    ip: 192.168.250.43/24
+    ip: 192.168.250.2/24
     routes:
       - 192.168.250.0/24

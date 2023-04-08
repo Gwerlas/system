@@ -1,5 +1,5 @@
 ---
-- name: Cleanup - APT auto clean and auto remove
+- name: Packages - Cleanup - APT auto clean and auto remove
   become: true
   ansible.builtin.apt:
     autoclean: true

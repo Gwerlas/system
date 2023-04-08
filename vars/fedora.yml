@@ -14,5 +14,7 @@ packages:
     - rsync
   desktop:
     - usbutils
+  gnome:
+    - "@Fedora Workstation"
   unattended_upgrades:
     - dnf-automatic

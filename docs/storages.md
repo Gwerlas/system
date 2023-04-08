@@ -70,6 +70,7 @@ For some arguments, we changed the VG default values as is :
 And for the logical volumes :
 
 - `resizefs`: `true`
+- `shrink`: `false` to avoid idempotency failure
 - `size`: `100%FREE`
 - `state`: `present`
 

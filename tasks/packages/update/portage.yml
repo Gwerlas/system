@@ -1,10 +1,20 @@
 ---
-- name: Package - DB update - Portage
+- name: Package - DB update
   become: true
-  ansible.builtin.command:
-    cmd: emerge --sync
-  register: result
-  changed_when: not "You are already up to date" in result.stdout
-  until: result.failed == false
-  retries: "{{ system_retries }}"
   notify: update marker
+  block:
+    - name: Package - DB update - Sync
+      ansible.builtin.command:
+        cmd: emerge --sync
+      register: result
+      changed_when: not "You are already up to date" in result.stdout
+      until: result.failed == false
+      retries: "{{ system_retries }}"
+  rescue:
+    - name: Package - DB update - Web rsync
+      ansible.builtin.command:
+        cmd: emerge-websync
+      register: result
+      changed_when: not "In order to force sync" in result.stdout
+      until: result.failed == false
+      retries: "{{ system_retries }}"

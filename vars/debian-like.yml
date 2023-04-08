@@ -35,6 +35,8 @@ packages:
     - rsync
   desktop:
     - usbutils
+    - gnome-core
+    - libreoffice
   ntp:
     - ntp
   parted:

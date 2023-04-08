@@ -1,5 +1,5 @@
 ---
-- name: Cleanup - Portage dependencies
+- name: Packages - Cleanup - Portage dependencies
   become: true
   community.general.portage:
     depclean: true

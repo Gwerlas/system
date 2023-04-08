@@ -140,16 +140,15 @@
         that:
           - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
 
-- name: Check network configuration
-  hosts: debian
-  tasks:
     - name: Private network
+      vars:
+        netiface: "{{ (ansible_interfaces | sort)[1] }}"
       ansible.builtin.assert:
         that:
-          - ansible_eth1.ipv4.network == "192.168.250.0"
+          - ansible_{{ netiface }}.ipv4.network == "192.168.250.0"
 
 - name: Check EPEL
-  hosts: el7
+  hosts: redhat_like
   gather_facts: false
   tasks:
     - name: Repository file

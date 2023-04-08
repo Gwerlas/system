@@ -1,0 +1,14 @@
+---
+- name: Portage - Kernel related packages settings
+  ansible.builtin.copy:
+    src: "{{ file }}"
+    dest: "/etc/portage/{{ file }}"
+    owner: "{{ ansible_user_id }}"
+    group: portage
+    mode: "0664"
+  loop:
+    - package.license/kernels
+    - package.use/{{ system_portage_kernel }}
+  loop_control:
+    loop_var: file
+  notify: emerge --newuse

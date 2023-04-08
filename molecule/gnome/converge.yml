@@ -1,9 +1,9 @@
 ---
-- name: Lightweight desktop
+- name: Converge customization
   hosts: all
   tasks:
     - name: Include gwerlas.system
       ansible.builtin.include_role:
         name: gwerlas.system
       vars:
-        system_profile: desktop
+        system_profile: gnome

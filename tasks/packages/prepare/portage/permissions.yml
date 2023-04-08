@@ -1,5 +1,5 @@
 ---
-- name: Portage - Deployer admin in portage group
+- name: Prepare - Portage - Deployer admin in portage group
   when: ansible_user_id != 'root'
   become: true
   ansible.builtin.user:
@@ -8,10 +8,10 @@
     groups:
       - portage
 
-- name: Portage - Reset SSH connection
+- name: Prepare - Portage - Reset SSH connection
   ansible.builtin.meta: reset_connection
 
-- name: Portage - Configuration directories
+- name: Prepare - Portage - Configuration directories
   become: true
   ansible.builtin.file:
     path: "{{ dir }}"
@@ -25,7 +25,7 @@
   loop_control:
     loop_var: dir
 
-- name: Portage - Configuration file
+- name: Prepare - Portage - Configuration file
   become: true
   ansible.builtin.file:
     path: /etc/portage/make.conf

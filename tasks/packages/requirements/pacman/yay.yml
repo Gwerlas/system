@@ -17,6 +17,7 @@
               - base-devel
               - fakeroot
               - git
+              - make
 
         - name: Pacman - AUR - Yay - Clone Yay from github
           ansible.builtin.git:

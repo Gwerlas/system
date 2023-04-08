@@ -1,5 +1,5 @@
 ---
-- name: Cleanup - YUM auto remove
+- name: Packages - Cleanup - YUM auto remove
   become: true
   ansible.builtin.yum:
     autoremove: true

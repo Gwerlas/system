@@ -24,7 +24,7 @@ Profile
 
 Available profiles :
 
-- `desktop`
+- `desktop` (Gnome)
 - `server` (default)
 
 Packages managers
@@ -115,6 +115,39 @@ So, we install it if it's missing.
 
 [portage module documentation]: https://docs.ansible.com/ansible/latest/collections/community/general/portage_module.html
 
+#### Compilation settings
+
+```yaml
+# Build from sources when possible
+portage_packages_build: false
+# https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
+portage_packages_march: native
+```
+
+If You don't want to use `*-bin` packages when they are available, set
+`portage_packages_build` to `true`.
+
+If You want to compile your nodes with [distcc][], change the `portage_packages_march`
+value, You can find help in the [Safe CFLAGS] manual.
+
+[distcc]: https://wiki.gentoo.org/wiki/Distcc/fr
+[Safe CFLAGS]: https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
+
+#### Kernel
+
+Kernel to install :
+
+```yaml
+system_portage_kernel: gentoo-kernel
+```
+
+Possible values :
+
+- `gentoo-kernel` : Install `gentoo-kernel-bin` (or `gentoo-kernel` if
+`portage_packages_build` is `true`), see [distribution kernels][] for more informations
+
+[distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
+
 Packages upgrade
 ----------------
 
@@ -152,10 +185,10 @@ silently upgraded every nights.
 This feature is experimental, it is not yet possible to configure the service
 through this role, You have to do it yourself.
 
-Supported distros at this time :
+Supported package managers at this time :
 
-- Debian like
-- RedHat like version 8 or upper
+- `apt` (Debian like)
+- `dnf` (RedHat like version 8 or upper)
 
 Static package list
 -------------------

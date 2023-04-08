@@ -9,8 +9,22 @@
     modification_time: now
     mode: "0644"
 
+- name: Portage - Prevent circular deps while building a minimal libsndfile
+  listen:
+    - change profile
+  when: system_profile in desktops
+  become: true
+  environment:
+    USE: minimal
+  community.general.portage:
+    oneshot: true
+    package:
+      - media-libs/libsndfile
+
 - name: Portage - Rebuild packages that need to be rebuilt
-  listen: emerge --newuse
+  listen:
+    - change profile
+    - emerge --newuse
   become: true
   community.general.portage:
     deep: true
@@ -19,7 +33,9 @@
     package: '@world'
 
 - name: Portage - Clean dependencies
-  listen: emerge --newuse
+  listen:
+    - change profile
+    - emerge --newuse
   become: true
   community.general.portage:
     depclean: true

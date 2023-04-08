@@ -62,7 +62,7 @@
         opts: "{{ lvm.lv_options | default(omit) }}"
         pvs: "{{ lvm.pvs | default(omit) }}"
         resizefs: "{{ lvm.resizefs | default(true) }}"
-        shrink: "{{ lvm.shrink | default(omit) }}"
+        shrink: "{{ lvm.shrink | default(false) }}"
         size: "{{ lvm.size | default('100%FREE') }}"
         snapshot: "{{ lvm.snapshot | default(omit) }}"
         state: "{{ lvm.state | default('present') }}"

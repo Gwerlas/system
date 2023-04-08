@@ -6,6 +6,15 @@ system_networks_interfaces:
   - name: eth1
     description: Private network
     bootproto: static
-    ip: 192.168.250.43/24
+    ip: 192.168.250.3/24
     routes:
       - 192.168.250.0/24
+
+system_storages_partitions:
+  - device: /dev/vda
+    flags:
+      - lvm
+
+system_storages_vg:
+  - vg: datastore
+    pvs: /dev/vda1

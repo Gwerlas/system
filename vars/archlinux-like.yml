@@ -21,6 +21,9 @@ packages:
     - rsync
   desktop:
     - usbutils
+  gnome:
+    - gnome-still
+    - libreoffice-still
   ntp:
     - ntp
 

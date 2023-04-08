@@ -4,6 +4,13 @@ system_packages_upgrade_unattended: false
 system_packages_cache_age: 7
 system_packages: []
 
+# Build from sources when possible
+portage_packages_build: false
+# https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
+portage_packages_march: native
+
+# Package managers / Distributions specific settings
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_el_use_epel: true
 system_portage_directory: /var/db/repos/gentoo
+system_portage_kernel: gentoo-kernel

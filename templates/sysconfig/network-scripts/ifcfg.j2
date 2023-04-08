@@ -7,19 +7,19 @@
 DEVICE={{ system_netiface.name }}
 BOOTPROTO={{ bootproto }}
 ONBOOT={{ 'yes' if (system_netiface.onboot | default(true)) else 'no' }}
-TYPE={{ system_netiface.type }}
+TYPE={{ system_netiface.type | default('Ethernet') }}
 {% if bootproto != 'dhcp' %}
 {% if system_netiface.ip is defined %}
 IPADDR={{ system_netiface.ip | ansible.utils.ipaddr('address') }}
 NETMASK={{ system_netiface.ip | ansible.utils.ipaddr('netmask') }}
-IPV6INIT="yes"
-IPV6_AUTOCONF="yes"
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
 {% if system_netiface.gateway is defined %}
 GATEWAY={{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% endif %}
 {% endif %}
-NM_CONTROLLED=no
+NM_CONTROLLED=yes
 USERCTL=no
 {% if system_netiface.bridge is defined %}
 BRIDGE={{ system_netiface.bridge }}

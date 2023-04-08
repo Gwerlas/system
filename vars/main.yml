@@ -44,6 +44,9 @@ networks_types: |
   }}
 
 # Packages
+desktops:
+  - gnome
+
 packages_computed: |
   {{
     ( system_packages
@@ -55,6 +58,8 @@ packages_computed: |
     + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
     + (system_manage_time and time_backend_name in packages) | ternary(packages[time_backend_name], [])
     + (system_manage_storages | ternary(packages.parted | default(['parted']), []))
+    + ((system_manage_storages and (system_storages_vg | length) > 0) | ternary(packages.lvm | default(['lvm2']), []))
+    + ((system_profile in desktops) | ternary(packages.desktop, []))
     ) | flatten | sort | unique
   }}
 

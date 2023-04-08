@@ -1,0 +1,19 @@
+---
+- name: Prewash - Portage - Profile
+  become: true
+  ansible.builtin.file:
+    src: |-
+      {{
+        '../..' + system_portage_directory + '/profiles/' +
+        portage_profiles[system_profile] +
+        ('/systemd' if ansible_service_mgr == 'systemd' else '')
+      }}
+    dest: /etc/portage/make.profile
+    state: link
+    force: true
+    follow: false
+  notify:
+    - change profile
+
+- name: Prewash - Portage - Package rebuild
+  ansible.builtin.meta: flush_handlers

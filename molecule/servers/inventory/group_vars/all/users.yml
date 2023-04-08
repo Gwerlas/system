@@ -6,6 +6,8 @@ system_users:
     state: absent
     authorized_keys:
       - key: ssh-rsa BBBB test
+  - name: vagrant   # Console login: vagrant / vagrant
+    password: "$6$sc1Fu113nXXNx/KT$ZZ9QpiisBuXevhxIUdlN6tbAyxsR3BYUBayVP2NH0DPF6//sKe2bQ6vDGM0/wfAxRYZAd0tMQYVUtoEq.reB41"
   - name: jane
     comment: System administrator
     group: "{{ system_users_admin_group }}"

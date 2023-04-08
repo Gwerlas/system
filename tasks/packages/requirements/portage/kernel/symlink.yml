@@ -1,0 +1,25 @@
+---
+- name: Portage - Kernels
+  ansible.builtin.find:
+    path: /boot
+    pattern: vmlinuz-*
+  register: result
+
+- name: Portage - Kernel symlink for external modules
+  become: true
+  when: result.matched > 0
+  vars:
+    version: |-
+      {{
+        result.files |
+        sort(attribute='mtime') |
+        map(attribute='path') | last |
+        regex_search('vmlinuz-(.*)', '\1') | first
+      }}
+  ansible.builtin.file:
+    src: /usr/src/linux-{{ version }}
+    dest: /usr/src/linux
+    state: link
+    force: true
+  notify:
+    - emerge @module-rebuild

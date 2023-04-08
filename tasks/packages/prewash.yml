@@ -32,3 +32,15 @@
         flatten
       }}
     state: absent
+
+- name: Prewash - Package managers
+  ansible.builtin.include_tasks:
+    file: "{{ pre_task }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_pkg_mgr }}.yml"
+      paths:
+        - "{{ role_path }}/tasks/packages/prewash"
+      skip: true
+  loop_control:
+    loop_var: pre_task

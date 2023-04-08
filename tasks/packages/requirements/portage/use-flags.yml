@@ -1,24 +1,24 @@
 ---
-- name: Portage - Get installed Python versions
+- name: Requirements - Portage - Get installed Python versions
   ansible.builtin.command:
     cmd: equery -q list -F '$slot' dev-lang/python
   changed_when: false
   register: equery
 
-- name: Portage - app-portage/cpuid2cpuflags package
+- name: Requirements - Portage - app-portage/cpuid2cpuflags package
   become: true
   community.general.portage:
     package:
       - app-portage/cpuid2cpuflags
     state: present
 
-- name: Portage - CPU Flags
+- name: Requirements - Portage - CPU Flags
   ansible.builtin.command:
     cmd: cpuid2cpuflags
   register: cpuid2cpuflags
   changed_when: false
 
-- name: Portage - Global use flags
+- name: Requirements - Portage - Global use flags
   become: true
   vars:
     cpu_flags_key: "{{ cpuid2cpuflags.stdout | split(': ') | first }}"
@@ -33,6 +33,10 @@
     group: portage
     mode: "0664"
   loop:
+    - regex: ^CFLAGS=
+      content: CFLAGS="-O2 -pipe -march={{ portage_packages_march }}"
+    - regex: ^CXXFLAGS=
+      content: CXXFLAGS="${CFLAGS}"
     - regex: ^USE_PYTHON=
       state: absent
     - regex: ^PYTHON_TARGETS=

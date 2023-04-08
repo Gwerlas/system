@@ -21,11 +21,19 @@ packages:
     - net-misc/rsync
   desktop:
     - sys-apps/usbutils
+  gnome:
+    - dev-lang/rust{{ portage_packages_build | ternary('', '-bin') }}
+    - app-office/gnome{{ portage_packages_build | ternary('', '-bin') }}
+    - app-office/libreoffice{{ portage_packages_build | ternary('', '-bin') }}
+    - www-client/firefox{{ portage_packages_build | ternary('', '-bin') }}
+  lvm:
+    - sys-fs/lvm2
   ntp:
     - net-misc/ntp
 
 python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
 
-system_portage_profile:
+portage_profiles:
   desktop: default/linux/amd64/17.1/desktop
+  gnome: default/linux/amd64/17.1/desktop/gnome
   server: default/linux/amd64/17.1/no-multilib

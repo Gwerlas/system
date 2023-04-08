@@ -6,13 +6,14 @@ driver:
   provider:
     name: libvirt
 platforms:
+  # Debian like
   - name: debian10
     box: debian/buster64
     groups:
       - debian
       - debian_like
     interfaces: &interfaces
-      - auto_config: true
+      - auto_config: false
         network_name: private_network
         type: dhcp
     provider_raw_config_args: &provider
@@ -29,23 +30,6 @@ platforms:
     groups:
       - debian
       - debian_like
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: el7
-    box: centos/7
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: el8
-    box: almalinux/8
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: el9
-    box: almalinux/9
-    memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider
     instance_raw_config_args: *instance
@@ -76,6 +60,31 @@ platforms:
     box: generic/ubuntu2210
     groups:
       - debian_like
+    memory: 2048
+    interfaces: *interfaces
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
+
+  # RedHat like
+  - name: centos7
+    box: centos/7
+    groups:
+      - redhat_like
+    interfaces: *interfaces
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
+  - name: alma8
+    box: almalinux/8
+    groups:
+      - redhat_like
+    memory: 2048
+    interfaces: *interfaces
+    provider_raw_config_args: *provider
+    instance_raw_config_args: *instance
+  - name: alma9
+    box: almalinux/9
+    groups:
+      - redhat_like
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider
