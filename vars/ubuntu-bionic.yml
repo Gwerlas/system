@@ -1,18 +1,5 @@
 ---
-packages:
-  bond:
-    - ifenslave
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
-  ntp:
-    - ntp
-  vlan:
-    - vlan
+# Not available in Ubuntu Bionic
+masks:
+  packages:
+    - systemd-timesyncd

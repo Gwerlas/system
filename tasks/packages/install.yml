@@ -1,13 +1,13 @@
 ---
-- name: Packages - Debug
+- name: Packages - Install - Show the list
   ansible.builtin.debug:
-    var: packages_computed
+    var: system_packages
     verbosity: 1
 
-- name: Packages - Base system tools
+- name: Packages - Install
   become: true
   ansible.builtin.package:
-    name: "{{ packages_computed }}"
+    name: "{{ system_packages }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"

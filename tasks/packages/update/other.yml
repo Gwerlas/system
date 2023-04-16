@@ -1,5 +1,5 @@
 ---
-- name: Packages - Update cache
+- name: Packages - Update
   become: true
   ansible.builtin.package:
     update_cache: true

@@ -69,11 +69,16 @@ argument_specs:
       system_bin_path:
         default: /usr/local/bin
         description: Path location for our scripts
-      system_packages:
+      system_packages_add_by_key:
         type: list
         elements: str
         default: "[]"
-        description: List of static packages names to install on the node.
+        description: List of packages names to install on the node (can be translated).
+      system_packages_add_by_name:
+        type: list
+        elements: str
+        default: "[]"
+        description: List of raw packages names to install on the node.
       system_packages_cache_age:
         type: int
         default: 7
@@ -87,6 +92,7 @@ argument_specs:
         description: Type of the node
         choices:
           - desktop
+          - desktop/gnome
           - server
 
   proxies:
@@ -155,7 +161,7 @@ argument_specs:
         choices:
           - chrony
           - ntp
-          - timesync
+          - systemd-timesyncd
         description: Name of the backend to use.
 
   users:

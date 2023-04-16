@@ -1,11 +1,11 @@
 ---
-- name: Portage - Kernels
+- name: Packages - Requirements - Portage - Kernel - Symlink - List kernels
   ansible.builtin.find:
     path: /boot
     pattern: vmlinuz-*
   register: result
 
-- name: Portage - Kernel symlink for external modules
+- name: Packages - Requirements - Portage - Kernel - Symlink
   become: true
   when: result.matched > 0
   vars:

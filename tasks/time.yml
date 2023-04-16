@@ -1,6 +1,6 @@
 ---
 - name: Time - Load variables
-  when: system_packages_computed is undefined
+  when: system_packages is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Time - Zone
@@ -10,11 +10,11 @@
     name: "{{ system_time_zone }}"
 
 - name: Checks
-  when: time_backend_name not in time_backends
+  when: not time_backend_name in supported_time_backends
   block:
-    - name: Debug
+    - name: Supported time backends
       ansible.builtin.debug:
-        var: time_backends
+        var: supported_time_backends
 
     - name: Check the backend
       ansible.builtin.fail:
@@ -26,13 +26,19 @@
     - name: Time - Configuration file
       when: system_time_servers | length > 0
       ansible.builtin.template:
-        src: "{{ templates[time_backend_name] }}.j2"
-        dest: "/etc/{{ templates[time_backend_name] }}"
+        src: "{{ path }}.j2"
+        dest: "/etc/{{ path }}"
         mode: "0644"
+      loop: "{{ time_backend.templates }}"
+      loop_control:
+        loop_var: path
       notify: restart time service
 
     - name: Time - Service
       ansible.builtin.service:
-        name: "{{ services[time_backend_name] }}"
+        name: "{{ service }}"
         state: started
         enabled: true
+      loop: "{{ time_backend.services }}"
+      loop_control:
+        loop_var: service

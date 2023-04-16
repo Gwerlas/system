@@ -1,0 +1,24 @@
+---
+- name: Packages - Prewash - Packages - Facts
+  ansible.builtin.package_facts:
+
+- name: Packages - Prewash - Packages - Remove
+  become: true
+  vars:
+    packages_keys: |
+      {{
+        supported_time_backends |
+        dict2items |
+        rejectattr('key', '==', time_backend_name) |
+        map(attribute='key') |
+        difference(masks.packages | default([]))
+      }}
+  ansible.builtin.package:
+    name: |
+      {{
+        (
+          (packages_keys | intersect(packages.keys()) | map('extract', packages))
+        + (packages_keys | difference(packages.keys()))
+        ) | flatten | unique | intersect(ansible_facts.packages.keys())
+      }}
+    state: absent

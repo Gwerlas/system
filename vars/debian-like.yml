@@ -1,13 +1,24 @@
 ---
+# Time (services hasn't the 'd' letter at the end of their name)
+debian_time_backends:
+  chrony:
+    services:
+      - chrony{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+  ntp:
+    services:
+      - ntp{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+
+time_backends: |
+  {{
+    default_time_backends |
+    combine(debian_time_backends, recursive=true)
+  }}
+
+# Packages
 apt_mirror: "{{ system_apt_mirror | default(apt_default_mirror) }}"
 apt_sections: "{{ system_apt_sections | default(apt_default_sections) }}"
 
 debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
-
-default_ca:
-  path: /usr/local/share/ca-certificates
-  command: update-ca-certificates
-  bundle: /etc/ssl/certs/ca-certificates.crt
 
 default_networks:
   service_name: networking
@@ -22,38 +33,20 @@ packages_upgrade_policy:
 packages_update_policy:
   marker: /var/cache/gwsys
 
-packages:
+networks_types:
   bond:
-    - ifenslave
+    packages:
+      - ifenslave
   bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
+    packages:
+      - bridge-utils
+
+packages:
+  gnome:
     - gnome-core
-    - libreoffice
-  ntp:
-    - ntp
-  parted:
-    - lvm2
-    - parted
-  timesync:
-    - systemd-timesyncd
-  unattended_upgrades:
+  unattended-upgrades:
     - apt-listchanges
     - unattended-upgrades
-  vlan:
-    - vlan
 
 reboot_detection_policy:
   cmd: test ! -f /var/run/reboot-required
-
-services:
-  chrony: chrony.service
-  ntp: ntp.service
-  timesync: systemd-timesyncd.service

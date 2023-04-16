@@ -1,6 +1,6 @@
 ---
 - name: Packages - Load variables
-  when: system_packages_computed is undefined
+  when: system_packages is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Packages

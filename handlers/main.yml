@@ -5,32 +5,37 @@
 - name: Package managers
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/pkg_mgr.yml"
 
-- name: Update CA certificates
+- name: CA - Debug
+  listen: update ca
+  ansible.builtin.debug:
+    var: ca_certificates.update
+
+- name: CA - Update certificates
   listen: update ca
   become: true
   ansible.builtin.command:
-    cmd: "{{ default_ca.command }}"
+    cmd: "{{ ca_certificates.command }}"
   changed_when: true
 
-- name: Grub make configuration
+- name: Packages - Grub make configuration
   listen: grub-mkconfig
   become: true
   ansible.builtin.command:
     cmd: grub-mkconfig -o /boot/grub/grub.cfg
   changed_when: true
 
-- name: Restart network
+- name: Networks - Restart network
   listen:
     - restart network service
   become: true
   ansible.builtin.service:
     name: "{{ default_networks.service_name }}"
 
-- name: Skip network restart
+- name: Networks - Skip network restart
   listen:
     - skip
   ansible.builtin.debug:
-    msg: "You've to restart the network yourself !"
+    msg: You've to restart the network yourself !
 
 - name: Reboot
   listen:
@@ -39,3 +44,12 @@
   become: true
   ansible.builtin.reboot:
     msg: Reboot initiated by gwerlas.system Ansible role
+
+- name: Firewall - Change default zone
+  listen:
+    - set default zone
+  become: true
+  ansible.builtin.command:
+    cmd: firewall-cmd --set-default-zone {{ system_firewall_zone }}
+  register: result
+  changed_when: "'success' in result.stdout"

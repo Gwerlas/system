@@ -1,7 +1,34 @@
-Packages
+Packages <!-- omit in toc -->
 ========
 
 Install system tools. Also for Gentoo configure the compilation profile.
+
+Table of content :
+
+- [Variables](#variables)
+- [Facts](#facts)
+- [Profile](#profile)
+- [Packages managers](#packages-managers)
+  - [Cache](#cache)
+  - [APT](#apt)
+  - [AUR (Archlinux User Repository)](#aur-archlinux-user-repository)
+  - [EPEL (Extra Packages for Enterprise Linux)](#epel-extra-packages-for-enterprise-linux)
+  - [Portage](#portage)
+    - [Cache directory](#cache-directory)
+    - [System group](#system-group)
+    - [Ansible dependencies](#ansible-dependencies)
+    - [Compilation settings](#compilation-settings)
+    - [Kernel](#kernel)
+- [Packages upgrade](#packages-upgrade)
+- [Unattended upgrade](#unattended-upgrade)
+- [Static package lists](#static-package-lists)
+  - [By key](#by-key)
+  - [By name](#by-name)
+- [Dynamic package list](#dynamic-package-list)
+  - [User shells](#user-shells)
+- [CA certificates](#ca-certificates)
+- [Network types](#network-types)
+
 
 Variables
 ---------
@@ -10,13 +37,21 @@ Variables
 system_packages_upgrade: false
 system_packages_upgrade_unattended: false
 system_packages_cache_age: 7
-system_packages: []
+
+system_packages_add_by_key: []
+system_packages_add_by_name: []
 ```
+
+See [Packages upgrade][] and [Static package lists][] for more informations
+about these two groups of variables.
+
+[Packages upgrade]: #packages-upgrade
+[Static package lists]: #static-package-lists
 
 Facts
 -----
 
-The `system_packages_computed` fact contains the list of packages expected
+The `system_packages` fact contains the list of packages expected
 to be installed.
 
 Profile
@@ -90,7 +125,7 @@ You can disable it by setting the `system_el_use_epel` variable to `false`.
 > **Warning**
 >
 > If You disable EPEL repositories, some features, like bridging or time
-> synchronization won't work since `bridge-utils` and `systemd-timesync`
+> synchronization won't work since `bridge-utils` and `systemd-systemd-timesyncd`
 > packages are in.
 
 ### Portage
@@ -190,10 +225,50 @@ Supported package managers at this time :
 - `apt` (Debian like)
 - `dnf` (RedHat like version 8 or upper)
 
-Static package list
--------------------
+Static package lists
+--------------------
 
-You can install a list of packages through the `system_packages` variable.
+### By key
+
+To be multi-distro compatible, we maintain a dictionary of packages name
+correspondance to be able to install some packages independently of the
+distribution we use.
+
+We based the key names on the commonly usage of package names.
+
+Supported keys :
+- `bond` : Packages to manage bonded networks
+  (automatically added if at least a bond is found in `system_networks`)
+- `bridge` : Packages to manage bridged networks
+  (automatically added if at least a bridge is found in `system_networks`)
+- `ca-certificates` : Trusted certificate authorities and the tool to manage
+  them (automatically added when `system_ca_certificates` is not empty)
+- `chrony` : Versatile implementation of the Network Time Protocol (NTP)
+  (automatically added if `system_time_backend` is `chrony`)
+- `gnome` : [Gnome][] desktop environment
+- `lvm2`: Logical volumes manager
+  (automatically added if `system_storages_vg` is not empty)
+- `ntp` : Legacy NTPd server
+  (automatically added if `system_time_backend` is `ntp`)
+- `parted` : GNU tool to manipulates partition tables
+  (automatically added if `system_manage_storages` is `true`)
+- `systemd-timesyncd` : Systemd integrated NTP client
+  (automatically added if `system_time_backend` is `systemd-timesyncd`)
+- `unattended-upgrades` : Packages to maintain the system up to date
+- `vlan` : Packages to manage vLAN networks
+  (automatically added if at least a vLAN is found in `system_networks`)
+- `zsh`: Packages to install ZSH with completions and syntax highlighting when
+  available (automatically added if at least one user use it in `system_users`)
+
+If a given key doesn't exist in the dictionary, the name will be used as a
+package name. It could be a good idea too add your packages names in this list
+even it is not in the list.
+
+[Gnome]: https://www.gnome.org
+
+### By name
+
+You can install a list of packages through the `system_packages_add_by_name` variable.
 
 This list won't be computed, so You have to give the real package name for the
 target Linux distribution.

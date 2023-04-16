@@ -1,8 +1,8 @@
 ---
-default_ca:
+ca_certificates:
+  bundle: /etc/ssl/cert.pem
   path: /etc/ca-certificates/trust-source/anchors
   command: update-ca-trust
-  bundle: /etc/ssl/cert.pem
 
 packages_update_policy:
   path: /var/lib/pacman/sync
@@ -11,21 +11,12 @@ packages_upgrade_policy:
   upgrade: true
 
 packages:
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
-  gnome:
-    - gnome-still
+  libreoffice:
     - libreoffice-still
-  ntp:
-    - ntp
+
+masks:
+  packages:
+    - systemd-timesyncd
 
 reboot_detection_policy:
   use_template: true

@@ -5,7 +5,7 @@ driftfile {{ system_time_ntpd_driftfile }}
 restrict default {{ system_time_ntpd_restrict_defaults | join(' ') }}
 
 {% for restrict in system_time_ntpd_restricts %}
-restrict {{ restrict.ip }}{% if restrict.netmask is defined %} mask {{ restrict.netmask }}{% endif %}{% if restrict.options is defined %} {{ restrict.options | join(' ') }}{% endif %}
+restrict {{ restrict.ip }}{% if restrict.netmask is defined %} masks {{ restrict.netmask }}{% endif %}{% if restrict.options is defined %} {{ restrict.options | join(' ') }}{% endif %}
 
 {% endfor %}
 

@@ -12,7 +12,7 @@
 - name: Portage - Prevent circular deps while building a minimal libsndfile
   listen:
     - change profile
-  when: system_profile in desktops
+  when: "'desktop' is match(system_profile)"
   become: true
   environment:
     USE: minimal

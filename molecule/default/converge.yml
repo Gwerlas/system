@@ -3,3 +3,7 @@
   hosts: all
   roles:
     - role: gwerlas.system
+      vars:
+        system_http_proxy: http://172.17.0.1:3128
+        system_https_proxy: "{{ system_http_proxy }}"
+        system_ftp_proxy: "{{ system_http_proxy }}"

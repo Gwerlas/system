@@ -5,8 +5,8 @@
 # List of NTP servers, distro file kept if empty
 system_time_servers: []
 
-# Name of the time backend to use (chrony, ntpd or timesync)
-# system_time_backend: timesync
+# Name of the time backend to use (chrony, ntpd or systemd-timesyncd)
+# system_time_backend: systemd-timesyncd
 
 #############
 # NTPd only #

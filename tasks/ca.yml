@@ -1,17 +1,17 @@
 ---
 - name: CA - Load variables
-  when: default_ca is undefined
+  when: system_packages is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: CA certificates
+- name: CA - Certificates
   tags:
     - ca
   become: true
   ansible.builtin.copy:
-    src: "{{ system_ca_certificate }}"
-    dest: "{{ default_ca.path }}"
+    src: "{{ certificate }}"
+    dest: "{{ ca_certificates.path }}"
     mode: "0644"
   loop: "{{ system_ca_certificates }}"
   loop_control:
-    loop_var: system_ca_certificate
+    loop_var: certificate
   notify: update ca

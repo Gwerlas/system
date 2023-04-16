@@ -35,7 +35,8 @@ Facts
 
 Defined facts of this role :
 
-- `system_packages_computed`
+- `system_packages`
+- `system_shells`
 - `system_sudo_version`
 
 Tags
@@ -71,6 +72,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 * [zsh](docs/zsh.md)
 * [ca](docs/ca.md)
 * [time](docs/time.md)
+* [firewall](docs/firewall.md)
 * [reboot](docs/reboot.md)
 
 Role Variables

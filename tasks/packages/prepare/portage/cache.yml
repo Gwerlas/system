@@ -1,38 +1,38 @@
 ---
-- name: Prepare - Portage - Cache - Load initial config
+- name: Packages - Prepare - Portage - Cache - Load initial config
   register: initial_config
   ansible.builtin.slurp:
     src: /etc/portage/make.conf
 
-- name: Prepare - Portage - Cache - Configuration parameter
+- name: Packages - Prepare - Portage - Cache - Configuration parameter
   vars:
     is_default: "{{ system_portage_directory == default_portage_directory }}"
     line: PORTDIR="{{ system_portage_directory }}"
   become: true
   ansible.builtin.lineinfile:
     path: /etc/portage/make.conf
-    line: "{{ is_default | ternary(omit, line) }}"
+    line: "{{ line }}"
     regex: ^PORTDIR=
     state: "{{ is_default | ternary('absent', 'present') }}"
 
-- name: Prepare - Portage - Cache - Predefined Portage directory
+- name: Packages - Prepare - Portage - Cache - Predefined Portage directory
   ansible.builtin.set_fact:
     portdir_matches: "{{ initial_config.content | b64decode | regex_findall('(?<!#)PORTDIR=\"(.+)\"') }}"
 
-- name: Prepare - Portage - Cache - Move Portdir
+- name: Packages - Prepare - Portage - Cache
   vars:
     initial_value: "{{ (portdir_matches | length > 0) | ternary(portdir_matches | last, default_portage_directory) }}"
   when: initial_value != system_portage_directory
   become: true
   block:
-    - name: Prepare - Portage - Cache - Portdir - Parent directory
+    - name: Packages - Prepare - Portage - Cache - DB directory
       ansible.builtin.file:
         path: "{{ system_portage_directory | dirname }}"
         state: directory
         mode: "0755"
         recurse: true
 
-    - name: Prepare - Portage - Cache - Portdir - Move data
+    - name: Packages - Prepare - Portage - Cache - Move data
       ansible.builtin.command:
         cmd: "mv '{{ initial_value }}' '{{ system_portage_directory }}'"
       changed_when: true

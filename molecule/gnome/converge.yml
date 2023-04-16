@@ -6,4 +6,4 @@
       ansible.builtin.include_role:
         name: gwerlas.system
       vars:
-        system_profile: gnome
+        system_profile: desktop/gnome

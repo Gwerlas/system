@@ -4,17 +4,7 @@ system_el_use_epel: false
 
 # No package systemd-timesyncd available.
 packages:
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
   gnome:
     - "@Fedora Workstation"
-  unattended_upgrades:
+  unattended-upgrades:
     - dnf-automatic

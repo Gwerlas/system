@@ -1,0 +1,32 @@
+---
+- name: Packages - Prewash - Services
+  when: not in_container
+  block:
+    - name: Packages - Prewash - Services - Facts
+      ansible.builtin.service_facts:
+
+    - name: Packages - Prewash - Services - Disable
+      become: true
+      ansible.builtin.service:
+        name: "{{ service }}"
+        state: stopped
+        enabled: false
+      vars:
+        services: |
+          {{
+            ansible_facts.services |
+            dict2items |
+            json_query("[?value.status!='not-found'].key")
+          }}
+      loop: |
+        {{
+          supported_time_backends |
+          dict2items |
+          rejectattr('key', '==', time_backend_name) |
+          map(attribute='value') |
+          map(attribute='services') |
+          flatten |
+          intersect(services)
+        }}
+      loop_control:
+        loop_var: service

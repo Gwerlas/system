@@ -1,5 +1,5 @@
 ---
-- name: Portage - Kernel related packages settings
+- name: Packages - Prepare - Portage - Config
   ansible.builtin.copy:
     src: "{{ file }}"
     dest: "/etc/portage/{{ file }}"
@@ -9,6 +9,7 @@
   loop:
     - package.license/kernels
     - package.use/{{ system_portage_kernel }}
+    - "{{ system_manage_firewall | ternary('package.use/firewalld', omit) }}"
   loop_control:
     loop_var: file
   notify: emerge --newuse

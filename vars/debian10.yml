@@ -1,6 +1,7 @@
 ---
-# Disable timesync due to broken dependencies
-default_time_backend: chrony
-time_backends:
-  - chrony
-  - ntp
+# Disable systemd-timesyncd due to broken dependencies
+default_time_backend_name: chrony
+
+masks:
+  time_backends:
+    - systemd-timesyncd

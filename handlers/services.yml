@@ -12,5 +12,8 @@
     - restart time service
   become: true
   ansible.builtin.service:
-    name: "{{ services[time_backend_name] }}"
+    name: "{{ service }}"
     state: restarted
+  loop: "{{ time_backend.services }}"
+  loop_control:
+    loop_var: service

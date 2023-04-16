@@ -1,14 +1,14 @@
 ---
-- name: APT - Configuration files
+- name: Packages - Prepare - APT - Configuration files
   become: true
   block:
-    - name: Prevent APT lock acquired by the daily upgrade
+    - name: Packages - Prepare - APT - Prevent lock file acquired by the daily upgrade
       become: true
       ansible.builtin.systemd:
         name: apt-daily-upgrade
         state: stopped
 
-    - name: APT - Sources list
+    - name: Packages - Prepare - APT - Sources list
       ansible.builtin.template:
         src: apt/sources.list.j2
         dest: /etc/apt/sources.list

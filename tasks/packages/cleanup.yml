@@ -1,5 +1,5 @@
 ---
-- name: Cleanup - Package managers
+- name: Packages - Cleanup
   ansible.builtin.include_tasks:
     file: "{{ clean_task }}"
   with_first_found:

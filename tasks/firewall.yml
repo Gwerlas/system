@@ -1,0 +1,39 @@
+---
+- name: Firewall
+  become: true
+  block:
+    - name: Firewall - Service
+      ansible.builtin.service:
+        name: firewalld{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+        state: started
+        enabled: true
+
+    - name: Firewall - Default zone
+      ansible.builtin.command:
+        cmd: "firewall-cmd --get-default-zone"
+      register: result
+      changed_when: result.stdout != system_firewall_zone
+      notify: set default zone
+
+    - name: Firewall - Rules
+      when: system_firewall_rules | length > 0
+      ansible.posix.firewalld:
+        interface: "{{ rule.interface | default(system_firewall_public_interface) }}"
+        service: "{{ rule.service | default(omit) }}"
+        state: "{{ rule.state | default(omit) }}"
+        port: "{{ rule.port | default(omit) }}"
+        port_forward: "{{ rule.port_forward | default(omit) }}"
+        rich_rule: "{{ rule.rich_rule | default(omit) }}"
+        source: "{{ rule.source | default(omit) }}"
+        icmp_block: "{{ rule.icmp_block | default(omit) }}"
+        icmp_block_inversion: "{{ rule.icmp_block_inversion | default(omit) }}"
+        zone: "{{ rule.zone | default(omit) }}"
+        permanent: "{{ rule.permanent | default(omit) }}"
+        immediate: "{{ rule.immediate | default(omit) }}"
+        timeout: "{{ rule.timeout | default(omit) }}"
+        masquerade: "{{ rule.masquerade | default(omit) }}"
+        offline: "{{ rule.offline | default(omit) }}"
+        target: "{{ rule.target | default(omit) }}"
+      loop: "{{ system_firewall_rules }}"
+      loop_control:
+        loop_var: rule

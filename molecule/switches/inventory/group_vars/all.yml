@@ -1,0 +1,6 @@
+---
+system_http_proxy: http://192.168.122.1:3128
+system_https_proxy: "{{ system_http_proxy }}"
+system_ftp_proxy: "{{ system_http_proxy }}"
+
+switch_to: ntp

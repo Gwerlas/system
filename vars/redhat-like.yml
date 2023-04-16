@@ -1,8 +1,8 @@
 ---
-default_ca:
+ca_certificates:
+  bundle: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
   path: /etc/pki/ca-trust/source/anchors
   command: update-ca-trust
-  bundle: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
 
 default_networks:
   service_name: network
@@ -21,27 +21,12 @@ reboot_detection_policy:
   package: yum-utils
 
 packages:
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
   gnome:
     - "@Workstation"
-    - libreoffice
-  parted:
-    - lvm2
-    - parted
-  timesync:
-    - systemd-timesyncd
-  unattended_upgrades:
+  unattended-upgrades:
     - dnf-automatic
 
-time_backends:
-  - chrony
-  - timesync
+# NTPd no more available since EL8
+masks:
+  time_backends:
+    - ntp

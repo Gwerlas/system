@@ -1,20 +1,5 @@
 ---
-- name: Package - DB update
-  become: true
-  notify: update marker
-  block:
-    - name: Package - DB update - Sync
-      ansible.builtin.command:
-        cmd: emerge --sync
-      register: result
-      changed_when: not "You are already up to date" in result.stdout
-      until: result.failed == false
-      retries: "{{ system_retries }}"
-  rescue:
-    - name: Package - DB update - Web rsync
-      ansible.builtin.command:
-        cmd: emerge-websync
-      register: result
-      changed_when: not "In order to force sync" in result.stdout
-      until: result.failed == false
-      retries: "{{ system_retries }}"
+- name: Package - Update - Portage
+  vars:
+    backend: "{{ system_portage_webrsync | ternary('webrsync', 'sync') }}"
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/update/portage/{{ backend }}.yml"

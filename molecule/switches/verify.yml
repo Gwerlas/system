@@ -13,9 +13,15 @@
       changed_when: false
 
     - name: Time synchronisation
-      when: ansible_service_mgr == 'openrc'
+      when: switch_to == 'ntp'
       ansible.builtin.command:
         cmd: ntpq -p
       changed_when: false
       environment:
         PATH: /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+
+    - name: Time synchronisation
+      when: switch_to == 'chrony'
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
+      changed_when: false

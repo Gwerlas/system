@@ -1,29 +1,118 @@
 ---
-# Runtime
+# For feature flipping purpose
 in_container: "{{ 'container' in ansible_virtualization_tech_guest }}"
 
-# Hosts
-local_hostnames: |
+# Profiles
+profiles:
+  common:
+    packages:
+      - rsync
+  gnome:
+    packages:
+      - gnome
+      - libreoffice
+      - firefox
+
+# Network types
+networks_types:
+  bridge:
+    packages:
+      - bridge-utils
+
+# CA Certificates
+ca_certificates:
+  bundle: /etc/ssl/certs/ca-certificates.crt
+  path: /usr/local/share/ca-certificates
+  command: update-ca-certificates
+
+################
+###   Time   ###
+################
+
+# The name of the current NTP engine, use this variables in tasks and handlers.
+# Do not use default_time_backend_name unless you know what You're doing.
+time_backend_name: "{{ system_time_backend | default(default_time_backend_name) }}"
+
+# If systemd_timesyncd is missing or not well implemented, You can change
+# the default NTP engine in appropriate vars files.
+default_time_backend_name: systemd-timesyncd
+
+# The current NTP engine, prefer this variable in tasks and handlers
+# and use its properties (services, templates).
+time_backend: "{{ time_backends[time_backend_name] }}"
+
+# NTP engines properties, use this variable in your tasks and handlers and not
+# default_time_backends.
+time_backends: "{{ default_time_backends }}"
+
+# Defaults NTP engines properties, use it only to fill the time_backends variable.
+# See debian-like.yml vars file as example.
+default_time_backends:
+  chrony:
+    services:
+      - chronyd{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+    templates:
+      - chrony.conf
+  ntp:
+    services:
+      - ntpd{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+    templates:
+      - ntp.conf
+  systemd-timesyncd:
+    services:
+      - systemd-timesyncd.service
+    templates:
+      - systemd/timesyncd.conf
+
+# NTP engines supported by the current node
+supported_time_backends: |
   {{
-    ( [system_hostname] + system_hostnames ) |
-    product(['', '.' + system_domain]) |
-    map('join')
+    time_backends |
+    dict2items |
+    rejectattr('key', 'in', masks.time_backends | default([])) |
+    items2dict
   }}
 
-local_ips:
-  - ip: "127.0.0.1"
-    names: ['localhost']
-  - ip: "127.0.1.1"
-    names: "{{ local_hostnames }}"
-  - ip: "::1"
-    names: "{{ ['localhost', 'ip6-localhost', 'ip6-loopback'] + local_hostnames }}"
+current_profiles: |
+  {{
+    (['common'] + (system_profile | split('/'))) |
+    intersect(profiles.keys()) |
+    map('extract', profiles)
+  }}
 
-etc_hosts: "{{ local_ips + system_hosts }}"
+current_network_types: |
+  {{
+    system_networks_interfaces |
+    selectattr('type', 'defined') |
+    map(attribute='type') |
+    map('lower') |
+    unique |
+    intersect(networks_types.keys()) |
+    map('extract', networks_types)
+  }}
 
-# Users
+groups_present: |
+  {{
+    (system_users_groups | selectattr('state', 'undefined'))
+  + (system_users_groups | selectattr('state', 'defined') | selectattr('state', '!=', 'absent'))
+  }}
+
+groups_absent: |
+  {{
+    system_users_groups |
+    selectattr('state', 'defined') |
+    selectattr('state', '==', 'absent')
+  }}
+
+users_present: |
+  {{
+    (system_users | selectattr('state', 'undefined'))
+  + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+  }}
+
 users_shells: |
   {{
-    system_users |
+    users_present |
     rejectattr('system', 'defined') |
     selectattr('shell', 'defined') |
     map(attribute='shell') |
@@ -31,51 +120,3 @@ users_shells: |
     sort |
     unique
   }}
-
-# Networks
-networks_types: |
-  {{
-    system_networks_interfaces |
-    selectattr('type', 'defined') |
-    map(attribute='type') |
-    map('lower') |
-    sort |
-    unique
-  }}
-
-# Packages
-desktops:
-  - gnome
-
-packages_computed: |
-  {{
-    ( system_packages
-    + packages.common
-    + users_shells
-    + ((system_profile in packages) | ternary(packages[system_profile], []))
-    + (system_packages_upgrade_unattended | ternary(packages.unattended_upgrades | default([]), []))
-    + (system_ca_certificates | length > 0) | ternary(packages.ca_certificates, [])
-    + (networks_types | intersect(packages.keys() | list) | map('extract', packages))
-    + (system_manage_time and time_backend_name in packages) | ternary(packages[time_backend_name], [])
-    + (system_manage_storages | ternary(packages.parted | default(['parted']), []))
-    + ((system_manage_storages and (system_storages_vg | length) > 0) | ternary(packages.lvm | default(['lvm2']), []))
-    + ((system_profile in desktops) | ternary(packages.desktop, []))
-    ) | flatten | sort | unique
-  }}
-
-# Services
-services:
-  chrony: chronyd
-  ntp: ntpd
-
-# Templates
-templates:
-  chrony: chrony.conf
-  ntp: ntp.conf
-
-# Time
-default_time_backend: chrony
-time_backend_name: "{{ system_time_backend | default(default_time_backend) }}"
-time_backends:
-  - chrony
-  - ntp

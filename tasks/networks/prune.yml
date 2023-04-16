@@ -2,13 +2,13 @@
 - name: Networks - Prune unmanaged interfaces
   when: default_networks.ifaces_confdir is defined
   block:
-    - name: Networks - Get existing interface configuration files
+    - name: Networks - Prune - Get existing interface configuration files
       ansible.builtin.find:
         paths:
           - "{{ default_networks.ifaces_confdir }}"
       register: result
 
-    - name: Debug
+    - name: Networks - Prune - Debug
       ansible.builtin.debug:
         var: |
           {{
@@ -23,10 +23,10 @@
             )
           }}
 
-    - name: Breakpoint
+    - name: Networks - Prune - Breakpoint
       ansible.builtin.fail:
 
-    - name: Networks - Remove useless interfaces configuration files
+    - name: Networks - Prune - Remove useless interfaces configuration files
       become: true
       ansible.builtin.file:
         state: absent

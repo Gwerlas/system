@@ -1,19 +1,19 @@
 ---
-- name: Packages - Cache update detection script
+- name: Packages - Update - Detection script
   become: true
   ansible.builtin.template:
     src: needs-update.j2
     dest: "{{ system_bin_path }}/needs-update"
     mode: "0755"
 
-- name: Packages - Cache update detection
+- name: Packages - Update - Detect the need of a refresh
   ansible.builtin.command:
     cmd: needs-update
   register: result
   failed_when: result.rc > 1
   changed_when: false
 
-- name: Packages - DB update
+- name: Packages - Update
   when: result.rc == 1
   ansible.builtin.include_tasks:
     file: "{{ upd_task }}"

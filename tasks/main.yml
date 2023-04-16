@@ -45,3 +45,7 @@
 - name: Time
   when: system_manage_time
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/time.yml"
+
+- name: Firewall
+  when: system_manage_firewall
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/firewall.yml"

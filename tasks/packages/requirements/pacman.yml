@@ -1,5 +1,5 @@
 ---
-- name: Portage - Packages requirements
+- name: Packages - Requirements - Pacman
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/pacman/{{ pacman_task }}.yml"
   loop:
     - keyring

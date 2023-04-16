@@ -1,6 +1,10 @@
 ---
+- name: Load variables
+  when: system_shells is undefined
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
+
 - name: ZSH
-  when: "'zsh' in users_shells"
+  when: "'zsh' in system_shells"
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/zsh.yml"
 
 - name: Users and groups management
@@ -8,25 +12,6 @@
   tags:
     - users
   block:
-    - name: Users - Parse data
-      ansible.builtin.set_fact:
-        groups_present: |
-          {{
-            (system_users_groups | selectattr('state', 'undefined'))
-          + (system_users_groups | selectattr('state', 'defined') | selectattr('state', '!=', 'absent'))
-          }}
-        groups_absent: |
-          {{
-            system_users_groups |
-            selectattr('state', 'defined') |
-            selectattr('state', '==', 'absent')
-          }}
-        users_present: |
-          {{
-            (system_users | selectattr('state', 'undefined'))
-          + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-          }}
-
     - name: Users - Groups to be present
       ansible.builtin.group:
         name: "{{ group.name }}"

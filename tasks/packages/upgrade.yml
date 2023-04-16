@@ -1,5 +1,5 @@
 ---
-- name: Packages - Distribution upgrade
+- name: Packages - Upgrade
   ansible.builtin.include_tasks:
     file: "{{ upg_task }}"
   with_first_found:

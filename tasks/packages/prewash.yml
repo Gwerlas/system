@@ -1,39 +1,13 @@
 ---
-- name: Prewash - Services
-  when: not in_container
-  block:
-    - name: Prewash - Services - Facts
-      ansible.builtin.service_facts:
+- name: Packages - Prewash
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/prewash/{{ pre_task }}.yml"
+  loop:
+    - services
+    - packages
+  loop_control:
+    loop_var: pre_task
 
-    - name: Prewash - Services - Disable
-      become: true
-      ansible.builtin.service:
-        name: "{{ service }}"
-        state: stopped
-        enabled: false
-      loop: |
-        {{
-          time_backends |
-          intersect(services.values()) |
-          difference([time_backend_name]) |
-          intersect(ansible_facts.services.keys()) |
-          map('extract', services)
-        }}
-
-- name: Prewash - Packages
-  become: true
-  ansible.builtin.package:
-    name: |
-      {{
-        time_backends |
-        intersect(packages.keys()) |
-        difference([time_backend_name]) |
-        map('extract', packages) |
-        flatten
-      }}
-    state: absent
-
-- name: Prewash - Package managers
+- name: Packages - Prewash - Package managers
   ansible.builtin.include_tasks:
     file: "{{ pre_task }}"
   with_first_found:

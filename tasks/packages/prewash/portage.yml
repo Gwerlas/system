@@ -1,11 +1,12 @@
 ---
-- name: Prewash - Portage - Profile
+- name: Packages - Prewash - Portage - Profile
   become: true
   ansible.builtin.file:
     src: |-
       {{
-        '../..' + system_portage_directory + '/profiles/' +
-        portage_profiles[system_profile] +
+        '../..' + system_portage_directory +
+        '/profiles/default/linux/amd64/17.1/' +
+        (portage_profiles[system_profile] | default(system_profile)) +
         ('/systemd' if ansible_service_mgr == 'systemd' else '')
       }}
     dest: /etc/portage/make.profile
@@ -15,5 +16,5 @@
   notify:
     - change profile
 
-- name: Prewash - Portage - Package rebuild
+- name: Packages - Prewash - Portage - Package rebuild
   ansible.builtin.meta: flush_handlers

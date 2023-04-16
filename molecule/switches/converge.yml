@@ -4,4 +4,4 @@
   roles:
     - role: gwerlas.system
       vars:
-        system_time_backend: "{{ time_backends | difference([default_time_backend]) | last }}"
+        system_time_backend: "{{ switch_to }}"

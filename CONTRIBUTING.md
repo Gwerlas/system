@@ -50,7 +50,7 @@ Test each time synchronization service :
 ```sh
 molecule test -s chrony
 molecule test -s ntp
-molecule test -s timesync
+molecule test -s systemd-timesyncd
 ```
 
 Develop / Debug

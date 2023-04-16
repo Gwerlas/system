@@ -24,8 +24,8 @@ chrony.
 
 Available backends :
 
-- `timesync` (default)
-- `chrony` (default when timesync is not supported)
+- `systemd-timesyncd` (default)
+- `chrony` (default when systemd-timesyncd is not supported)
 - `ntp` (deprecated)
 
 ### Custom time servers
@@ -97,7 +97,7 @@ system_time_ntpd_disable:
 
 ### Timesync on RedHat like
 
-Systemd's timesync is not supported by RedHat.
+Systemd's systemd-timesyncd is not supported by RedHat.
 
 To use timesyncd on EL8 or newer, You'll need to [install EPEL][].
 

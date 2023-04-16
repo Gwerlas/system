@@ -1,5 +1,5 @@
 ---
-- name: EPEL
+- name: Packages - Requirements - Yum
   become: true
   when: system_el_use_epel
   ansible.builtin.yum:

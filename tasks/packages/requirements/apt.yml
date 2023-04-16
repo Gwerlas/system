@@ -1,5 +1,5 @@
 ---
-- name: APT - Unattended upgrade
+- name: Packages - Requirements - APT
   when: system_packages_upgrade_unattended
   become: true
   ansible.builtin.template:

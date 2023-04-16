@@ -2,7 +2,9 @@
 system_packages_upgrade: false
 system_packages_upgrade_unattended: false
 system_packages_cache_age: 7
-system_packages: []
+
+system_packages_add_by_key: []
+system_packages_add_by_name: []
 
 # Build from sources when possible
 portage_packages_build: false
@@ -14,3 +16,4 @@ system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_el_use_epel: true
 system_portage_directory: /var/db/repos/gentoo
 system_portage_kernel: gentoo-kernel
+system_portage_webrsync: "{{ system_manage_proxies }}"

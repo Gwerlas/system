@@ -1,18 +1,18 @@
 ---
-- name: Portage - Check for equery
+- name: Packages - Requirements - Portage - Equery - Check for binary
   ansible.builtin.stat:
     path: /usr/bin/equery
   register: bin
 
-- name: Portage - Gentoolkit
+- name: Packages - Requirements - Portage - Equery
   when: not bin.stat.exists
   block:
-    - name: Portage - Gentoolkit - Check the manifest
+    - name: Packages - Requirements - Portage - Equery - Check the manifest
       ansible.builtin.stat:
         path: "{{ system_portage_directory }}/app-portage/gentoolkit/Manifest"
       register: manifest
 
-    - name: Portage - Gentoolkit - Manual emerge sync
+    - name: Packages - Requirements - Portage - Equery - Manual emerge sync
       when: not manifest.stat.exists
       become: true
       ansible.builtin.command:
@@ -20,7 +20,7 @@
       register: result
       changed_when: result.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
 
-    - name: Package - Gentoolkit - Package
+    - name: Packages - Requirements - Portage - Equery - Package
       become: true
       environment:
         PYTHON_TARGETS: "{{ python_single_target }}"

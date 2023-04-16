@@ -1,24 +1,5 @@
 ---
-packages:
-  bond:
-    - ifenslave
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
-  ntp:
-    - ntp
-  parted:
-    - lvm2
-    - parted
-  unattended_upgrades:
-    - apt-listchanges
-    - unattended-upgrades
-  vlan:
-    - vlan
+# Prevent error: Essential packages were removed and -y was used without --allow-remove-essential
+masks:
+  packages:
+    - systemd-timesyncd

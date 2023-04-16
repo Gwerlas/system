@@ -4,7 +4,7 @@
 # Problem: The operation would result in removing the following protected packages:
 # dnf, grub2-pc, grub2-tools-minimal, kernel-core, sudo, systemd, systemd-udev, yum
 #
-# - name: Packages - Cleanup - DNF auto remove
+# - name: Packages - Cleanup - DNF
 #   become: true
 #   ansible.builtin.dnf:
 #     name: '*'

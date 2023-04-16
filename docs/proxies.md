@@ -33,7 +33,7 @@ proxies configuration :
 ```yaml
 system_http_proxy: http://squid.my_domain.tld:3128
 system_https_proxy: "{{ system_http_proxy }}"
-system_ftp_proxy:  "{{ system_http_proxy }}"
+system_ftp_proxy: "{{ system_http_proxy }}"
 system_no_proxy: 127.0.0.1,localhost,.my_domain.tld
 ```
 

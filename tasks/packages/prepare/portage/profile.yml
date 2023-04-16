@@ -1,11 +1,11 @@
 ---
-- name: Prepare - Portage - Profile - Check for broken link
+- name: Packages - Prepare - Portage - Profile - Check for broken link
   ansible.builtin.stat:
     path: /etc/portage/make.profile
     follow: true
   register: result
 
-- name: Prepare - Portage - Profile - Force to default profile
+- name: Packages - Prepare - Portage - Profile - Force to default profile
   when: not result.stat.exists
   become: true
   ansible.builtin.file:

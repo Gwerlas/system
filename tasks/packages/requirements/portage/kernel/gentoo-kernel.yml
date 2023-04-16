@@ -1,5 +1,5 @@
 ---
-- name: Requirements - Portage - Gentoo kernel
+- name: Packages - Requirements - Portage - Kernel - Gentoo kernel
   become: true
   community.general.portage:
     update: "{{ system_packages_upgrade }}"

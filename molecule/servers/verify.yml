@@ -112,7 +112,7 @@
 
     - name: Get cert headers
       ansible.builtin.command:
-        cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ default_ca.bundle }}"
+        cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ ca_certificates.bundle }}"
       changed_when: false
       register: result
 

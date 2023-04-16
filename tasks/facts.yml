@@ -9,7 +9,7 @@
       paths:
         - "{{ role_path }}/vars"
   loop:
-    - "{{ ansible_service_mgr }}.yml"                                                     # systemd
+    - "{{ ansible_service_mgr }}.yml"                                                     # openrc
     - "{{ ansible_os_family | lower }}-like.yml"                                          # debian-like,  redhat-like, etc.
     - "{{ ansible_distribution | lower }}.yml"                                            # debian,       fedora,      ubuntu
     - "{{ ansible_os_family | lower }}{{ ansible_distribution_major_version }}-like.yml"  # redhat7-like
@@ -19,6 +19,27 @@
     loop_var: vars_file
 
 - name: Facts - Global
+  vars:
+    packages_keys: |
+      {{
+        ( system_packages_add_by_key + users_shells
+        + (current_profiles | selectattr('packages', 'defined') | map(attribute='packages'))
+        + (current_network_types | selectattr('packages', 'defined') | map(attribute='packages'))
+        + (system_manage_time | ternary([time_backend_name], []))
+        + (system_packages_upgrade_unattended | ternary(['unattended-upgrades'], []))
+        + (system_ca_certificates | length > 0) | ternary(['ca-certificates'], [])
+        + (system_manage_storages | ternary(['parted'], []))
+        + ((system_manage_storages and (system_storages_vg | length) > 0) | ternary(['lvm2'], []))
+        + (system_manage_firewall | ternary(['firewalld'], []))
+        ) | flatten | unique | difference(masks.packages | default([]))
+      }}
   ansible.builtin.set_fact:
     cacheable: true
-    system_packages_computed: "{{ packages_computed }}"
+    system_packages: |
+      {{
+        ( system_packages_add_by_name
+        + (packages_keys | intersect(packages.keys()) | map('extract', packages))
+        + (packages_keys | difference(packages.keys()))
+        ) | flatten | sort | unique
+      }}
+    system_shells: "{{ users_shells }}"

@@ -1,16 +1,16 @@
 ---
-- name: Pacman - Archlinux User Repository (AUR)
+- name: Packages - Requirements - Pacman - Yay
   when: system_archlinux_user_repository
   block:
-    - name: Pacman - AUR - Check for Yay
+    - name: Packages - Requirements - Pacman - Yay - Check for the binary
       ansible.builtin.stat:
         path: /usr/bin/yay
       register: system_bin_yay
 
-    - name: Pacman - AUR - Install Yay
+    - name: Packages - Requirements - Pacman - Yay - Install
       when: not system_bin_yay.stat.exists
       block:
-        - name: Pacman - AUR - Yay - Install build dependencies
+        - name: Packages - Requirements - Pacman - Yay - Install build dependencies
           become: true
           community.general.pacman:
             name:
@@ -19,19 +19,19 @@
               - git
               - make
 
-        - name: Pacman - AUR - Yay - Clone Yay from github
+        - name: Packages - Requirements - Pacman - Yay - Clone from github
           ansible.builtin.git:
             repo: https://aur.archlinux.org/yay.git
             dest: /tmp/yay
             version: "{{ system_yay_version | default(omit) }}"
 
-        - name: Pacman - AUR - Yay - Build
+        - name: Packages - Requirements - Pacman - Yay - Build
           ansible.builtin.command:
             cmd: makepkg --noconfirm -si
             chdir: /tmp/yay
             creates: /usr/bin/yay
 
-    - name: Pacman - AUR - Yay Ansible module
+    - name: Packages - Requirements - Pacman - Yay - Ansible module
       become: true
       run_once: true
       delegate_to: localhost

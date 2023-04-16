@@ -1,0 +1,10 @@
+---
+system_firewall_zone: public
+system_firewall_public_interface: "{{ ansible_default_ipv4.interface }}"
+
+system_firewall_rules:
+  - interface: "{{ system_firewall_public_interface }}"
+    zone: "{{ system_firewall_zone }}"
+    immediate: true
+    permanent: true
+    state: enabled

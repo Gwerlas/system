@@ -1,8 +1,9 @@
 ---
-- name: Portage - Preparations
+- name: Packages - Prepare - Portage
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/prepare/portage/{{ portage_task }}.yml"
   loop:
     - permissions
+    - config
     - cache
     - profile
   loop_control:

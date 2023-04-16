@@ -12,6 +12,12 @@ system_users_groups: []
 system_users: []
 ```
 
+Facts
+-----
+
+The `system_shells` fact contains the list of the shells used by the users
+in the `system_users` which their state are `present` and they are not `system`.
+
 Users and groups
 ----------------
 

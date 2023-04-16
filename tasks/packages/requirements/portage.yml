@@ -1,5 +1,5 @@
 ---
-- name: Portage - Packages requirements
+- name: Packages - Requirements - Portage
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/{{ portage_task }}.yml"
   loop:
     - equery

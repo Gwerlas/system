@@ -1,22 +1,7 @@
 ---
-packages:
-  bridge:
-    - bridge-utils
-  ca_certificates:
-    - ca-certificates
-  chrony:
-    - chrony
-  common:
-    - rsync
-  desktop:
-    - usbutils
-  ntp:
-    - ntp
-  parted:
-    - lvm2
-    - parted
+# Timesyncd not available in EL7
+default_time_backend_name: chrony
 
-default_time_backend: chrony
-time_backends:
-  - chrony
-  - ntp
+masks:
+  time_backends:
+    - systemd-timesyncd

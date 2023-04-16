@@ -1,9 +1,4 @@
 ---
-default_ca:
-  path: /usr/local/share/ca-certificates
-  command: update-ca-certificates
-  bundle: /etc/ssl/certs/ca-certificates.crt
-
 default_portage_directory: /var/db/repos/gentoo
 
 packages_update_policy:
@@ -12,7 +7,7 @@ packages_update_policy:
 packages:
   bridge:
     - net-misc/bridge-utils
-  ca_certificates:
+  ca-certificates:
     - app-misc/ca-certificates
   chrony:
     - net-misc/chrony
@@ -21,19 +16,23 @@ packages:
     - net-misc/rsync
   desktop:
     - sys-apps/usbutils
+  firewalld:
+    - net-firewall/firewalld
   gnome:
     - dev-lang/rust{{ portage_packages_build | ternary('', '-bin') }}
     - app-office/gnome{{ portage_packages_build | ternary('', '-bin') }}
     - app-office/libreoffice{{ portage_packages_build | ternary('', '-bin') }}
     - www-client/firefox{{ portage_packages_build | ternary('', '-bin') }}
-  lvm:
+  lvm2:
     - sys-fs/lvm2
   ntp:
     - net-misc/ntp
+  zsh:
+    - app-shells/zsh
+    - app-shells/zsh-completions
+    - app-shells/zsh-syntax-highlighting
 
 python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
 
 portage_profiles:
-  desktop: default/linux/amd64/17.1/desktop
-  gnome: default/linux/amd64/17.1/desktop/gnome
-  server: default/linux/amd64/17.1/no-multilib
+  server: no-multilib
