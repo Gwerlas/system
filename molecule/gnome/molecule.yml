@@ -9,11 +9,8 @@ driver:
 platforms:
   - name: archlinux
     box: archlinux/archlinux
-    interfaces: &interfaces
-      - auto_config: false
-        network_name: private_network
-        type: dhcp
-    provider_raw_config_args: &provider
+    memory: 2048
+    provider_raw_config_args: &raw_config
       - "cpu_mode = 'host-passthrough'"
       - "disk_bus = 'virtio'"
       - "nic_model_type = 'virtio'"
@@ -22,65 +19,77 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Syu --noconfirm git net-tools python3 sudo unzip which"'
-      - 'vm.disk :disk, size: "1GB", name: "vdb"'
   - name: gentoo
     box: generic/gentoo
     cpus: 4
     memory: 8192
-    interfaces: *interfaces
     provider_raw_config_args:
       - "cpu_mode = 'host-passthrough'"
       - "nic_model_type = 'virtio'"
       - "video_type = 'virtio'"
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
-    instance_raw_config_args: &instance
-      - 'vm.disk :disk, size: "1GB", name: "vdb"'
 
   # Debian like
+  - name: debian10
+    box: debian/buster64
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: debian11
+    box: debian/bullseye64
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: debian12
     box: debian/testing64
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: ubuntu1804
+    box: generic/ubuntu1804
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: ubuntu2004
+    box: generic/ubuntu2004
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: ubuntu2204
+    box: generic/ubuntu2204
+    memory: 2048
+    provider_raw_config_args: *raw_config
   - name: ubuntu2210
     box: generic/ubuntu2210
     memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
+    provider_raw_config_args: *raw_config
 
   # RedHat like
-  - name: centos8s
-    box: generic/centos8s
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: centos9s
-    box: generic/centos9s
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: fedora36
-    box: generic/fedora36
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
-  - name: fedora37
-    box: generic/fedora37
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider
-    instance_raw_config_args: *instance
+  # - name: centos7
+  #   box: centos/7
+  #   provider_raw_config_args: *raw_config
+  # - name: centos8s
+  #   box: generic/centos8s
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: centos9s
+  #   box: generic/centos9s
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: alma8
+  #   box: almalinux/8
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: alma9
+  #   box: almalinux/9
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: fedora37
+  #   box: fedora/37-cloud-base
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
+  # - name: fedora38
+  #   box: fedora/38-cloud-base
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible
-  inventory:
-    links:
-      group_vars: inventory/group_vars
-      host_vars: inventory/host_vars
 verifier:
   name: ansible

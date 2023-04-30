@@ -7,13 +7,25 @@ system_packages_add_by_key: []
 system_packages_add_by_name: []
 
 # Build from sources when possible
-portage_packages_build: false
+system_packages_build: false
 # https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
-portage_packages_march: native
+system_packages_march: native
 
-# Package managers / Distributions specific settings
+# ArchLinux : Use AUR packages
 system_archlinux_user_repository: "{{ system_profile != 'server' }}"
+
+# RedHat Like : Use EPEL
 system_el_use_epel: true
+
+# Gentoo (portage)
 system_portage_directory: /var/db/repos/gentoo
 system_portage_kernel: gentoo-kernel
+system_portage_use_bin_suffix: "{{ not system_packages_build }}"
 system_portage_webrsync: "{{ system_manage_proxies }}"
+
+system_portage_binrepos:
+  - name: experimental
+    sync-uri: http://packages.gentooexperimental.org/amd64-stable/
+  - name: osuosl
+    priority: 9999
+    sync-uri: https://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/

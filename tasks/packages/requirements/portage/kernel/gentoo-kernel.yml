@@ -5,6 +5,6 @@
     update: "{{ system_packages_upgrade }}"
     package:
       - sys-kernel/linux-firmware
-      - sys-kernel/gentoo-kernel{{ portage_packages_build | ternary('', '-bin') }}
+      - sys-kernel/gentoo-kernel{{ system_portage_use_bin_suffix | ternary('-bin', '') }}
       - virtual/dist-kernel
   notify: grub-mkconfig

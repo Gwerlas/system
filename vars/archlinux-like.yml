@@ -10,7 +10,7 @@ packages_update_policy:
 packages_upgrade_policy:
   upgrade: true
 
-packages:
+family_packages:
   libreoffice:
     - libreoffice-still
 

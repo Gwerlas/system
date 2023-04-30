@@ -1,23 +1,62 @@
 ---
 # For feature flipping purpose
 in_container: "{{ 'container' in ansible_virtualization_tech_guest }}"
+is_desktop: "{{ 'desktop' in system_profile }}"
+use_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
 
 # Profiles
 profiles:
-  common:
+  all:
     packages:
       - rsync
-  gnome:
+  desktop:
     packages:
-      - gnome
       - libreoffice
       - firefox
+      - usbutils
+  gnome:
+    packages:
+      - baobab
+      - eog
+      - evince
+      - file-roller
+      - gdm
+      - gnome-backgrounds
+      - gnome-console
+      - gnome-online-accounts
+      - gnome-screenshot
+      - gnome-session
+      - gnome-shell
+      - gnome-software
+      - nautilus
+      - seahorse
+    services:
+      - gdm
+
+current_profiles_keys: "{{ (['all'] + (system_profile | split('/'))) }}"
+current_profiles_values: |
+  {{
+    current_profiles_keys |
+    intersect(profiles.keys()) |
+    map('extract', profiles)
+  }}
 
 # Network types
 networks_types:
   bridge:
     packages:
       - bridge-utils
+
+current_network_types: |
+  {{
+    system_networks_interfaces |
+    selectattr('type', 'defined') |
+    map(attribute='type') |
+    map('lower') |
+    unique |
+    intersect(networks_types.keys()) |
+    map('extract', networks_types)
+  }}
 
 # CA Certificates
 ca_certificates:
@@ -71,24 +110,6 @@ supported_time_backends: |
     dict2items |
     rejectattr('key', 'in', masks.time_backends | default([])) |
     items2dict
-  }}
-
-current_profiles: |
-  {{
-    (['common'] + (system_profile | split('/'))) |
-    intersect(profiles.keys()) |
-    map('extract', profiles)
-  }}
-
-current_network_types: |
-  {{
-    system_networks_interfaces |
-    selectattr('type', 'defined') |
-    map(attribute='type') |
-    map('lower') |
-    unique |
-    intersect(networks_types.keys()) |
-    map('extract', networks_types)
   }}
 
 groups_present: |

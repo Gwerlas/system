@@ -1,15 +1,18 @@
 ---
 - name: Packages - Prepare - Portage - Config
-  ansible.builtin.copy:
-    src: "{{ file }}"
-    dest: "/etc/portage/{{ file }}"
+  ansible.builtin.template:
+    src: portage/{{ file }}.j2
+    dest: /etc/portage/{{ file }}
     owner: "{{ ansible_user_id }}"
     group: portage
     mode: "0664"
   loop:
+    - binrepos.conf
     - package.license/kernels
     - package.use/{{ system_portage_kernel }}
-    - "{{ system_manage_firewall | ternary('package.use/firewalld', omit) }}"
+    - package.use/firewalld
+    - package.use/lvm2
+    - package.use/libreoffice
   loop_control:
     loop_var: file
   notify: emerge --newuse

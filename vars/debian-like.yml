@@ -41,9 +41,9 @@ networks_types:
     packages:
       - bridge-utils
 
-packages:
-  gnome:
-    - gnome-core
+family_packages:
+  gdm:
+    - gdm3
   unattended-upgrades:
     - apt-listchanges
     - unattended-upgrades

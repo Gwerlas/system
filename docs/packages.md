@@ -154,15 +154,15 @@ So, we install it if it's missing.
 
 ```yaml
 # Build from sources when possible
-portage_packages_build: false
+system_packages_build: false
 # https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
-portage_packages_march: native
+system_packages_march: native
 ```
 
 If You don't want to use `*-bin` packages when they are available, set
-`portage_packages_build` to `true`.
+`system_packages_build` to `true`.
 
-If You want to compile your nodes with [distcc][], change the `portage_packages_march`
+If You want to compile your nodes with [distcc][], change the `system_packages_march`
 value, You can find help in the [Safe CFLAGS] manual.
 
 [distcc]: https://wiki.gentoo.org/wiki/Distcc/fr
@@ -179,7 +179,7 @@ system_portage_kernel: gentoo-kernel
 Possible values :
 
 - `gentoo-kernel` : Install `gentoo-kernel-bin` (or `gentoo-kernel` if
-`portage_packages_build` is `true`), see [distribution kernels][] for more informations
+`system_packages_build` is `true`), see [distribution kernels][] for more informations
 
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
 

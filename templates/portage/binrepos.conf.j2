@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+{% for repo in system_portage_binrepos %}
+[{{ repo.name }}]
+{% if 'priority' in repo %}
+priority = {{ repo.priority }}
+{% endif %}
+sync-uri = {{ repo['sync-uri'] }}
+
+{% endfor %}

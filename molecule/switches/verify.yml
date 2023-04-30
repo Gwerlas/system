@@ -3,16 +3,6 @@
   hosts: all
   tasks:
     - name: Time synchronisation
-      when: ansible_service_mgr == "systemd"
-      ansible.builtin.command:
-        cmd: timedatectl
-      register: result
-      failed_when: |
-        (result.rc > 0) or
-        ('synchronized: yes' not in result.stdout)
-      changed_when: false
-
-    - name: Time synchronisation
       when: switch_to == 'ntp'
       ansible.builtin.command:
         cmd: ntpq -p

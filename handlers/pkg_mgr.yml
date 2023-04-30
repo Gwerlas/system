@@ -1,4 +1,8 @@
 ---
+- name: Portage
+  when: ansible_pkg_mgr == 'portage'
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/portage.yml"
+
 - name: Packages - Cache update marker
   listen: update marker
   when: packages_update_policy.marker is defined
@@ -8,40 +12,3 @@
     state: touch
     modification_time: now
     mode: "0644"
-
-- name: Portage - Prevent circular deps while building a minimal libsndfile
-  listen:
-    - change profile
-  when: "'desktop' is match(system_profile)"
-  become: true
-  environment:
-    USE: minimal
-  community.general.portage:
-    oneshot: true
-    package:
-      - media-libs/libsndfile
-
-- name: Portage - Rebuild packages that need to be rebuilt
-  listen:
-    - change profile
-    - emerge --newuse
-  become: true
-  community.general.portage:
-    deep: true
-    newuse: true
-    update: "{{ system_packages_upgrade }}"
-    package: '@world'
-
-- name: Portage - Clean dependencies
-  listen:
-    - change profile
-    - emerge --newuse
-  become: true
-  community.general.portage:
-    depclean: true
-
-- name: Portage - Kernel modules rebuild
-  listen: emerge @module-rebuild
-  become: true
-  community.general.portage:
-    package: '@module-rebuild'

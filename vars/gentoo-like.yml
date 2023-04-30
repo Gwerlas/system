@@ -4,35 +4,48 @@ default_portage_directory: /var/db/repos/gentoo
 packages_update_policy:
   marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
-packages:
+family_packages:
   bridge:
     - net-misc/bridge-utils
-  ca-certificates:
-    - app-misc/ca-certificates
-  chrony:
-    - net-misc/chrony
-  common:
-    - dev-vcs/git
-    - net-misc/rsync
-  desktop:
-    - sys-apps/usbutils
-  firewalld:
-    - net-firewall/firewalld
-  gnome:
-    - dev-lang/rust{{ portage_packages_build | ternary('', '-bin') }}
-    - app-office/gnome{{ portage_packages_build | ternary('', '-bin') }}
-    - app-office/libreoffice{{ portage_packages_build | ternary('', '-bin') }}
-    - www-client/firefox{{ portage_packages_build | ternary('', '-bin') }}
-  lvm2:
-    - sys-fs/lvm2
-  ntp:
-    - net-misc/ntp
+  firefox:
+    - www-client/firefox{{ system_portage_use_bin_suffix | ternary('-bin', '') }}
+  gdm:
+    - gnome-base/gdm
+    - gui-libs/display-manager-init
+  gnome-console:
+    - x11-terms/gnome-terminal
+  gnome-software: []
+  libreoffice:
+    - app-office/libreoffice{{ system_portage_use_bin_suffix | ternary('-bin', '') }}
   zsh:
     - app-shells/zsh
     - app-shells/zsh-completions
     - app-shells/zsh-syntax-highlighting
 
+family_services:
+  gdm:
+    - display-manager
+
 python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
 
 portage_profiles:
   server: no-multilib
+
+default_portage_opts:
+  - "{{ system_packages_build | ternary(omit, '--binpkg-changed-deps=y') }}"
+  - "{{ system_packages_build | ternary(omit, '--binpkg-respect-use=y') }}"
+  - --complete-graph
+  - --quiet-build=y
+  - --with-bdeps=y
+
+# https://devmanual.gentoo.org/eclass-reference/make.conf/index.html
+default_portage_features:
+  # - "{{ system_packages_build | ternary(omit, 'binpkg-request-signature') }}"
+  - "{{ system_packages_build | ternary(omit, 'getbinpkg') }}"
+  - parallel-fetch
+
+# CA Certificates
+ca_certificates:
+  bundle: /etc/ssl/certs/ca-certificates.crt
+  path: /usr/share/ca-certificates
+  command: update-ca-certificates

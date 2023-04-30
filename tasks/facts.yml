@@ -23,15 +23,34 @@
     packages_keys: |
       {{
         ( system_packages_add_by_key + users_shells
-        + (current_profiles | selectattr('packages', 'defined') | map(attribute='packages'))
+        + (current_profiles_values | selectattr('packages', 'defined') | map(attribute='packages'))
         + (current_network_types | selectattr('packages', 'defined') | map(attribute='packages'))
         + (system_manage_time | ternary([time_backend_name], []))
         + (system_packages_upgrade_unattended | ternary(['unattended-upgrades'], []))
         + (system_ca_certificates | length > 0) | ternary(['ca-certificates'], [])
         + (system_manage_storages | ternary(['parted'], []))
-        + ((system_manage_storages and (system_storages_vg | length) > 0) | ternary(['lvm2'], []))
+        + (system_manage_lvm | ternary(['lvm2'], []))
         + (system_manage_firewall | ternary(['firewalld'], []))
         ) | flatten | unique | difference(masks.packages | default([]))
+      }}
+    packages: |
+      {{
+        (family_packages | default({})) |
+        combine(distro_packages | default({})) |
+        combine(release_packages | default({}))
+      }}
+    services_keys: |
+      {{
+        (
+          current_profiles_values |
+          selectattr('services', 'defined') |
+          map(attribute='services')
+        ) | flatten | unique
+      }}
+    services: |
+      {{
+        (family_services | default({})) |
+        combine(distro_services | default({}))
       }}
   ansible.builtin.set_fact:
     cacheable: true
@@ -43,3 +62,9 @@
         ) | flatten | sort | unique
       }}
     system_shells: "{{ users_shells }}"
+    system_services: |
+      {{
+        ( (services_keys | intersect(services.keys()) | map('extract', services))
+        + (services_keys | difference(services.keys()))
+        ) | flatten | sort | unique
+      }}

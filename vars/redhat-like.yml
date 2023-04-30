@@ -20,9 +20,9 @@ packages_upgrade_policy:
 reboot_detection_policy:
   package: yum-utils
 
-packages:
+family_packages:
   gnome:
-    - "@Workstation"
+    - "@GNOME"
   unattended-upgrades:
     - dnf-automatic
 

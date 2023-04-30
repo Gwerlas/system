@@ -1,9 +1,4 @@
 ---
-# Not available in Ubuntu Bionic
-masks:
-  packages:
-    - systemd-timesyncd
-
 # Gnome Console is not yet available
 release_packages:
   gnome-console:

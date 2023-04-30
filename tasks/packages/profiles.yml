@@ -1,0 +1,6 @@
+---
+- name: Packages - Profiles
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/profiles/{{ prfl_task }}.yml"
+  loop: "{{ current_profiles_keys }}"
+  loop_control:
+    loop_var: prfl_task

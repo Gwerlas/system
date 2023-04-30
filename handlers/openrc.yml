@@ -17,3 +17,11 @@
   ansible.builtin.service:
     name: hostname
     state: restarted
+
+- name: OpenRC - Restart the Display Manager
+  listen:
+    - restart display-manager
+  become: true
+  ansible.builtin.service:
+    name: display-manager
+    state: restarted

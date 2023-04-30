@@ -6,3 +6,8 @@ masks:
   time_backends:
     - systemd-timesyncd
     - ntp
+
+# Gnome Console is not yet available
+release_packages:
+  gnome-console:
+    - gnome-terminal

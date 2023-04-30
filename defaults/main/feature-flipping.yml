@@ -13,3 +13,4 @@ system_manage_storages: |
       system_storages_lvol
     ) | length > 0
   }}
+system_manage_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"

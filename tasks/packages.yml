@@ -13,6 +13,8 @@
     - upgrade
     - install
     - cleanup
+    - profiles
+    - services
   loop_control:
     loop_var: pkg_task
 

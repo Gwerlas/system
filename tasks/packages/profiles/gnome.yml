@@ -1,0 +1,12 @@
+---
+- name: Packages - Profiles - Gnome
+  when:
+    - ansible_os_family == 'Gentoo'
+    - ansible_service_mgr == 'openrc'
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/conf.d/display-manager
+    line: DISPLAYMANAGER="gdm"
+    regexp: ^DISPLAYMANAGER=
+  notify:
+    - restart display-manager

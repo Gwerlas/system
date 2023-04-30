@@ -34,9 +34,15 @@
     mode: "0664"
   loop:
     - regex: ^CFLAGS=
-      content: CFLAGS="-O2 -pipe -march={{ portage_packages_march }}"
+      content: CFLAGS="-O2 -pipe -march={{ system_packages_march }}"
     - regex: ^CXXFLAGS=
       content: CXXFLAGS="${CFLAGS}"
+    - regex: ^MAKEOPTS=
+      content: MAKEOPTS="-j{{ ansible_processor_nproc }}"
+    - regex: ^EMERGE_DEFAULT_OPTS=
+      content: EMERGE_DEFAULT_OPTS="-j{{ ansible_processor_nproc }} {{ default_portage_opts | join(' ') }}"
+    - regex: ^FEATURES=
+      content: FEATURES="{{ default_portage_features | join(' ') }}"
     - regex: ^USE_PYTHON=
       state: absent
     - regex: ^PYTHON_TARGETS=

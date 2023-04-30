@@ -5,11 +5,6 @@
 - name: Package managers
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/pkg_mgr.yml"
 
-- name: CA - Debug
-  listen: update ca
-  ansible.builtin.debug:
-    var: ca_certificates.update
-
 - name: CA - Update certificates
   listen: update ca
   become: true

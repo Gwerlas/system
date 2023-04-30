@@ -1,0 +1,15 @@
+---
+- name: Packages - Services - Show the list
+  ansible.builtin.debug:
+    var: system_services
+    verbosity: 1
+
+- name: Packages - Services
+  become: true
+  ansible.builtin.service:
+    name: "{{ service }}"
+    state: started
+    enabled: true
+  loop: "{{ system_services }}"
+  loop_control:
+    loop_var: service

@@ -48,7 +48,7 @@ platforms:
     provider_raw_config_args: *raw_config
   - name: ubuntu2204
     box: generic/ubuntu2204
-    memory: 4096
+    memory: 2048
     provider_raw_config_args: *raw_config
   - name: ubuntu2210
     box: generic/ubuntu2210

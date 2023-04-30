@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+# required by net-firewall/firewalld-1.1.1::gentoo[nftables,iptables]
+# required by firewalld (argument)
+>=net-firewall/nftables-1.0.4-r2    xtables json python
+
+net-firewall/firewalld              -iptables
+
+{% if 'desktop' in system_profile %}
+dev-qt/qtmultimedia                 widgets
+{% endif %}

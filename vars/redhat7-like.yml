@@ -5,3 +5,8 @@ default_time_backend_name: chrony
 masks:
   time_backends:
     - systemd-timesyncd
+
+# Gnome Console is not yet available
+release_packages:
+  gnome-console:
+    - gnome-terminal
