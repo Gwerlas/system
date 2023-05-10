@@ -23,9 +23,6 @@
             )
           }}
 
-    - name: Networks - Prune - Breakpoint
-      ansible.builtin.fail:
-
     - name: Networks - Prune - Remove useless interfaces configuration files
       become: true
       ansible.builtin.file:

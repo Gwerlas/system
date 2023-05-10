@@ -45,6 +45,6 @@
     - set default zone
   become: true
   ansible.builtin.command:
-    cmd: firewall-cmd --set-default-zone {{ system_firewall_zone }}
+    cmd: firewall-cmd --set-default-zone {{ system_firewall_default_zone }}
   register: result
   changed_when: "'success' in result.stdout"
