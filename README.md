@@ -39,6 +39,8 @@ Defined facts of this role :
 - `system_shells`
 - `system_sudo_version`
 
+Look at the [facts][] documentation for more details.
+
 Tags
 ----
 
@@ -62,31 +64,50 @@ independently.
 
 Of course, all tasks are called in the `main.yml`. See each task documentation :
 
-* [proxies](docs/proxies.md)
-* [hosts](docs/hosts.md)
-* [packages](docs/packages.md)
-* [networks](docs/networks.md)
-* [storages](docs/storages.md)
-* [sudo](docs/sudo.md)
-* [users](docs/users.md)
-* [zsh](docs/zsh.md)
-* [ca](docs/ca.md)
-* [time](docs/time.md)
-* [firewall](docs/firewall.md)
-* [reboot](docs/reboot.md)
+* [facts][]
+* [proxies][]
+* [hosts][]
+* [packages][]
+* [networks][]
+* [storages][]
+* [sudo][]
+* [users][]
+* [zsh][]
+* [ca][]
+* [time][]
+* [firewall][]
+* [reboot][]
+
+[facts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/facts.md
+[proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
+[hosts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/hosts.md
+[packages]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/packages.md
+[networks]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/networks.md
+[storages]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/storages.md
+[sudo]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/sudo.md
+[users]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/users.md
+[zsh]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/zsh.md
+[ca]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/ca.md
+[time]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/time.md
+[firewall]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/firewall.md
+[reboot]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/reboot.md
 
 Role Variables
 --------------
 
 ### Feature flipping
 
-Look at [`defaults/main/feature-flipping.yml`](defaults/main/feature-flipping.yml).
+Look at [`defaults/main/feature-flipping.yml`][ff].
 
 Enable/disable some features by setting them to `true`/`false`.
 
+[ff]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/feature-flipping.yml
+
 ### Shared variables
 
-Look at [`defaults/main/shared.yml`](defaults/main/shared.yml).
+Look at [`defaults/main/shared.yml`][shared].
+
+[shared]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/shared.yml
 
 ```yaml
 system_bin_path: /usr/local/bin
@@ -108,7 +129,7 @@ If You have some network troubles during installation, you can increase the
 Dependencies
 ------------
 
-None.
+A reachable Linux system with Python installed.
 
 Example Playbook
 ----------------
@@ -133,7 +154,7 @@ Use just one task :
 - name: System packages
   hosts: all
   tasks:
-    - name: Update the package manager cache
+    - name: Base system tools only
       ansible.builtin.import_role:
         name: gwerlas.system
         tasks_from: packages
@@ -142,4 +163,4 @@ Use just one task :
 License
 -------
 
-[BSD 3-Clause License](LICENSE).
+[BSD 3-Clause License](https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/LICENSE).

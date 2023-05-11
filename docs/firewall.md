@@ -18,6 +18,18 @@ You can use one of [predefined zones](https://firewalld.org/documentation/zone/p
 
 The `system_firewall_default_zone` will be applied to the `system_firewall_public_interface`.
 
+The `system_firewall_rules` is a list of dictionaries with the same structure
+documented in the [Ansible firewalld module][].
+
+[Ansible firewalld module]: https://docs.ansible.com/ansible/latest/collections/ansible/posix/firewalld_module.html
+
+For some arguments, we changed the default values as is :
+
+- `immediate`: `true`
+- `permanent`: `true`
+- `state`: `enabled`
+- `zone`: `{{ system_firewall_default_zone }}`
+
 Example Playbook
 ----------------
 
@@ -31,6 +43,6 @@ Common usage :
     - name: gwerlas.system
         vars:
           system_firewall_rules:
-            - http
+            - service: http
 ```
 

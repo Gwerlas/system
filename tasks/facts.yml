@@ -1,4 +1,9 @@
 ---
+- name: Facts - Checks
+  when: ansible_os_family is undefined
+  ansible.builtin.fail:
+    msg: Ansible facts must be gathered
+
 - name: Facts - Local variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:

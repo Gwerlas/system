@@ -10,22 +10,11 @@
   when: system_manage_hosts
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/hosts.yml"
 
-- name: Packages and networks
-  # Some packages need to be installed to configure networks
-  block:
-    - name: Packages
-      ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
+- name: Packages
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
 
-    - name: Network management
-      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
-
-  # In case of a network need to be configured to install packages
-  rescue:
-    - name: Network management
-      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
-
-    - name: Packages
-      ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
+- name: Network management
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
 
 - name: Storages
   when: system_manage_storages
