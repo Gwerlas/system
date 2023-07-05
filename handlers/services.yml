@@ -17,3 +17,11 @@
   loop: "{{ time_backend.services }}"
   loop_control:
     loop_var: service
+
+- name: Firewalld reload
+  listen:
+    - reload firewalld
+  become: true
+  ansible.builtin.service:
+    name: firewalld
+    state: restarted

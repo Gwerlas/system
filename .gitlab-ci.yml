@@ -3,7 +3,7 @@ molecule:
   tags:
     - saas-linux-large-amd64
   services:
-    - name: docker:23.0-dind
+    - name: docker:dind
       variables:
         DOCKER_CLIENT_TIMEOUT: "240"
         COMPOSE_HTTP_TIMEOUT: "240"
@@ -12,14 +12,14 @@ molecule:
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-      - defaults/*
-      - files/**/*
-      - handlers/*
-      - meta/*
-      - molecule/**/*
-      - tasks/**/*
-      - templates/**/*
-      - vars/**/*
+        - defaults/*
+        - files/**/*
+        - handlers/*
+        - meta/*
+        - molecule/**/*
+        - tasks/**/*
+        - templates/**/*
+        - vars/**/*
 
 import:
   stage: deploy

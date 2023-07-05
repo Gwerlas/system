@@ -8,6 +8,13 @@
         state: started
         enabled: true
 
+    - name: Firewall - Logging for denied packets
+      ansible.builtin.lineinfile:
+        path: /etc/firewalld/firewalld.conf
+        line: LogDenied=all
+        regexp: ^LogDenied=
+      notify: reload firewalld
+
     - name: Firewall - Default zone
       ansible.builtin.command:
         cmd: "firewall-cmd --get-default-zone"
