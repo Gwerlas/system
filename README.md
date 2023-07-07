@@ -46,6 +46,7 @@ Tags
 
 Because some values are dispatched in multiple tasks. You can quickly update some of them with tags :
 
+- `firewall`
 - `proxies`
 - `sudoers`
 - `users`

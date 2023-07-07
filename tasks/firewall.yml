@@ -1,6 +1,8 @@
 ---
 - name: Firewall
   become: true
+  tags:
+    - firewall
   block:
     - name: Firewall - Service
       ansible.builtin.service:
