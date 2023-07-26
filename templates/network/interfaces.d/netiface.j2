@@ -24,7 +24,7 @@ iface {{ system_netiface.name }} inet {{ bootproto }}
 
 {% if system_netiface.routes is defined %}
 {% for route in system_netiface.routes %}
-    down ip route add {{ route }} dev {{ system_netiface.name }}
-    up ip route add {{ route }} dev {{ system_netiface.name }}
+    down ip route add {{ route }}{% if system_netiface.gateway is defined %} via {{ system_netiface.gateway | ansible.utils.ipaddr('address') }}{% endif %} dev {{ system_netiface.name }}
+    up ip route add {{ route }}{% if system_netiface.gateway is defined %} via {{ system_netiface.gateway | ansible.utils.ipaddr('address') }}{% endif %} dev {{ system_netiface.name }}
 {% endfor %}
 {% endif %}
