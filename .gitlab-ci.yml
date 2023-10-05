@@ -5,9 +5,10 @@ molecule:
   services:
     - name: docker:dind
       variables:
+        MOLECULE_CONTAINERS_BACKEND: docker
         DOCKER_CLIENT_TIMEOUT: "240"
         COMPOSE_HTTP_TIMEOUT: "240"
-  script: molecule test -s docker
+  script: molecule test -s containers
   timeout: 2h
   rules:
     - if: $CI_COMMIT_BRANCH

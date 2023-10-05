@@ -1,7 +1,0 @@
----
-- name: Systemd - Restart services impacted by changed hostname
-  listen: restart hostname
-  become: true
-  ansible.builtin.systemd:
-    name: systemd-logind.service
-    state: restarted

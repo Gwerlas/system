@@ -1,0 +1,40 @@
+---
+- name: Portage
+  when: ansible_pkg_mgr == 'portage'
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/portage.yml"
+
+- name: Update packages cache marker
+  listen: update marker
+  when: packages_update_policy.marker is defined
+  become: true
+  ansible.builtin.file:
+    path: "{{ packages_update_policy.marker }}"
+    state: touch
+    modification_time: now
+    mode: "0644"
+
+- name: Restart the Display Manager
+  listen:
+    - restart display-manager
+  when: ansible_service_mgr == "openrc"
+  become: true
+  ansible.builtin.service:
+    name: display-manager
+    state: restarted
+
+- name: Install Grub
+  listen:
+    - grub-install
+  become: true
+  ansible.builtin.command:
+    cmd: grub-install --target=x86_64-efi --efi-directory=/boot
+  changed_when: true
+
+- name: Update Grub configuration
+  listen:
+    - genkernel
+    - grub-mkconfig
+  become: true
+  ansible.builtin.command:
+    cmd: grub-mkconfig -o /boot/grub/grub.cfg
+  changed_when: true

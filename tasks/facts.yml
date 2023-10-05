@@ -46,16 +46,15 @@
       }}
     services_keys: |
       {{
-        (
-          current_profiles_values |
-          selectattr('services', 'defined') |
-          map(attribute='services')
+        ( (current_profiles_values | selectattr('services', 'defined') | map(attribute='services'))
+        + (system_manage_time | ternary(time_backend.services, []))
         ) | flatten | unique
       }}
     services: |
       {{
         (family_services | default({})) |
-        combine(distro_services | default({}))
+        combine(distro_services | default({})) |
+        combine(release_services | default({}))
       }}
   ansible.builtin.set_fact:
     cacheable: true
@@ -67,6 +66,7 @@
         ) | flatten | sort | unique
       }}
     system_shells: "{{ users_shells }}"
+    system_services_dict: "{{ services }}"
     system_services: |
       {{
         ( (services_keys | intersect(services.keys()) | map('extract', services))

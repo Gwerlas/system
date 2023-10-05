@@ -18,14 +18,25 @@ system_archlinux_user_repository: "{{ system_profile != 'server' }}"
 system_el_use_epel: true
 
 # Gentoo (portage)
+system_portage_accept_keywords: []
+system_portage_gentoo_mirrors: []
 system_portage_directory: /var/db/repos/gentoo
 system_portage_kernel: gentoo-kernel
 system_portage_use_bin_suffix: "{{ not system_packages_build }}"
 system_portage_webrsync: "{{ system_manage_proxies }}"
+## Harware support
+system_portage_cameras: []
+system_portage_video_cards: []
+## Software settings
+# system_portage_python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
+# system_portage_python_targets:
+#   - python3_10
+#   - python3_11
+system_portage_python_single_target: python3_11
 
 system_portage_binrepos:
   - name: experimental
     sync-uri: http://packages.gentooexperimental.org/amd64-stable/
   - name: osuosl
     priority: 9999
-    sync-uri: https://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/
+    sync-uri: http://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/

@@ -1,0 +1,12 @@
+---
+- name: Packages - Requirements - Portage - Kernel - Gentoo sources
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    package:
+      - sys-kernel/linux-firmware
+      - sys-kernel/gentoo-sources
+      - sys-kernel/genkernel
+  notify:
+    - genkernel
+    - grub-mkconfig

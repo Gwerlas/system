@@ -9,8 +9,6 @@
 
 - name: Users and groups management
   become: true
-  tags:
-    - users
   block:
     - name: Users - Groups to be present
       ansible.builtin.group:
@@ -39,7 +37,7 @@
     - name: Users
       ansible.builtin.user:
         name: "{{ user.name }}"
-        append: "{{ user.append | default(omit) }}"
+        append: "{{ user.append | default(true) }}"
         comment: "{{ user.comment | default(omit) }}"
         create_home: "{{ user.create_home | default(omit) }}"
         expires: "{{ user.expires | default(omit) }}"

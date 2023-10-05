@@ -1,0 +1,161 @@
+---
+- name: Verify role for Stream distributions
+  hosts: all
+  tasks:
+    - name: Rsync
+      ansible.posix.synchronize:
+        src: verify.yml
+        dest: /tmp/verify.yml
+
+    - name: Check host FQDN
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - ansible_fqdn == inventory_hostname + '.mydomain.tld'
+
+    - name: Command line tools
+      ansible.builtin.command: "{{ item }} --version"
+      changed_when: false
+      with_items:
+        - rsync
+        - wget
+        - zsh
+
+    - name: Check sudo rules
+      ansible.builtin.command: sudo -l
+      register: result
+      changed_when: false
+      failed_when: item not in result.stdout
+      loop:
+        - "!visiblepw"
+        - always_set_home
+        - QTDIR
+        - NOPASSWD
+
+    - name: Check groups
+      ansible.builtin.group:
+        name: "{{ item.name }}"
+        state: "{{ item.state }}"
+      loop:
+        - name: administrators
+          state: present
+        - name: gods
+          state: present
+        - name: my_company
+          state: present
+        - name: my_team
+          state: present
+        - name: villains
+          state: absent
+
+    - name: Check users
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        state: "{{ item.state }}"
+      loop:
+        - name: jane
+          state: present
+        - name: john
+          state: present
+        - name: drno
+          state: absent
+
+    - name: Check jane's group
+      ansible.builtin.command:
+        cmd: id -g -n jane
+      register: result
+      changed_when: false
+      failed_when: result.stdout != 'administrators'
+
+    - name: Check jane's SSH key
+      become: true
+      ansible.posix.authorized_key:
+        key: ssh-rsa AAAA test
+        user: jane
+        state: present
+      register: result
+      failed_when: result is changed
+
+    - name: ZSH configuration that should exists
+      become: true
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/skel/.zshrc
+        - /etc/skel/.zsh/history
+        - /home/jane/.zshrc
+        - /home/jane/.zsh/history
+        - /home/john/.zshrc
+        - /home/john/.zsh/history
+      register: result
+      failed_when: not result.stat.exists
+
+    - name: ZSH configuration that should not exists
+      become: true
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/skel/.zsh/prompt
+        - /etc/skel/.zsh/prompt_git
+        - /home/jane/.zsh/prompt
+        - /home/jane/.zsh/prompt_git
+        - /home/john/.zsh/prompt
+        - /home/john/.zsh/prompt_git
+      register: result
+      failed_when: result.stat.exists
+
+    - name: Load CA variables
+      ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+      vars:
+        params:
+          files:
+            - "{{ ansible_os_family | lower }}-like.yml"
+            - other.yml
+          paths:
+            - vars
+
+    - name: Get cert headers
+      ansible.builtin.command:
+        cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ ca_certificates.bundle }}"
+      changed_when: false
+      register: result
+
+    - name: Check Gwerlas CA
+      ansible.builtin.assert:
+        that:
+          - "'GWERLAS CA' in result.stdout"
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'systemd'
+      ansible.builtin.command:
+        cmd: timedatectl
+      register: result
+      failed_when: |
+        (result.rc > 0) or
+        ('synchronized: yes' not in result.stdout) or
+        ('service: active' not in result.stdout)
+      changed_when: false
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'openrc'
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
+      changed_when: false
+
+    - name: Backups storage
+      ansible.builtin.assert:
+        that:
+          - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
+
+    - name: Private network
+      vars:
+        netiface: "{{ (ansible_interfaces | sort)[1] }}"
+      ansible.builtin.assert:
+        that:
+          - ansible_{{ netiface }}.ipv4.network == "192.168.250.0"
+
+    - name: Command line tools
+      ansible.builtin.command: "{{ item }} --version"
+      changed_when: false
+      with_items:
+        - lsusb

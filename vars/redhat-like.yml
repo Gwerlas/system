@@ -4,11 +4,7 @@ ca_certificates:
   path: /etc/pki/ca-trust/source/anchors
   command: update-ca-trust
 
-default_networks:
-  service_name: network
-  template:
-    src: sysconfig/network-scripts/ifcfg.j2
-    dest: /etc/sysconfig/network-scripts/ifcfg-%s
+default_network_backend_name: redhat
 
 packages_update_policy:
   path: "/var/cache/{{ ansible_pkg_mgr }}"
@@ -21,8 +17,6 @@ reboot_detection_policy:
   package: yum-utils
 
 family_packages:
-  gnome:
-    - "@GNOME"
   unattended-upgrades:
     - dnf-automatic
 

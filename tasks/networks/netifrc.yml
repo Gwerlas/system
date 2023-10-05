@@ -1,0 +1,30 @@
+---
+- name: Networks - Netifrc
+  become: true
+  block:
+    - name: Networks - Netifrc - Services symlinks
+      ansible.builtin.file:
+        path: /etc/init.d/net.{{ netiface.name }}
+        state: link
+        src: /etc/init.d/net.lo
+      loop: "{{ system_networks_interfaces }}"
+      loop_control:
+        loop_var: netiface
+      notify: "{{ system_networks_restart_handler }}"
+
+    - name: Networks - Netifrc - Configuration file
+      ansible.builtin.template:
+        dest: /etc/conf.d/net
+        src: conf.d/net.j2
+        mode: "0644"
+      notify: "{{ system_networks_restart_handler }}"
+
+    - name: Networks - Netifrc - Services
+      ansible.builtin.service:
+        name: net.{{ netiface.name }}
+        enabled: "{{ onboot }}"
+      loop: "{{ system_networks_interfaces }}"
+      loop_control:
+        loop_var: netiface
+      vars:
+        onboot: "{{ netiface.onboot | default(true) }}"

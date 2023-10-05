@@ -1,8 +1,8 @@
 ---
-apt_default_mirror: https://deb.debian.org
+default_apt_mirror: http://deb.debian.org
 apt_default_sections:
   - main
-apt_default_mirrors:
+default_apt_mirrors:
   - url: "{{ apt_mirror }}/debian"
     branches:
       - "{{ debian_release }}"

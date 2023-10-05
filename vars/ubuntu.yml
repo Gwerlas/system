@@ -1,12 +1,12 @@
 ---
-apt_default_mirror: http://us.archive.ubuntu.com
-apt_default_mirrors:
-  - url: "{{ system_apt_mirror | default(apt_default_mirror) }}/ubuntu"
+default_apt_mirror: http://us.archive.ubuntu.com
+default_apt_mirrors:
+  - url: "{{ system_apt_mirror | default(default_apt_mirror) }}/ubuntu"
     branches:
-      - "{{ ansible_distribution_release }}"
-      - "{{ ansible_distribution_release }}-updates"
-      - "{{ ansible_distribution_release }}-backports"
-      - "{{ ansible_distribution_release }}-security"
+      - "{{ debian_release }}"
+      - "{{ debian_release }}-updates"
+      - "{{ debian_release }}-backports"
+      - "{{ debian_release }}-security"
     sections:
       - main
       - restricted

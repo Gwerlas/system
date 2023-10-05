@@ -1,43 +1,29 @@
 ---
-- name: Networks - Prune unmanaged interfaces
-  when: default_networks.ifaces_confdir is defined
+- name: Networks - Prune - Unmanaged interfaces
+  when: network_backend.template.dest is defined
   block:
     - name: Networks - Prune - Get existing interface configuration files
       ansible.builtin.find:
         paths:
-          - "{{ default_networks.ifaces_confdir }}"
+          - "{{ network_backend.template.dest | dirname }}"
       register: result
-
-    - name: Networks - Prune - Debug
-      ansible.builtin.debug:
-        var: |
-          {{
-            result.files |
-            map('basename') |
-            difference(
-              system_networks_interfaces |
-              map(attribute='name') |
-              sort |
-              unique |
-              lower
-            )
-          }}
 
     - name: Networks - Prune - Remove useless interfaces configuration files
       become: true
       ansible.builtin.file:
         state: absent
         path: "{{ system_networks_iface_configfile }}"
+      vars:
+        current_files: "{{ result.files | map(attribute='path') }}"
+        ifaces: "{{ system_networks_interfaces | map(attribute='name') }}"
+        regex: ^(.*)$
+        replace: "{{ network_backend.template.dest | replace('%s', '\\1') }}"
       loop: |
         {{
-          result.files |
-          map('basename') |
+          current_files |
           difference(
-            system_networks_interfaces |
-            map(attribute='name') |
-            sort |
-            unique |
-            lower
+            ifaces |
+            map('regex_replace', regex, replace)
           )
         }}
       loop_control:

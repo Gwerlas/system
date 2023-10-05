@@ -1,43 +1,43 @@
 # {{ ansible_managed }}
-{% if system_netiface.description is defined %}
-# {{ system_netiface.description }}
+{% if netiface.description is defined %}
+# {{ netiface.description }}
 {% endif %}
 
-{% set bootproto = system_netiface.bootproto | default('dhcp') %}
-DEVICE={{ system_netiface.name }}
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+DEVICE={{ netiface.name }}
 BOOTPROTO={{ bootproto }}
-ONBOOT={{ 'yes' if (system_netiface.onboot | default(true)) else 'no' }}
-TYPE={{ system_netiface.type | default('Ethernet') }}
+ONBOOT={{ 'yes' if (netiface.onboot | default(true)) else 'no' }}
+TYPE={{ netiface.type | default('Ethernet') }}
 {% if bootproto != 'dhcp' %}
-{% if system_netiface.ip is defined %}
-IPADDR={{ system_netiface.ip | ansible.utils.ipaddr('address') }}
-NETMASK={{ system_netiface.ip | ansible.utils.ipaddr('netmask') }}
+{% if netiface.ip is defined %}
+IPADDR={{ netiface.ip | ansible.utils.ipaddr('address') }}
+NETMASK={{ netiface.ip | ansible.utils.ipaddr('netmask') }}
 IPV6INIT=yes
 IPV6_AUTOCONF=yes
-{% if system_netiface.gateway is defined %}
-GATEWAY={{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
+{% if netiface.gateway is defined %}
+GATEWAY={{ netiface.gateway | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% endif %}
 {% endif %}
 NM_CONTROLLED=yes
 USERCTL=no
-{% if system_netiface.bridge is defined %}
-BRIDGE={{ system_netiface.bridge }}
+{% if netiface.bridge is defined %}
+BRIDGE={{ netiface.bridge }}
 {% endif %}
-{% if system_netiface.mtu is defined %}
-MTU={{ system_netiface.mtu }}
+{% if netiface.mtu is defined %}
+MTU={{ netiface.mtu }}
 {% endif %}
-{% if system_netiface.vlan is defined %}
-VLAN={{ system_netiface.vlan }}
+{% if netiface.vlan is defined %}
+VLAN={{ netiface.vlan }}
 {% endif %}
-{% if system_netiface.master is defined %}
-MASTER={{ system_netiface.master }}
+{% if netiface.master is defined %}
+MASTER={{ netiface.master }}
 SLAVE=yes
 {% endif %}
-{% if system_netiface.bonding_opts is defined %}
-BONDING_OPTS={{ system_netiface.bonding_opts }}
+{% if netiface.bonding_opts is defined %}
+BONDING_OPTS={{ netiface.bonding_opts }}
 BONDING_MASTER=yes
 {% endif %}
-{% if system_netiface.eththool_opts is defined %}
-ETHTOOL_OPTS={{ system_netiface.eththool_opts }}
+{% if netiface.eththool_opts is defined %}
+ETHTOOL_OPTS={{ netiface.eththool_opts }}
 {% endif %}

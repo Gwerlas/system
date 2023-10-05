@@ -11,11 +11,7 @@
 
 set -e
 
-test_dir() {
-  local matches=$(find "$1" -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
-  test $matches -gt 0  
-}
-
+{% if packages_update_policy.marker is defined %}
 test_file() {
   test -f "$1"
 
@@ -26,10 +22,16 @@ test_file() {
   test $ts -gt $(date +%s -d '{{ system_packages_cache_age }} days ago')
 }
 
-{% if packages_update_policy.marker is defined %}
 test_file "{{ packages_update_policy.marker }}"
 {% endif %}
 
 {% if packages_update_policy.path is defined %}
+test_dir() {
+  test $(ls -1 "$1" | wc -l) -gt 0
+
+  local matches=$(find "$1" -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
+  test $matches -gt 0  
+}
+
 test_dir "{{ packages_update_policy.path }}"
 {% endif %}

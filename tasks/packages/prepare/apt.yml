@@ -13,3 +13,11 @@
         src: apt/sources.list.j2
         dest: /etc/apt/sources.list
         mode: "0644"
+
+    - name: Packages - Prepare - APT - Use backports
+      when: debian_release == "buster"
+      ansible.builtin.template:
+        src: apt/preferences.d/50backports.j2
+        dest: /etc/apt/preferences.d/50backports
+        mode: "0644"
+      register: force_upgrade

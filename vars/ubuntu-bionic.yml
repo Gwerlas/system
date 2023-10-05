@@ -1,5 +1,5 @@
 ---
-# Not available in Ubuntu Bionic
+# Timesyncd not provided by package
 masks:
   packages:
     - systemd-timesyncd

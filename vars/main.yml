@@ -8,6 +8,7 @@ use_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
 profiles:
   all:
     packages:
+      - sudo
       - rsync
   desktop:
     packages:
@@ -28,6 +29,7 @@ profiles:
       - gnome-session
       - gnome-shell
       - gnome-software
+      - gnome-text-editor
       - nautilus
       - seahorse
     services:
@@ -40,6 +42,37 @@ current_profiles_values: |
     intersect(profiles.keys()) |
     map('extract', profiles)
   }}
+
+# CA Certificates
+ca_certificates:
+  bundle: /etc/ssl/certs/ca-certificates.crt
+  path: /usr/local/share/ca-certificates
+  command: update-ca-certificates
+
+################
+## Networking ##
+################
+
+default_network_backend_name: systemd
+network_backend_name: "{{ system_network_backend | default(default_network_backend_name) }}"
+network_backend: "{{ network_backends[network_backend_name] }}"
+
+network_backends:
+  ifupdown:
+    service: networking
+    template:
+      src: network/interfaces.d/netiface.j2
+      dest: /etc/network/interfaces.d/%s
+  redhat:
+    service: NetworkManager.service
+    template:
+      src: sysconfig/network-scripts/ifcfg.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-%s
+  systemd:
+    service: systemd-networkd.service
+    template:
+      src: systemd/network/netiface.network.j2
+      dest: /etc/systemd/network/%s.network
 
 # Network types
 networks_types:
@@ -57,12 +90,6 @@ current_network_types: |
     intersect(networks_types.keys()) |
     map('extract', networks_types)
   }}
-
-# CA Certificates
-ca_certificates:
-  bundle: /etc/ssl/certs/ca-certificates.crt
-  path: /usr/local/share/ca-certificates
-  command: update-ca-certificates
 
 ################
 ###   Time   ###
@@ -111,6 +138,10 @@ supported_time_backends: |
     rejectattr('key', 'in', masks.time_backends | default([])) |
     items2dict
   }}
+
+################
+#### Users #####
+################
 
 groups_present: |
   {{

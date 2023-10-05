@@ -46,9 +46,15 @@ Tags
 
 Because some values are dispatched in multiple tasks. You can quickly update some of them with tags :
 
+- `ca` - SSL certificates authorities
 - `firewall`
+- `hosts` - Update `/etc/hosts` file
+- `networks`
+- `packages`
 - `proxies`
+- `storages`
 - `sudoers`
+- `time`
 - `users`
 
 Usage :

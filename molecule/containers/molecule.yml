@@ -9,7 +9,6 @@ platforms:
     pre_build_mage: true
     volumes: &volumes
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  # Unexpected freeze of Gitlab-CI pipelines
   # - name: gentoo
   #   image: gwerlas/ansible-guest-gentoo
   #   pre_build_mage: true
@@ -40,14 +39,22 @@ platforms:
     image: gwerlas/ansible-guest-ubuntu:22.04
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu2210
-    image: gwerlas/ansible-guest-ubuntu:22.10
+  - name: ubuntu2304
+    image: gwerlas/ansible-guest-ubuntu:23.04
     pre_build_mage: true
     volumes: *volumes
 
   # RedHat like
   - name: centos7
     image: gwerlas/ansible-guest-centos:7
+    pre_build_mage: true
+    volumes: *volumes
+  - name: centos8s
+    image: gwerlas/ansible-guest-centos:stream8
+    pre_build_mage: true
+    volumes: *volumes
+  - name: centos9s
+    image: gwerlas/ansible-guest-centos:stream9
     pre_build_mage: true
     volumes: *volumes
   - name: alma8

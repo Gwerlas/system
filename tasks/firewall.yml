@@ -1,8 +1,6 @@
 ---
 - name: Firewall
   become: true
-  tags:
-    - firewall
   block:
     - name: Firewall - Service
       ansible.builtin.service:
@@ -23,6 +21,11 @@
       register: result
       changed_when: result.stdout != system_firewall_default_zone
       notify: set default zone
+
+    - name: Firewall - Rules - Show
+      ansible.builtin.debug:
+        var: system_firewall_rules
+        verbosity: 1
 
     - name: Firewall - Rules
       when: system_firewall_rules | length > 0

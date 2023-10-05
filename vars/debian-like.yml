@@ -1,30 +1,9 @@
 ---
-# Time (services hasn't the 'd' letter at the end of their name)
-debian_time_backends:
-  chrony:
-    services:
-      - chrony{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
-  ntp:
-    services:
-      - ntp{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
-
-time_backends: |
-  {{
-    default_time_backends |
-    combine(debian_time_backends, recursive=true)
-  }}
-
 # Packages
-apt_mirror: "{{ system_apt_mirror | default(apt_default_mirror) }}"
+apt_mirror: "{{ system_apt_mirror | default(default_apt_mirror) }}"
 apt_sections: "{{ system_apt_sections | default(apt_default_sections) }}"
 
 debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
-
-default_networks:
-  service_name: networking
-  template:
-    src: network/interfaces.d/netiface.j2
-    dest: /etc/network/interfaces.d/%s
 
 packages_upgrade_policy:
   upgrade: dist
@@ -33,6 +12,30 @@ packages_upgrade_policy:
 packages_update_policy:
   marker: /var/cache/gwsys
 
+family_packages:
+  all:
+    - acl
+    - locales
+  gdm:
+    - gdm3
+  unattended-upgrades:
+    - apt-listchanges
+    - unattended-upgrades
+
+# Services
+family_services:
+  chronyd:
+    - chrony
+  chronyd.service:
+    - chrony.service
+  ntpd:
+    - ntp
+  ntpd.service:
+    - ntp.service
+
+# Networks
+default_network_backend_name: ifupdown
+
 networks_types:
   bond:
     packages:
@@ -40,13 +43,6 @@ networks_types:
   bridge:
     packages:
       - bridge-utils
-
-family_packages:
-  gdm:
-    - gdm3
-  unattended-upgrades:
-    - apt-listchanges
-    - unattended-upgrades
 
 reboot_detection_policy:
   cmd: test ! -f /var/run/reboot-required

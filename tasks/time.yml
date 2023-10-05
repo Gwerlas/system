@@ -20,25 +20,14 @@
       ansible.builtin.fail:
         msg: "{{ time_backend_name }} not supported"
 
-- name: Wanted backend
+- name: Time - Configuration file
+  when: system_time_servers | length > 0
   become: true
-  block:
-    - name: Time - Configuration file
-      when: system_time_servers | length > 0
-      ansible.builtin.template:
-        src: "{{ path }}.j2"
-        dest: "/etc/{{ path }}"
-        mode: "0644"
-      loop: "{{ time_backend.templates }}"
-      loop_control:
-        loop_var: path
-      notify: restart time service
-
-    - name: Time - Service
-      ansible.builtin.service:
-        name: "{{ service }}"
-        state: started
-        enabled: true
-      loop: "{{ time_backend.services }}"
-      loop_control:
-        loop_var: service
+  ansible.builtin.template:
+    src: "{{ path }}.j2"
+    dest: "/etc/{{ path }}"
+    mode: "0644"
+  loop: "{{ time_backend.templates }}"
+  loop_control:
+    loop_var: path
+  notify: restart time service

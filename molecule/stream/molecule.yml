@@ -17,9 +17,9 @@ platforms:
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
-      - 'vm.provision :shell, inline: "pacman -Syu --noconfirm git net-tools python3 sudo unzip which"'
+      - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
   - name: debian12
-    box: debian/testing64
+    box: debian/bookworm64
     provider_raw_config_args: *raw_config
   - name: el8
     box: generic/centos8s

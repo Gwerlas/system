@@ -8,6 +8,7 @@ Install and configure :
 
 * docker
 * libvirt
+* python3-jmespath
 * vagrant
 * vagrant-libvirt plugin
 * molecule
@@ -20,11 +21,13 @@ If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
 Run tests
 ---------
 
-Quick tests of the role without any options, ran in docker containers as `ansible` user :
+Quick tests of the role without any options, ran in containers as `ansible` user :
 
 ```sh
-molecule test -s docker
+molecule test -s containers
 ```
+
+The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker` and you can easily switch between the two by setting this variable.
 
 Test the role with its defaults values in a VM of each supported distro :
 

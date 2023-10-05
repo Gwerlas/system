@@ -1,0 +1,30 @@
+# {{ ansible_managed }}
+
+# Please consult /usr/share/portage/config/make.conf.example for a more
+# detailed example.
+COMMON_FLAGS="-march={{ system_packages_march }} -O2 -pipe"
+CFLAGS="${COMMON_FLAGS}"
+CXXFLAGS="${COMMON_FLAGS}"
+FCFLAGS="${COMMON_FLAGS}"
+FFLAGS="${COMMON_FLAGS}"
+
+# Builds
+{% if system_portage_accept_keywords | length > 0 %}
+ACCEPT_KEYWORDS="{{ system_portage_accept_keywords | join(' ') }}"
+{% endif %}
+EMERGE_DEFAULT_OPTS="{{ default_portage_opts | join(' ') }}"
+FEATURES="{{ default_portage_features | join(' ') }}"
+{% if system_portage_gentoo_mirrors | length > 0 %}
+GENTOO_MIRRORS="{{ system_portage_gentoo_mirrors | join(' ') }}"
+{% endif %}
+L10N="{{ system_l10n | join(' ') }}"
+
+# Hardware support
+CAMERAS="{{ system_portage_cameras | join(' ') }}"
+{{ cpu_flags_key }}="{{ cpu_flag_values }}"
+GRUB_PLATFORMS="efi-64"
+VIDEO_CARDS="{{ system_portage_video_cards | join(' ') }}"
+
+# Software multi-slots
+PYTHON_TARGETS="{{ python_targets }}"
+PYTHON_SINGLE_TARGET="{{ system_portage_python_single_target }}"

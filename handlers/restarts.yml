@@ -1,0 +1,32 @@
+---
+- name: Reload OpenRC
+  listen:
+    - reload init system
+  when: ansible_service_mgr == "openrc"
+  become: true
+  ansible.builtin.command:
+    cmd: telinit u
+  changed_when: true
+
+- name: Reload systemd
+  listen:
+    - reload init system
+  when: ansible_service_mgr == "systemd"
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Reboot
+  listen:
+    - grub-install
+    - grub-mkconfig
+    - reboot
+  become: true
+  ansible.builtin.reboot:
+    msg: Reboot initiated by gwerlas.system Ansible role
+
+- name: Gather facts to update networks informations
+  listen:
+    - restart network service
+    - reboot
+  ansible.builtin.gather_facts:

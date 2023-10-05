@@ -1,9 +1,11 @@
 ---
-- name: Packages - Requirements - Portage
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/{{ portage_task }}.yml"
-  loop:
-    - equery
-    - use-flags
-    - kernel
-  loop_control:
-    loop_var: portage_task
+- name: Packages - Requirements - Portage - Equery
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/equery.yml"
+
+- name: Packages - Requirements - Portage - Use flags
+  when: not in_container
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/use-flags.yml"
+
+- name: Packages - Requirements - Portage - Kernel
+  when: not in_container
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/kernel.yml"
