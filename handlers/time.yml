@@ -1,0 +1,13 @@
+---
+- name: Time service restart
+  listen:
+    - restart time service
+  become: true
+  ansible.builtin.service:
+    name: "{{ service }}"
+    state: restarted
+  vars:
+    services: "{{ time_backend.services | map('extract', system_services_dict) }}"
+  loop: "{{ services | default(time_backend.services) | flatten }}"
+  loop_control:
+    loop_var: service

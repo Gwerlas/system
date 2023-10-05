@@ -23,7 +23,7 @@
     - name: Packages - Requirements - Portage - Equery - Package
       become: true
       environment:
-        PYTHON_TARGETS: "{{ python_single_target }}"
+        PYTHON_TARGETS: "{{ system_portage_python_single_target }}"
       ansible.builtin.command:
         cmd: emerge app-portage/gentoolkit
       register: result

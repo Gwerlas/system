@@ -1,5 +1,5 @@
 ---
-- name: Portage - Prevent circular dependencies and multilib compilation failures
+- name: Prevent circular dependencies and multilib compilation failures
   listen:
     - change profile
   become: true
@@ -17,7 +17,7 @@
       - dev-python/setuptools
       - media-libs/libsndfile
 
-- name: Portage - Rebuild packages that need to be rebuilt
+- name: Rebuild packages that need to be rebuilt
   listen:
     - change profile
     - emerge --newuse
@@ -28,7 +28,7 @@
     update: "{{ system_packages_upgrade }}"
     package: '@world'
 
-- name: Portage - Clean dependencies
+- name: Clean dependencies
   listen:
     - change profile
     - emerge --newuse
@@ -36,8 +36,18 @@
   community.general.portage:
     depclean: true
 
-- name: Portage - Kernel modules rebuild
-  listen: emerge @module-rebuild
+- name: Genkernel
+  when: system_portage_kernel is regex('\w+-sources')
+  listen: genkernel
+  become: true
+  ansible.builtin.command:
+    cmd: genkernel all
+  changed_when: true
+
+- name: Kernel modules rebuild
+  listen:
+    - genkernel
+    - emerge @module-rebuild
   become: true
   community.general.portage:
     package: '@module-rebuild'

@@ -1,5 +1,5 @@
 ---
-- name: Networks - Debian like - Interfaces
+- name: Networks - IfUpDown - Reset interfaces
   when: system_networks_interfaces_prune
   become: true
   ansible.builtin.copy:

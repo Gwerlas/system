@@ -1,7 +1,5 @@
 ---
 - name: Proxies - Environment variables
-  tags:
-    - proxies
   become: true
   ansible.builtin.lineinfile:
     path: /etc/environment

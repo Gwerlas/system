@@ -1,4 +1,4 @@
-{% set mirrors = system_apt_mirrors | default(apt_default_mirrors) %}
+{% set mirrors = system_apt_mirrors | default(default_apt_mirrors) %}
 {% for mirror in mirrors %}
 {% for branch in mirror.branches %}
 deb{% if (mirror.trusted | default(false)) %} [trusted=yes]{% endif %} {{ mirror.url }} {{ branch }} {{ mirror.sections | join(' ') }}

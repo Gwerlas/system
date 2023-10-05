@@ -4,37 +4,55 @@
 
 - name: Proxies
   when: system_manage_proxies
+  tags:
+    - proxies
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/proxies.yml"
 
 - name: Hosts
   when: system_manage_hosts
+  tags:
+    - hosts
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/hosts.yml"
-
-- name: Packages
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
-
-- name: Network management
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
-
-- name: Storages
-  when: system_manage_storages
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/storages.yml"
 
 - name: Sudo
   when: system_manage_sudo
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/sudo.yml"
 
+- name: Packages
+  tags:
+    - packages
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages.yml"
+
+- name: Network management
+  tags:
+    - networks
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks.yml"
+
+- name: Storages
+  when: system_manage_storages
+  tags:
+    - storages
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/storages.yml"
+
 - name: Users
+  tags:
+    - users
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/users.yml"
 
 - name: CA certificates
   when: system_ca_certificates | length > 0
+  tags:
+    - ca
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/ca.yml"
 
 - name: Time
   when: system_manage_time
+  tags:
+    - time
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/time.yml"
 
 - name: Firewall
   when: system_manage_firewall
+  tags:
+    - firewall
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/firewall.yml"

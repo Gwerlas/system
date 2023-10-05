@@ -23,34 +23,20 @@
   vars:
     cpu_flags_key: "{{ cpuid2cpuflags.stdout | split(': ') | first }}"
     cpu_flag_values: "{{ cpuid2cpuflags.stdout | split(': ') | last }}"
-    python_targets: "{{ ['python'] | product(equery.stdout_lines | map('replace', '.', '_')) | map('join') | join(' ') }}"
-  ansible.builtin.lineinfile:
-    path: /etc/portage/make.conf
-    line: "{{ line.content | default(omit) }}"
-    regex: "{{ line.regex }}"
-    state: "{{ line.state | default(omit) }}"
+    python_targets: |
+      {{
+        system_portage_python_targets |
+        default(
+          ['python'] |
+          product(equery.stdout_lines | map('replace', '.', '_')) |
+          map('join') |
+          join(' ')
+        )
+      }}
+  ansible.builtin.template:
+    src: portage/make.conf.j2
+    dest: /etc/portage/make.conf
     owner: root
     group: portage
     mode: "0664"
-  loop:
-    - regex: ^CFLAGS=
-      content: CFLAGS="-O2 -pipe -march={{ system_packages_march }}"
-    - regex: ^CXXFLAGS=
-      content: CXXFLAGS="${CFLAGS}"
-    - regex: ^MAKEOPTS=
-      content: MAKEOPTS="-j{{ ansible_processor_nproc }}"
-    - regex: ^EMERGE_DEFAULT_OPTS=
-      content: EMERGE_DEFAULT_OPTS="-j{{ ansible_processor_nproc }} {{ default_portage_opts | join(' ') }}"
-    - regex: ^FEATURES=
-      content: FEATURES="{{ default_portage_features | join(' ') }}"
-    - regex: ^USE_PYTHON=
-      state: absent
-    - regex: ^PYTHON_TARGETS=
-      content: PYTHON_TARGETS="{{ python_targets }}"
-    - regex: ^PYTHON_SINGLE_TARGET=
-      content: PYTHON_SINGLE_TARGET="{{ python_single_target }}"
-    - regex: "^{{ cpu_flags_key }}="
-      content: "{{ cpu_flags_key }}=\"{{ cpu_flag_values }}\""
-  loop_control:
-    loop_var: line
   notify: emerge --newuse

@@ -1,0 +1,7 @@
+---
+- name: CA - Update certificates
+  listen: update ca
+  become: true
+  ansible.builtin.command:
+    cmd: "{{ ca_certificates.command }}"
+  changed_when: true

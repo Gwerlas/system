@@ -13,6 +13,8 @@ packages_upgrade_policy:
 family_packages:
   libreoffice:
     - libreoffice-still
+  python3-netaddr:
+    - python-netaddr
 
 masks:
   packages:

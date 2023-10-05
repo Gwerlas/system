@@ -1,6 +1,6 @@
 ---
 - name: Networks - Load variables
-  when: default_networks is undefined
+  when: network_backend is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Networks - IPv6 support
@@ -25,14 +25,14 @@
         file: "{{ item }}"
       with_first_found:
         - files:
-            - "{{ ansible_os_family | lower }}-like.yml"
-            - empty.yml
+            - "{{ default_network_backend_name }}.yml"
           paths:
             - "{{ role_path }}/tasks/networks"
+          skip: true
 
     - name: Networks - Interfaces configuration from template
-      when: default_networks.template is defined
-      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/from-template.yml"
+      when: network_backend.template is defined
+      ansible.builtin.import_tasks: "{{ role_path }}/tasks/networks/template.yml"
 
 - name: Networks - Changes take effects immediately
   ansible.builtin.meta: flush_handlers

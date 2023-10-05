@@ -1,0 +1,22 @@
+{# https://wiki.gentoo.org/wiki/Handbook:X86/Full/Networking/en #}
+# {{ ansible_managed }}
+
+{% if system_domain is defined %}
+dns_domain_lo="{{ system_domain }}"
+{% endif %}
+
+{% for netiface in system_networks_interfaces %}
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+{% if netiface.description is defined %}
+# {{ netiface.description }}
+{% endif %}
+{% if bootproto == 'dhcp' %}
+config_{{ netiface.name }}="dhcp"
+{% else %}
+config_{{ netiface.name }}="{{ netiface.ip | ansible.utils.ipaddr }}"
+{% if netiface.gateway is defined %}
+routes_{{ netiface.name }}="default via {{ netiface.gateway | ansible.utils.ipaddr('address') }}"
+{% endif %}
+{% endif %}
+
+{% endfor %}

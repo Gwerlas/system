@@ -1,7 +1,7 @@
 ---
 - name: Packages - Upgrade
   when:
-    - system_packages_upgrade
+    - system_packages_upgrade or (force_upgrade is defined and force_upgrade.changed)
     - packages_upgrade_policy is defined
   become: true
   ansible.builtin.package:

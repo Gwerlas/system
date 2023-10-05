@@ -13,7 +13,7 @@
       {{
         '../..' + system_portage_directory +
         '/profiles/default/linux/amd64/17.1/no-multilib' +
-        ('/systemd' if ansible_service_mgr == 'systemd' else '')
+        ('/systemd/merged-usr' if ansible_service_mgr == 'systemd' else '')
       }}
     dest: /etc/portage/make.profile
     state: link

@@ -21,7 +21,7 @@ platforms:
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
-      - 'vm.provision :shell, inline: "pacman -Syu --noconfirm git net-tools python3 sudo unzip which"'
+      - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
       - 'vm.disk :disk, size: "1GB", name: "vdb"'
   - name: gentoo
     box: generic/gentoo
@@ -39,12 +39,12 @@ platforms:
 
   # Debian like
   - name: debian12
-    box: debian/testing64
+    box: debian/bookworm64
     interfaces: *interfaces
     provider_raw_config_args: *provider
     instance_raw_config_args: *instance
-  - name: ubuntu2210
-    box: generic/ubuntu2210
+  - name: ubuntu2304
+    box: generic/ubuntu2304
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider

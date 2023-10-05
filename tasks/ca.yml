@@ -3,9 +3,14 @@
   when: system_packages is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
+- name: CA - Certificates - Store directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ ca_certificates.path }}"
+    state: directory
+    mode: "0755"
+
 - name: CA - Certificates
-  tags:
-    - ca
   become: true
   ansible.builtin.copy:
     src: "{{ certificate }}"

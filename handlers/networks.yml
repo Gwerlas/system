@@ -1,0 +1,13 @@
+---
+- name: Restart network
+  listen:
+    - restart network service
+  become: true
+  ansible.builtin.service:
+    name: "{{ default_networks.service_name }}"
+
+- name: Skip network restart
+  listen:
+    - skip
+  ansible.builtin.debug:
+    msg: You've to restart the network yourself !

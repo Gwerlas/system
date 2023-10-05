@@ -1,8 +1,0 @@
----
-- name: Packages - Requirements - Pacman - Keyring
-  become: true
-  community.general.pacman:
-    update_cache: true
-    name:
-      - archlinux-keyring
-    state: latest

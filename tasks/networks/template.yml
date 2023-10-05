@@ -5,21 +5,21 @@
     - name: Networks - Interfaces configuration - Directory
       ansible.builtin.file:
         state: directory
-        path: "{{ default_networks.template.dest | dirname }}"
+        path: "{{ network_backend.template.dest | dirname }}"
         mode: "0755"
 
     - name: Networks - Interfaces configuration - Files
       when: |
-        (not system_netiface.name in ansible_interfaces)
+        (not netiface.name in ansible_interfaces)
         or
         (system_networks_check_mode == 'files')
       ansible.builtin.template:
-        src: "{{ default_networks.template.src }}"
-        dest: "{{ default_networks.template.dest | format(system_netiface.name) }}"
+        src: "{{ network_backend.template.src }}"
+        dest: "{{ network_backend.template.dest | format(netiface.name) }}"
         mode: "0644"
       loop: "{{ system_networks_interfaces }}"
       loop_control:
-        loop_var: system_netiface
+        loop_var: netiface
       notify: "{{ system_networks_restart_handler }}"
       register: result
       until: result is succeeded

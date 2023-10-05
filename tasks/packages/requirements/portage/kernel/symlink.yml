@@ -1,25 +1,28 @@
 ---
 - name: Packages - Requirements - Portage - Kernel - Symlink - List kernels
   ansible.builtin.find:
-    path: /boot
-    pattern: vmlinuz-*
+    path: /usr/src
+    pattern: linux-*
+    file_type: directory
   register: result
 
 - name: Packages - Requirements - Portage - Kernel - Symlink
   become: true
   when: result.matched > 0
   vars:
-    version: |-
+    latest: |-
       {{
         result.files |
-        sort(attribute='mtime') |
-        map(attribute='path') | last |
-        regex_search('vmlinuz-(.*)', '\1') | first
+        map(attribute='path') |
+        community.general.version_sort |
+        last
       }}
   ansible.builtin.file:
-    src: /usr/src/linux-{{ version }}
+    src: "{{ latest }}"
     dest: /usr/src/linux
     state: link
+    follow: false
     force: true
   notify:
+    - genkernel
     - emerge @module-rebuild

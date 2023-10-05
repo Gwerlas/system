@@ -1,0 +1,13 @@
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+[Match]
+Name={{ netiface.name }}
+
+[Network]
+{% if bootproto == 'static' %}
+Address={{ netiface.ip }}
+{% if netiface.gateway is defined %}
+Gateway={{ netiface.gateway }}
+{% endif %}
+{% else %}
+DHCP=yes
+{% endif %}

@@ -1,50 +1,34 @@
 ---
-- name: Services
-  ansible.builtin.import_tasks: "{{ role_path }}/handlers/services.yml"
+- name: CA
+  tags:
+    - ca
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/ca.yml"
 
-- name: Package managers
-  ansible.builtin.import_tasks: "{{ role_path }}/handlers/pkg_mgr.yml"
+- name: Firewall
+  tags:
+    - firewall
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/firewall.yml"
 
-- name: CA - Update certificates
-  listen: update ca
-  become: true
-  ansible.builtin.command:
-    cmd: "{{ ca_certificates.command }}"
-  changed_when: true
+- name: Hosts
+  tags:
+    - hosts
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/hosts.yml"
 
-- name: Packages - Grub make configuration
-  listen: grub-mkconfig
-  become: true
-  ansible.builtin.command:
-    cmd: grub-mkconfig -o /boot/grub/grub.cfg
-  changed_when: true
+- name: Packages
+  tags:
+    - ca
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/packages.yml"
 
-- name: Networks - Restart network
-  listen:
-    - restart network service
-  become: true
-  ansible.builtin.service:
-    name: "{{ default_networks.service_name }}"
+- name: Networks
+  tags:
+    - networks
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/networks.yml"
 
-- name: Networks - Skip network restart
-  listen:
-    - skip
-  ansible.builtin.debug:
-    msg: You've to restart the network yourself !
+- name: Time
+  tags:
+    - time
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/time.yml"
 
-- name: Reboot
-  listen:
-    - grub-mkconfig
-    - reboot
-  become: true
-  ansible.builtin.reboot:
-    msg: Reboot initiated by gwerlas.system Ansible role
-
-- name: Firewall - Change default zone
-  listen:
-    - set default zone
-  become: true
-  ansible.builtin.command:
-    cmd: firewall-cmd --set-default-zone {{ system_firewall_default_zone }}
-  register: result
-  changed_when: "'success' in result.stdout"
+- name: System restarts
+  when: not in_container
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/restarts.yml"

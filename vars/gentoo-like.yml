@@ -11,41 +11,39 @@ family_packages:
     - www-client/firefox{{ system_portage_use_bin_suffix | ternary('-bin', '') }}
   gdm:
     - gnome-base/gdm
-    - gui-libs/display-manager-init
-  gnome-console:
-    - x11-terms/gnome-terminal
-  gnome-software: []
   libreoffice:
     - app-office/libreoffice{{ system_portage_use_bin_suffix | ternary('-bin', '') }}
+  python3-jmespath:
+    - dev-python/jmespath
   zsh:
     - app-shells/zsh
     - app-shells/zsh-completions
     - app-shells/zsh-syntax-highlighting
+    - app-shells/gentoo-zsh-completions
 
 family_services:
   gdm:
-    - display-manager
-
-python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
+    - "{{ (ansible_service_mgr == 'openrc') | ternary('display-manager', 'gdm.service') }}"
 
 portage_profiles:
   server: no-multilib
 
 default_portage_opts:
-  - "{{ system_packages_build | ternary(omit, '--binpkg-changed-deps=y') }}"
-  - "{{ system_packages_build | ternary(omit, '--binpkg-respect-use=y') }}"
+  - "{{ system_packages_build | ternary('', '--binpkg-changed-deps=y') }}"
+  - "{{ system_packages_build | ternary('', '--binpkg-respect-use=y') }}"
   - --complete-graph
   - --quiet-build=y
   - --with-bdeps=y
 
 # https://devmanual.gentoo.org/eclass-reference/make.conf/index.html
 default_portage_features:
-  # - "{{ system_packages_build | ternary(omit, 'binpkg-request-signature') }}"
-  - "{{ system_packages_build | ternary(omit, 'getbinpkg') }}"
+  # - "{{ system_packages_build | ternary('', 'binpkg-request-signature') }}"
+  - "{{ system_packages_build | ternary('', 'getbinpkg') }}"
   - parallel-fetch
 
-# CA Certificates
-ca_certificates:
-  bundle: /etc/ssl/certs/ca-certificates.crt
-  path: /usr/share/ca-certificates
-  command: update-ca-certificates
+masks:
+  packages:
+    - systemd-timesyncd
+
+reboot_detection_policy:
+  use_template: true

@@ -7,7 +7,7 @@
         '../..' + system_portage_directory +
         '/profiles/default/linux/amd64/17.1/' +
         (portage_profiles[system_profile] | default(system_profile)) +
-        ('/systemd' if ansible_service_mgr == 'systemd' else '')
+        ('/systemd/merged-usr' if ansible_service_mgr == 'systemd' else '')
       }}
     dest: /etc/portage/make.profile
     state: link
@@ -18,3 +18,39 @@
 
 - name: Packages - Prewash - Portage - Package rebuild
   ansible.builtin.meta: flush_handlers
+
+- name: Packages - Prewash - Portage - Find obsolete kernels
+  vars:
+    current_version: |-
+      {{
+        ansible_kernel |
+        regex_replace('(.*)-' + ansible_userspace_architecture, '\1')
+      }}
+  ansible.builtin.find:
+    path: /usr/src
+    pattern: linux-*
+    file_type: directory
+    excludes:
+      - "*{{ current_version }}*"
+  register: result
+
+- name: Packages - Prewash - Portage - Remove obsolete kernels sources
+  when: result.matched > 0
+  vars:
+    packages: |
+      {{
+        result.files |
+        map(attribute='path') |
+        map('basename') |
+        map('regex_replace', 'linux-([0-9\.]+)-(.*)', 'sys-kernel/\2-sources:\1')
+      }}
+    latest: |-
+      {{
+        packages |
+        community.general.version_sort |
+        last
+      }}
+  become: true
+  community.general.portage:
+    package: "{{ packages | reject('equalto', latest) }}"
+    state: absent

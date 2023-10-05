@@ -1,30 +1,30 @@
 # {{ ansible_managed }}
-{% if system_netiface.description is defined %}
-# {{ system_netiface.description }}
+{% if netiface.description is defined %}
+# {{ netiface.description }}
 {% endif %}
 
-{% set bootproto = system_netiface.bootproto | default('dhcp') %}
-{% if (system_netiface.onboot | default(true)) %}
-auto {{ system_netiface.name }}
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+{% if (netiface.onboot | default(true)) %}
+auto {{ netiface.name }}
 {% endif %}
-iface {{ system_netiface.name }} inet {{ bootproto }}
+iface {{ netiface.name }} inet {{ bootproto }}
 {% if bootproto != 'dhcp' %}
-{% if system_netiface.ip is defined %}
-    address {{ system_netiface.ip | ansible.utils.ipaddr }}
+{% if netiface.ip is defined %}
+    address {{ netiface.ip | ansible.utils.ipaddr }}
 {% endif %}
-{% if system_netiface.gateway is defined %}
-    gateway {{ system_netiface.gateway | ansible.utils.ipaddr('address') }}
+{% if netiface.gateway is defined %}
+    gateway {{ netiface.gateway | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% endif %}
-{% if system_netiface.options is defined %}
-{% for option in system_netiface.options %}
+{% if netiface.options is defined %}
+{% for option in netiface.options %}
     {{ option }}
 {% endfor %}
 {% endif %}
 
-{% if system_netiface.routes is defined %}
-{% for route in system_netiface.routes %}
-    down ip route add {{ route.network }}{% if route.gateway is defined %} via {{ route.gateway | ansible.utils.ipaddr('address') }}{% endif %} dev {{ system_netiface.name }}
-    up ip route add {{ route.network }}{% if route.gateway is defined %} via {{ route.gateway | ansible.utils.ipaddr('address') }}{% endif %} dev {{ system_netiface.name }}
+{% if netiface.routes is defined %}
+{% for route in netiface.routes %}
+    down ip route add {{ route }} dev {{ netiface.name }}
+    up ip route add {{ route }} dev {{ netiface.name }}
 {% endfor %}
 {% endif %}

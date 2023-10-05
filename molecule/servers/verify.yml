@@ -2,6 +2,15 @@
 - name: Verify role with the server profile (default)
   hosts: all
   tasks:
+    - name: Facts
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: facts
+
+    - name: Rsync
+      ansible.posix.synchronize:
+        src: verify.yml
+        dest: /tmp/verify.yml
 
     - name: Check host FQDN
       ansible.builtin.assert:
@@ -121,18 +130,20 @@
         that:
           - "'GWERLAS CA' in result.stdout"
 
-    - name: Chrony
-      ansible.builtin.command:
-        cmd: chronyc sourcestats
-      changed_when: false
-
-    - name: Systemd
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: timedatectl
       register: result
       failed_when: |
         (result.rc > 0) or
         ('synchronized: yes' not in result.stdout)
+      changed_when: false
+
+    - name: Time synchronisation
+      when: ansible_service_mgr == 'openrc'
+      ansible.builtin.command:
+        cmd: chronyc sourcestats
       changed_when: false
 
     - name: Backups storage

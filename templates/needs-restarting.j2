@@ -15,6 +15,8 @@ set -e
 {% if ansible_os_family == 'Archlinux' %}
 test -f /boot/vmlinuz-linux || exit 2
 test "$(file -bL /boot/vmlinuz-linux | grep -oP '(?<=version )[^ ]*')" "==" "$(uname -r)"
+{% elif ansible_os_family == 'Gentoo' %}
+test "$(cat /usr/src/linux/include/config/kernel.release)" "==" "$(uname -r)"
 {% else %}
 exit 2
 {% endif %}
