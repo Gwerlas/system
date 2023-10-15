@@ -5,6 +5,13 @@
     depclean: true
   notify: emerge --newuse
 
+- name: Packages - Cleanup - Distfiles
+  become: true
+  ansible.builtin.command:
+    cmd: eclean-dist --deep
+  register: result
+  changed_when: not 'Your distfiles directory was already clean.' in result.stdout
+
 - name: Search and remove unused kernels
   vars:
     current_version: |-
