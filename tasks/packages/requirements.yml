@@ -11,5 +11,13 @@
   loop_control:
     loop_var: req_task
 
+- name: Packages - Requirements - Modules load directory
+  ansible.builtin.file:
+    path: /etc/modules-load.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Packages - Requirements - Flush handlers
   ansible.builtin.meta: flush_handlers
