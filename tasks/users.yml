@@ -67,7 +67,11 @@
         uid: "{{ user.uid | default(omit) }}"
         umask: "{{ user.umask | default(omit) }}"
         update_password: "{{ user.update_password | default(omit) }}"
-      loop: "{{ system_users }}"
+      loop: |
+        {{
+          (system_users | selectattr('state', 'undefined'))
+        + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+        }}
       loop_control:
         loop_var: user
       no_log: true
