@@ -72,21 +72,6 @@
         loop_var: user
       no_log: true
 
-    - name: Users - Home directories permissions
-      ansible.builtin.file:
-        path: "{{ user.home | default('/home/' + user.name) }}"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.group | default(omit) }}"
-        mode: "0755"
-      loop: |
-        {{
-          (system_users | selectattr('state', 'undefined'))
-        + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-        }}
-      loop_control:
-        loop_var: user
-
     - name: Users - Keys
       ansible.posix.authorized_key:
         comment: "{{ key.comment | default(omit) }}"
