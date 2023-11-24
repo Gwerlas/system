@@ -63,14 +63,14 @@ platforms:
     interfaces: *interfaces
     provider_raw_config_args: *provider
     instance_raw_config_args: *instance
-  - name: fedora37
-    box: fedora/37-cloud-base
+  - name: fedora38
+    box: fedora/38-cloud-base
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider
     instance_raw_config_args: *instance
-  - name: fedora38
-    box: fedora/38-cloud-base
+  - name: fedora39
+    box: fedora/39-cloud-base
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider

@@ -8,4 +8,4 @@ system_networks_interfaces:
     bootproto: static
     ip: 192.168.250.44/24
     routes:
-      - 192.168.250.0/24
+      - network: 192.168.250.0/24

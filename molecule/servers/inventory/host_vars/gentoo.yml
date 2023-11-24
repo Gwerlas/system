@@ -8,7 +8,7 @@ system_networks_interfaces:
     bootproto: static
     ip: 192.168.250.3/24
     routes:
-      - 192.168.250.0/24
+      - network: 192.168.250.0/24
 
 system_storages_partitions:
   - device: /dev/vda

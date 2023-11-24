@@ -50,11 +50,26 @@ platforms:
     box: generic/centos8s
     memory: 2048
     provider_raw_config_args: *raw_config
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1970865
-  # - name: centos9s
-  #   box: generic/centos9s
-  #   memory: 2048
-  #   provider_raw_config_args: *raw_config
+  - name: centos9s
+    box: generic/centos9s
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: alma8
+    box: almalinux/8
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: alma9
+    box: almalinux/9
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: fedora38
+    box: fedora/38-cloud-base
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: fedora39
+    box: fedora/39-cloud-base
+    memory: 2048
+    provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible

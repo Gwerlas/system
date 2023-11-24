@@ -7,12 +7,17 @@
         src: verify.yml
         dest: /tmp/verify.yml
 
-    - name: ZSH
+    - name: System tools
       ansible.builtin.command:
-        cmd: zsh --version
+        cmd: "{{ command }}"
       changed_when: false
       register: result
       failed_when: result.rc == 0
+      loop:
+        - setfacl --version
+        - zsh --version
+      loop_control:
+        loop_var: command
 
     - name: Time synchronisation
       when: ansible_service_mgr == "systemd"

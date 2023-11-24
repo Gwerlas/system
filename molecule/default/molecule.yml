@@ -75,6 +75,14 @@ platforms:
     box: almalinux/9
     memory: 2048
     provider_raw_config_args: *raw_config
+  - name: fedora38
+    box: fedora/38-cloud-base
+    memory: 2048
+    provider_raw_config_args: *raw_config
+  - name: fedora39
+    box: fedora/39-cloud-base
+    memory: 2048
+    provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible
