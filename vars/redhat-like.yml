@@ -7,7 +7,8 @@ ca_certificates:
 default_network_backend_name: redhat
 
 packages_update_policy:
-  path: "/var/cache/{{ ansible_pkg_mgr }}"
+  directories:
+    - path: "/var/cache/{{ ansible_pkg_mgr }}"
 
 packages_upgrade_policy:
   name: '*'

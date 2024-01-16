@@ -2,7 +2,11 @@
 default_portage_directory: /var/db/repos/gentoo
 
 packages_update_policy:
-  marker: "{{ system_portage_directory }}/metadata/timestamp.chk"
+  files:
+    - path: "{{ system_portage_directory }}/metadata/timestamp.chk"
+
+packages_add_by_name:
+  - app-eselect/eselect-repository
 
 family_packages:
   bridge:

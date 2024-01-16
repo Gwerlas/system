@@ -11,27 +11,31 @@
 
 set -e
 
-{% if packages_update_policy.marker is defined %}
+{% if 'files' in packages_update_policy %}
 test_file() {
   test -f "$1"
 
-  # pkgcache age
+  # file age
   local mtime=$(stat --printf '%y' "$1")
   local ts=$(date +%s -d "$mtime")
 
-  test $ts -gt $(date +%s -d '{{ system_packages_cache_age }} days ago')
+  test $ts -gt $(date +%s -d "$2 days ago")
 }
 
-test_file "{{ packages_update_policy.marker }}"
+{% for file in packages_update_policy.files %}
+test_file {{ file.path }} {{ file.age | default(system_packages_cache_age) }}
+{% endfor %}
 {% endif %}
 
-{% if packages_update_policy.path is defined %}
+{% if 'directories' in packages_update_policy %}
 test_dir() {
   test $(ls -1 "$1" | wc -l) -gt 0
 
-  local matches=$(find "$1" -mtime -{{ system_packages_cache_age + 1 }} | wc -l)
+  local matches=$(find "$1" -mtime -$(( $2 + 1 )) | wc -l)
   test $matches -gt 0  
 }
 
-test_dir "{{ packages_update_policy.path }}"
+{% for directory in packages_update_policy.directories %}
+test_dir {{ directory.path }} {{ directory.age | default(system_packages_cache_age) }}
+{% endfor %}
 {% endif %}

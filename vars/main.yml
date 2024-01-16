@@ -8,6 +8,7 @@ use_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
 profiles:
   all:
     packages:
+      - acl
       - sudo
       - rsync
   desktop:

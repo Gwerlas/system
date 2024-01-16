@@ -61,6 +61,7 @@
     system_packages: |
       {{
         ( system_packages_add_by_name
+        + (packages_add_by_name | default([]))
         + (packages_keys | intersect(packages.keys()) | map('extract', packages))
         + (packages_keys | difference(packages.keys()))
         ) | flatten | sort | unique

@@ -5,7 +5,11 @@ ca_certificates:
   command: update-ca-trust
 
 packages_update_policy:
-  path: /var/lib/pacman/sync
+  files:
+    - path: /usr/share/pacman/keyrings/archlinux.gpg
+      age: 30
+  directories:
+    - path: /var/lib/pacman/sync
 
 packages_upgrade_policy:
   upgrade: true

@@ -33,6 +33,9 @@ system_portage_video_cards: []
 #   - python3_10
 #   - python3_11
 system_portage_python_single_target: python3_11
+system_portage_ruby_targets:
+  - ruby31
+  - ruby32
 
 system_portage_binrepos:
   - name: experimental

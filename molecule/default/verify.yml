@@ -11,11 +11,8 @@
       ansible.builtin.command:
         cmd: "{{ command }}"
       changed_when: false
-      register: result
-      failed_when: result.rc == 0
       loop:
         - setfacl --version
-        - zsh --version
       loop_control:
         loop_var: command
 
@@ -26,7 +23,7 @@
       register: result
       failed_when: |
         (result.rc > 0) or
-        ('synchronized: yes' not in result.stdout)
+        (not 'synchronized: yes' in result.stdout)
       changed_when: false
 
     - name: Time synchronisation
@@ -34,3 +31,8 @@
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
+
+    - name: Package installation
+      become: true
+      ansible.builtin.package:
+        name: httpie
