@@ -1,0 +1,16 @@
+---
+- name: Get linger status
+  ansible.builtin.command:
+    cmd: loginctl show-user {{ system_user.name }} --property=Linger --value
+  register: result
+  changed_when: false
+  failed_when: false
+
+- name: Enable linger
+  when:
+    - system_user.system | default(false)
+    - result.stdout == 'no' or result.rc == 1
+  become: true
+  ansible.builtin.command:
+    cmd: loginctl enable-linger {{ system_user.name }}
+  changed_when: true

@@ -109,6 +109,16 @@
       register: result
       failed_when: result.stat.exists
 
+    - name: User my_service is lingered
+      when: ansible_service_mgr == 'systemd'
+      ansible.builtin.command:
+        cmd: loginctl user-status my_service
+      register: result
+      failed_when: |
+        (result.rc > 0) or
+        (not 'Linger: yes' in result.stdout)
+      changed_when: false
+
     - name: Load CA variables
       ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
       vars:
@@ -137,7 +147,7 @@
       register: result
       failed_when: |
         (result.rc > 0) or
-        ('synchronized: yes' not in result.stdout)
+        (not 'synchronized: yes' in result.stdout)
       changed_when: false
 
     - name: Time synchronisation

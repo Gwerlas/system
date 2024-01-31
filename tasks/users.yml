@@ -5,7 +5,7 @@
 
 - name: ZSH
   when: "'zsh' in system_shells"
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/zsh.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/users/zsh.yml"
 
 - name: Users and groups management
   become: true
@@ -107,3 +107,16 @@
       loop: "{{ groups_absent }}"
       loop_control:
         loop_var: group
+
+- name: Users - Linger system users
+  when: ansible_service_mgr == 'systemd'
+  vars:
+    users: "{{ system_users | selectattr('system', 'defined') | selectattr('system', 'is', true) }}"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/linger.yml"
+  loop: |
+    {{
+      (system_users | selectattr('state', 'undefined'))
+    + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+    }}
+  loop_control:
+    loop_var: system_user

@@ -182,7 +182,14 @@ argument_specs:
         default: "'adm' for Debian like distros, 'wheel' otherwise"
         description: Name of the admin group.
 
-  zsh:
+  users/linger:
+    short_description:
+    options:
+      system_user:
+        type: dict
+        description: System user object (see ansible.builtin.user for properties)
+
+  users/zsh:
     short_description: ZSH configuration.
     options:
       system_zsh_files:
