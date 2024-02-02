@@ -3,16 +3,6 @@
   when: ansible_pkg_mgr == 'portage'
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/portage.yml"
 
-- name: Update packages cache marker
-  listen: update marker
-  when: packages_update_policy.marker is defined
-  become: true
-  ansible.builtin.file:
-    path: "{{ packages_update_policy.marker }}"
-    state: touch
-    modification_time: now
-    mode: "0644"
-
 - name: Restart the Display Manager
   listen:
     - restart display-manager

@@ -1,5 +1,10 @@
 ---
+- name: Packages - Update - Needs update
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/packages/update/needs-update.yml"
+
 - name: Packages - Update - Pacman
+  when: system_cache_needs_update
   become: true
   community.general.pacman:
     update_cache: true
@@ -9,4 +14,3 @@
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
-  notify: update marker
