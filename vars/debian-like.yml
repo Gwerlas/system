@@ -5,10 +5,6 @@ apt_sections: "{{ system_apt_sections | default(apt_default_sections) }}"
 
 debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
 
-packages_update_policy:
-  files:
-    - path: /var/cache/apt/pkgcache.bin
-
 packages_upgrade_policy:
   upgrade: dist
   autoremove: true

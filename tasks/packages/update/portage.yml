@@ -1,5 +1,11 @@
 ---
+- name: Packages - Update - Needs update
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/packages/update/needs-update.yml"
+
 - name: Package - Update - Portage
+  when: system_cache_needs_update
   vars:
     backend: "{{ system_portage_webrsync | ternary('webrsync', 'sync') }}"
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/update/portage/{{ backend }}.yml"
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/packages/update/portage/{{ backend }}.yml"

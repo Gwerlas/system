@@ -1,0 +1,9 @@
+---
+- name: Packages - Update - Apt cache
+  become: true
+  ansible.builtin.apt:
+    cache_valid_time: "{{ system_packages_cache_age * 3500 }}"
+    update_cache: true
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

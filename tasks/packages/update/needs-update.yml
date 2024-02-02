@@ -1,0 +1,18 @@
+---
+- name: Packages - Update - Needs update - Script shell
+  become: true
+  ansible.builtin.template:
+    src: needs-update.j2
+    dest: "{{ system_bin_path }}/needs-update"
+    mode: "0755"
+
+- name: Packages - Update - Needs update - Detect the need of a refresh
+  ansible.builtin.command:
+    cmd: needs-update
+  register: result
+  failed_when: result.rc > 1
+  changed_when: false
+
+- name: Packages - Update - Set fact
+  ansible.builtin.set_fact:
+    system_cache_needs_update: "{{ result.rc == 1 }}"
