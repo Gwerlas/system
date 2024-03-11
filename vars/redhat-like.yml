@@ -6,16 +6,9 @@ ca_certificates:
 
 default_network_backend_name: redhat
 
-packages_update_policy:
-  directories:
-    - path: "/var/cache/{{ ansible_pkg_mgr }}"
-
-packages_upgrade_policy:
-  name: '*'
-  state: latest
-
-reboot_detection_policy:
-  package: yum-utils
+# Packages
+packages_add_by_name:
+  - yum-utils
 
 family_packages:
   unattended-upgrades:

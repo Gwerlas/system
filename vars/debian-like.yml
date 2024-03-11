@@ -1,14 +1,5 @@
 ---
 # Packages
-apt_mirror: "{{ system_apt_mirror | default(default_apt_mirror) }}"
-apt_sections: "{{ system_apt_sections | default(apt_default_sections) }}"
-
-debian_release: "{{ 'testing' if ansible_distribution_release == 'n/a' else ansible_distribution_release }}"
-
-packages_upgrade_policy:
-  upgrade: dist
-  autoremove: true
-
 packages_add_by_name:
   - locales
 
@@ -40,6 +31,3 @@ networks_types:
   bridge:
     packages:
       - bridge-utils
-
-reboot_detection_policy:
-  cmd: test ! -f /var/run/reboot-required

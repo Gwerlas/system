@@ -1,15 +1,23 @@
 ---
+# Systemd v230 :
+# - the switch '--value' has been added in v230
+# - the stderr message has changed
 - name: Get linger status
   ansible.builtin.command:
-    cmd: loginctl show-user {{ system_user.name }} --property=Linger --value
+    cmd: loginctl show-user {{ system_user.name }} --property=Linger
   register: result
   changed_when: false
-  failed_when: false
+  failed_when: |
+    result.rc > 0
+    and
+    not 'logged in' in result.stderr
 
 - name: Enable linger
   when:
     - system_user.system | default(false)
-    - result.stdout == 'no' or result.rc == 1
+    - |
+        result.stdout == 'Linger=no'
+        or 'logged in' in result.stderr
   become: true
   ansible.builtin.command:
     cmd: loginctl enable-linger {{ system_user.name }}

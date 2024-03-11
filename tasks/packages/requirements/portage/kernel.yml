@@ -1,9 +1,0 @@
----
-- name: Packages - Requirements - Portage - Kernel
-  when: not in_container
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/requirements/portage/kernel/{{ kernel_task }}.yml"
-  loop:
-    - "{{ system_portage_kernel }}"
-    - symlink
-  loop_control:
-    loop_var: kernel_task

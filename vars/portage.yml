@@ -1,0 +1,22 @@
+---
+pkg_mgr_cache_update_policy:
+  files:
+    - path: "{{ system_portage_directory }}/metadata/timestamp.chk"
+
+portage_main_repo: "{{ ansible_distribution | lower }}"
+
+portage_profiles:
+  server: no-multilib
+
+portage_opts:
+  - "{{ packages_build | ternary('', '--binpkg-changed-deps=y') }}"
+  - "{{ packages_build | ternary('', '--binpkg-respect-use=y') }}"
+  - --complete-graph
+  - --quiet-build=y
+  - --with-bdeps=y
+
+# https://devmanual.gentoo.org/eclass-reference/make.conf/index.html
+portage_features:
+  # - "{{ packages_build | ternary('', 'binpkg-request-signature') }}"
+  - "{{ packages_build | ternary('', 'getbinpkg') }}"
+  - parallel-fetch

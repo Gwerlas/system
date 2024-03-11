@@ -1,0 +1,43 @@
+---
+- name: APT - Backports
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/apt/backports.yml"
+
+- name: APT - Unattended upgrades
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/apt/unattended-upgrades.yml"
+
+- name: APT - Configure
+  become: true
+  block:
+    - name: APT - Configure - Sources list
+      vars:
+        source_name: "{{ item.0.name | default('') }}"
+        type: "{{ item.0.type | default('deb') }}"
+        uri: "{{ item.0.uri }}"
+        components: "{{ item.0.components }}"
+        options: "{{ item.0 | ansible.utils.remove_keys(target=['name', 'uri', 'components', 'proxy']) }}"
+        suite: "{{ item.1 }}"
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list{{ (source_name | length > 0) | ternary('.d/' + source_name, '') }}
+        line: "{{ lookup('template', 'apt/sources.list.d/one-line.j2') }}"
+        regexp: "^#?{{ type }}\\s+.*{{ uri }}\\s+{{ suite }}\\s+.*$"
+        create: true
+        mode: "0644"
+      with_subelements:
+        - "{{ system_apt_sources_list }}"
+        - suites
+      notify: apt update
+
+    - name: APT - Configure - Repositories proxy
+      tags:
+        - proxy
+      vars:
+        scheme: "{{ item.uri | urlsplit('scheme') }}"
+        hostname: "{{ item.uri | urlsplit('hostname') }}"
+        proxy: "{{ ((item.proxy | upper) == 'DIRECT') | ternary('DIRECT', '\"' + item.proxy + '\"') }}"
+      ansible.builtin.lineinfile:
+        path: "{{ system_apt_conf_proxy_path }}"
+        line: Acquire::{{ scheme }}::Proxy::{{ hostname }} {{ proxy }};
+        regexp: ^Acquire::{{ scheme }}::Proxy::{{ hostname }}
+        create: true
+        mode: "0644"
+      loop: "{{ system_apt_sources_list | selectattr('proxy', 'defined') }}"

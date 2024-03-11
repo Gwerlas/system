@@ -24,6 +24,12 @@
     - networks
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/networks.yml"
 
+- name: Storages
+  when: system_manage_storages
+  tags:
+    - storages
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/storages.yml"
+
 - name: Time
   tags:
     - time

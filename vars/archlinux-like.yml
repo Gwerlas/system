@@ -4,25 +4,6 @@ ca_certificates:
   path: /etc/ca-certificates/trust-source/anchors
   command: update-ca-trust
 
-packages_update_policy:
-  files:
-    - path: /usr/share/pacman/keyrings/archlinux.gpg
-      age: 30
-  directories:
-    - path: /var/lib/pacman/sync
-
-packages_upgrade_policy:
-  upgrade: true
-
-family_packages:
-  libreoffice:
-    - libreoffice-still
-  python3-netaddr:
-    - python-netaddr
-
 masks:
   packages:
     - systemd-timesyncd
-
-reboot_detection_policy:
-  use_template: true

@@ -1,0 +1,9 @@
+---
+- name: APT - Distribution upgrade
+  become: true
+  ansible.builtin.apt:
+    autoremove: true
+    upgrade: true
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

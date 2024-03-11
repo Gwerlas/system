@@ -1,7 +1,0 @@
----
-- name: Packages - Requirements - Yum
-  become: true
-  when: system_el_use_epel
-  ansible.builtin.yum:
-    name: epel-release
-    state: present

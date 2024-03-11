@@ -1,0 +1,9 @@
+---
+- name: Modules - Load on boot directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/modules-load.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"

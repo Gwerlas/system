@@ -10,3 +10,8 @@ masks:
 release_packages:
   gnome-console:
     - gnome-terminal
+  gnome-text-editor:
+    - gedit
+
+# EPEL Next doesn't exist for RedHat 7
+system_el_epel_next: false

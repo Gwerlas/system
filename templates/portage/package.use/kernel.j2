@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+sys-kernel/*-sources   symlink
+
+# required by sys-kernel/gentoo-kernel-bin-6.6.13::gentoo[initramfs]
+# required by virtual/dist-kernel-6.6.13::gentoo
+>=sys-kernel/installkernel-24 dracut
+
+sys-kernel/gentoo-kernel savedconfig
+
+{% if system_portage_kernel is search('-kernel') %}
+*/* dist-kernel
+{% endif %}

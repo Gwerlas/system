@@ -1,0 +1,28 @@
+---
+- name: Become root
+  become: true
+  vars:
+    need_epel: |
+      {{
+        ansible_distribution_major_version == '8'
+        and
+        'systemd-timesyncd' in system_packages
+        and
+        (system_el_repos | length == 0)
+      }}
+  block:
+    - name: DNF - EPEL
+      when: system_el_epel or need_epel
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
+    - name: DNF - EPEL Next release
+      when: system_el_epel_next
+      ansible.builtin.dnf:
+        name: epel-next-release
+        state: present
+
+    - name: DNF - Install
+      ansible.builtin.dnf:
+        name: "{{ system_packages }}"

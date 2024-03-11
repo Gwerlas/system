@@ -2,6 +2,9 @@
 - name: Load variables
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
+- name: Kernel modules
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/modules.yml"
+
 - name: Proxies
   when: system_manage_proxies
   tags:
@@ -17,6 +20,9 @@
 - name: Sudo
   when: system_manage_sudo
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/sudo.yml"
+
+- name: Package managers
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/package-managers.yml"
 
 - name: Packages
   tags:

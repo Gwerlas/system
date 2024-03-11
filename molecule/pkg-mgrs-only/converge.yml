@@ -1,0 +1,8 @@
+---
+- name: Package managers only
+  hosts: all
+  tasks:
+    - name: Just configure package managers
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: package-managers

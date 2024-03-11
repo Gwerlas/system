@@ -73,48 +73,13 @@
         loop_var: lvm
 
     - name: Storages - Mount point
-      vars:
-        mounts: |
-          {{
-            ((
-              (
-                (system_storages_partitions | selectattr('state', 'undefined')) +
-                (system_storages_partitions | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-              ) |
-              to_json | from_json |
-              community.general.json_query('[?mount].{
-                fstype: not_null(fs_type, `ext4`),
-                group: not_null(group, `root`),
-                mode: not_null(group, `0755`),
-                owner: not_null(group, `root`),
-                path: mount,
-                resize: not_null(resize, `true`),
-                src: join(``, [device, to_string(not_null(number, `1`))])
-              }')
-            ) + (
-              (
-                (system_storages_lvol | selectattr('state', 'undefined')) +
-                (system_storages_lvol | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-              ) |
-              to_json | from_json |
-              community.general.json_query('[?mount].{
-                fstype: not_null(fstype, `ext4`),
-                group: not_null(group, `root`),
-                mode: not_null(group, `0755`),
-                owner: not_null(group, `root`),
-                path: mount,
-                resize: not_null(resizefs, `true`),
-                src: join(`/`, [``, `dev`, `mapper`, join(`-`, [vg, lv])])
-              }')
-            )) | sort(attribute='path')
-          }}
       block:
         - name: Storages - Filesystem
           community.general.filesystem:
             fstype: "{{ device.fstype }}"
             dev: "{{ device.src }}"
             resizefs: "{{ device.resize }}"
-          loop: "{{ mounts }}"
+          loop: "{{ system_mounts }}"
           loop_control:
             loop_var: device
 
@@ -125,16 +90,19 @@
             owner: "{{ mount.owner }}"
             group: "{{ mount.group }}"
             mode: "{{ mount.mode }}"
-          loop: "{{ mounts }}"
+          loop: "{{ system_mounts }}"
           loop_control:
             loop_var: mount
 
+        # Some systems change the owner to root when mounting,
+        # that's why we notify a task to reset the permissions.
         - name: Storages - Mount
           ansible.posix.mount:
             path: "{{ mount.path }}"
             src: "{{ mount.src }}"
             state: mounted
             fstype: "{{ mount.fstype }}"
-          loop: "{{ mounts }}"
+          loop: "{{ system_mounts }}"
           loop_control:
             loop_var: mount
+          notify: check storage owner

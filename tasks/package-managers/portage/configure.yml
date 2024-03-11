@@ -1,0 +1,65 @@
+---
+- name: Portage - Load initial config
+  ansible.builtin.slurp:
+    src: /etc/portage/make.conf
+  register: result
+
+- name: Portage - Set facts
+  vars:
+    initial_config: "{{ result.content | b64decode }}"
+    portdir_matches: |-
+      {{
+        initial_config |
+        regex_findall('(?<!#)PORTDIR=\"(.+)\"')
+      }}
+  ansible.builtin.set_fact:
+    initial_portdir: "{{ (portdir_matches | length > 0) | ternary(portdir_matches | last, '') }}"
+
+- name: Portage - Tasks sequence
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/portage/{{ portage_task }}.yml"
+  loop:
+    - permissions
+    - portdir
+    - profile
+    - repos
+    - make.conf
+  loop_control:
+    loop_var: portage_task
+
+- name: Become root
+  become: true
+  block:
+    - name: Portage - Configuration files
+      ansible.builtin.template:
+        src: portage/package.use/{{ file }}.j2
+        dest: /etc/portage/package.use/{{ file }}
+        group: portage
+        mode: "0664"
+      loop:
+        - firewalld
+        - kernel
+        - libreoffice
+        - lvm2
+      loop_control:
+        loop_var: file
+      notify: emerge --newuse
+
+    - name: Portage - Configure - Kernel licenses
+      become: true
+      ansible.builtin.template:
+        src: portage/package.license/kernels.j2
+        dest: /etc/portage/package.license/kernels
+        group: portage
+        mode: "0664"
+
+    - name: Packages - Profiles - Gnome
+      when: "'gnome' in current_profiles_keys"
+      ansible.builtin.lineinfile:
+        path: /etc/conf.d/display-manager
+        line: DISPLAYMANAGER="gdm"
+        regexp: ^DISPLAYMANAGER=
+        create: true
+        group: portage
+        mode: "0664"
+      notify:
+        - restart display-manager

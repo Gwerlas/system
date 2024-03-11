@@ -1,0 +1,12 @@
+---
+- name: Portage - Needs update
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/package-managers/needs-update.yml"
+
+- name: Portage - Cache update
+  when: system_cache_needs_update
+  become: true
+  block:
+    - name: Portage - Cache update
+      community.general.portage:
+        sync: true

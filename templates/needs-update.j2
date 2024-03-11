@@ -11,7 +11,7 @@
 
 set -e
 
-{% if 'files' in packages_update_policy %}
+{% if 'files' in pkg_mgr_cache_update_policy %}
 test_file() {
   test -f "$1"
 
@@ -22,12 +22,12 @@ test_file() {
   test $ts -gt $(date +%s -d "$2 days ago")
 }
 
-{% for file in packages_update_policy.files %}
+{% for file in pkg_mgr_cache_update_policy.files %}
 test_file {{ file.path }} {{ file.age | default(system_packages_cache_age) }}
 {% endfor %}
 {% endif %}
 
-{% if 'directories' in packages_update_policy %}
+{% if 'directories' in pkg_mgr_cache_update_policy %}
 test_dir() {
   test $(ls -1 "$1" | wc -l) -gt 0
 
@@ -35,7 +35,7 @@ test_dir() {
   test $matches -gt 0  
 }
 
-{% for directory in packages_update_policy.directories %}
+{% for directory in pkg_mgr_cache_update_policy.directories %}
 test_dir {{ directory.path }} {{ directory.age | default(system_packages_cache_age) }}
 {% endfor %}
 {% endif %}

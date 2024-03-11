@@ -1,0 +1,14 @@
+---
+- name: APT - Cache update
+  listen:
+    - apt update
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: APT - Distribution upgrade
+  listen:
+    - apt dist-upgrade
+  become: true
+  ansible.builtin.apt:
+    upgrade: dist

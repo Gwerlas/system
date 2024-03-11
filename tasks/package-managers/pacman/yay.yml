@@ -1,0 +1,38 @@
+---
+- name: Pacman - Yay - Check for the binary
+  ansible.builtin.stat:
+    path: /usr/bin/yay
+  register: system_bin_yay
+
+- name: Pacman - Yay - Install
+  when: not system_bin_yay.stat.exists
+  block:
+    - name: Pacman - Yay - Install build dependencies
+      become: true
+      community.general.pacman:
+        name:
+          - base-devel
+          - fakeroot
+          - git
+          - make
+
+    - name: Pacman - Yay - Clone from github
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/yay.git
+        dest: /tmp/yay
+        version: "{{ system_yay_version | default(omit) }}"
+
+    - name: Pacman - Yay - Build
+      ansible.builtin.command:
+        cmd: makepkg --noconfirm -si
+        chdir: /tmp/yay
+        creates: /usr/bin/yay
+
+- name: Pacman - Yay - Ansible module
+  become: true
+  run_once: true
+  delegate_to: localhost
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
+    dest: /usr/share/ansible/yay
+    mode: "0755"

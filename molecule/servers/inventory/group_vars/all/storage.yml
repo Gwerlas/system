@@ -12,3 +12,5 @@ system_storages_lvol:
   - vg: datastore
     lv: backups
     mount: /var/backups
+    owner: vagrant
+    mode: '0775'

@@ -1,0 +1,10 @@
+---
+- name: Package managers - Needs update
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/package-managers/needs-update.yml"
+
+- name: Package managers - Cache update
+  when: system_cache_needs_update
+  become: true
+  ansible.builtin.package:
+    update_cache: true

@@ -1,5 +1,5 @@
 # {{ ansible_managed }}
 
 Package: *
-Pin: release a={{ debian_release }}-backports
+Pin: release a={{ ansible_distribution_release | lower }}-backports
 Pin-Priority: 900

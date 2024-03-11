@@ -1,0 +1,35 @@
+---
+- name: APT - Backports
+  become: true
+  block:
+    - name: APT - Backports - Detection
+      ansible.builtin.command:
+        cmd: grep '\<{{ ansible_distribution_release | lower }}-backports\>' /etc/apt/sources.list /etc/apt/sources.list.d/*
+      failed_when: false
+      changed_when: false
+      register: result
+
+    - name: APT - Backports - Pinning
+      when: |
+        system_apt_prefer_backports is true
+        or
+        (
+          system_apt_prefer_backports == 'auto'
+          and
+          result.stdout_lines | length > 0
+        )
+        or
+        (
+          ansible_distribution_major_version == '10'
+          and
+          (
+            'systemd-timesyncd' in system_packages
+            or
+            'firewalld' in system_packages
+          )
+        )
+      ansible.builtin.template:
+        src: apt/preferences.d/50backports.j2
+        dest: /etc/apt/preferences.d/50backports
+        mode: "0644"
+      notify: apt dist-upgrade

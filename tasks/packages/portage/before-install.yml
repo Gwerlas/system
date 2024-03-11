@@ -1,0 +1,5 @@
+---
+- name: Portage - Kernel
+  when: not in_container
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/packages/portage/kernel/{{ system_portage_kernel_provider }}.yml"

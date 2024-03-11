@@ -1,0 +1,1 @@
+{{ type }}{% if options | length > 0 %} [{% for k,v in options.items() %} {{k}}={% if v is boolean %}{{ v | ternary('yes', 'no') }}{% endif %}{% endfor %} ]{% endif %} {{ uri }} {{ suite }} {{ components | join(' ') }}

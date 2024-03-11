@@ -2,6 +2,8 @@
 - name: CA - Update certificates
   listen: update ca
   become: true
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   ansible.builtin.command:
     cmd: "{{ ca_certificates.command }}"
   changed_when: true

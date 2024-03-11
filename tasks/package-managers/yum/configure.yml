@@ -1,0 +1,4 @@
+---
+- name: YUM - Repositories
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/yum/repositories.yml"

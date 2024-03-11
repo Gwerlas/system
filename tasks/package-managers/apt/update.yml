@@ -1,0 +1,7 @@
+---
+- name: APT - Cache update
+  become: true
+  ansible.builtin.apt:
+    autoclean: true
+    cache_valid_time: "{{ system_packages_cache_age * 3500 }}"
+    update_cache: true

@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+{% for repo in item.repositories %}
+{% set title = repo.name | default(([item.name, loop.index] | join('')) if (item.repositories | length) > 1 else item.name) %}
+{% set id = repo.id | default(title) %}
+[{{ id | slugify(remove_variables=true) }}]
+{% if not 'name' in repo %}
+name={{ id }}
+{% endif %}
+{% for k,v in repo.items() %}
+{% if k != 'id' %}
+{% set value = (v | int) if v is boolean else v %}
+{{ k }}={{ value }}
+{% endif %}
+{% endfor %}
+
+{% endfor %}

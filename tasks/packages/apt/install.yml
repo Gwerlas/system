@@ -1,0 +1,9 @@
+---
+- name: APT - Install
+  become: true
+  ansible.builtin.apt:
+    autoremove: true
+    name: "{{ system_packages }}"
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

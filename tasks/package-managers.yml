@@ -1,0 +1,27 @@
+---
+- name: Package managers - Load facts
+  when: system_packages is undefined
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/facts.yml"
+
+- name: Package managers - Configuration
+  vars:
+    task_file: "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}/configure.yml"
+  when: task_file is file
+  ansible.builtin.include_tasks:
+    file: "{{ task_file }}"
+
+- name: Package managers - Cache update
+  ansible.builtin.include_tasks:
+    file: "{{ pkg_mgr_task }}"
+  with_first_found:
+    - files:
+        - update.yml
+      paths:
+        - "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/package-managers/other"
+  loop_control:
+    loop_var: pkg_mgr_task
+
+- name: Take effects immediatly
+  ansible.builtin.meta: flush_handlers

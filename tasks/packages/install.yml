@@ -1,13 +1,30 @@
 ---
+- name: Packages - Distribution upgrade
+  when: system_packages_upgrade
+  ansible.builtin.include_tasks:
+    file: "{{ package_task }}"
+  with_first_found:
+    - files:
+        - dist-upgrade.yml
+      paths:
+        - "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/packages/other"
+  loop_control:
+    loop_var: package_task
+
 - name: Packages - Install - Show the list
   ansible.builtin.debug:
     var: system_packages
     verbosity: 1
 
-- name: Packages - Install
-  become: true
-  ansible.builtin.package:
-    name: "{{ system_packages }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
+- name: Packages - Installation
+  ansible.builtin.include_tasks:
+    file: "{{ package_task }}"
+  with_first_found:
+    - files:
+        - install.yml
+      paths:
+        - "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/packages/other"
+  loop_control:
+    loop_var: package_task

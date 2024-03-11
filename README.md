@@ -83,7 +83,6 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 * [ca][]
 * [time][]
 * [firewall][]
-* [reboot][]
 
 [facts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/facts.md
 [proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
@@ -97,7 +96,6 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 [ca]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/ca.md
 [time]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/time.md
 [firewall]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/firewall.md
-[reboot]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/reboot.md
 
 Role Variables
 --------------
@@ -158,13 +156,13 @@ Use just one task :
 
 ```yaml
 ---
-- name: System packages
+- name: Package managers
   hosts: all
   tasks:
-    - name: Base system tools only
+    - name: Just get the package manager upready
       ansible.builtin.import_role:
         name: gwerlas.system
-        tasks_from: packages
+        tasks_from: package-managers
 ```
 
 License

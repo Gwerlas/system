@@ -1,22 +1,13 @@
 ---
-- name: Packages - Load variables
-  when: system_packages is undefined
+- name: Packages - Load facts
+  when: system_uptime is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: Packages
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/{{ pkg_task }}.yml"
-  loop:
-    - prepare
-    - update
-    - requirements
-    - prewash
-    - upgrade
-    - install
-    - cleanup
-    - profiles
-    - services
-  loop_control:
-    loop_var: pkg_task
+- name: Packages - Before install
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/before-install.yml"
 
-- name: Packages - Reboot if needed
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/reboot.yml"
+- name: Packages - Install
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/install.yml"
+
+- name: Packages - After install
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/packages/after-install.yml"

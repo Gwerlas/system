@@ -1,0 +1,18 @@
+---
+- name: Pacman - Needs update
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/package-managers/needs-update.yml"
+
+- name: Pacman - Cache update
+  when: system_cache_needs_update
+  become: true
+  community.general.pacman:
+    update_cache: true
+    name:
+      - archlinux-keyring
+    state: latest
+
+- name: Pacman - Yay
+  when: system_pacman_aur
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/package-managers/pacman/yay.yml"

@@ -11,10 +11,17 @@ Table of content :
 - [Packages managers](#packages-managers)
   - [Cache](#cache)
   - [APT](#apt)
-  - [AUR (Archlinux User Repository)](#aur-archlinux-user-repository)
-  - [EPEL (Extra Packages for Enterprise Linux)](#epel-extra-packages-for-enterprise-linux)
+    - [Sources list](#sources-list)
+    - [Backports](#backports)
+  - [Pacman](#pacman)
+    - [Packages installation](#packages-installation)
+    - [AUR (Archlinux User Repository)](#aur-archlinux-user-repository)
+  - [RedHat like package managers](#redhat-like-package-managers)
   - [Portage](#portage)
-    - [Cache directory](#cache-directory)
+    - [Cache directories](#cache-directories)
+      - [Repositories](#repositories)
+      - [Repositories of binaries](#repositories-of-binaries)
+      - [PORTDIR](#portdir)
     - [System group](#system-group)
     - [Ansible dependencies](#ansible-dependencies)
     - [Compilation settings](#compilation-settings)
@@ -59,7 +66,8 @@ Profile
 
 Available profiles :
 
-- `desktop` (Gnome)
+- `desktop`
+- `desktop/gnome`
 - `server` (default)
 
 Packages managers
@@ -80,60 +88,353 @@ update explicitly asked.
 
 ### APT
 
-You can customize the APT mirror like this :
+**Notice:** APT sources list management has completly been rewriten in v0.12.
 
 ```yaml
-system_apt_mirror: ftp://ftp.fr.debian.org/debian/
+system_apt_conf_proxy_path: /etc/apt/apt.conf.d/01proxy
+system_apt_sources_list: []
+system_apt_prefer_backports: false
 ```
 
-Or completely customize the APT sources like this :
+#### Sources list
+
+If the `system_apt_sources_list` is empty, the APT configuration files will be
+let unchanged.
+
+The given list is converted to one-line-style entries of [sources.list(5)][].
+
+[sources.list(5)]: https://manpages.debian.org/stretch/apt/sources.list.5.en.html
+
+Here is an example of sources list using the official main server :
 
 ```yaml
-system_apt_mirrors:
-  - url: ftp://my-apt-mirror
-    branches:
-      - debian
-      - debian-security
-    sections:
+system_apt_sources_list:
+  - uri: http://deb.debian.org/debian
+    suites:
+      - "{{ ansible_distribution_release }}"
+      - "{{ ansible_distribution_release }}-updates"
+      - "{{ ansible_distribution_release }}-backports"
+    components:
+      - main
+  - uri: http://deb.debian.org/debian-security
+    suites:
+      - "{{ ansible_distribution_release }}{{ '-security' if ansible_distribution_major_version >= '11' else '' }}/updates"
+    components:
+      - main
+```
+
+Of course, You can use your own mirror. To disable/change the proxy you can
+use the `proxy` property like this :
+
+```yaml
+system_apt_sources_list:
+  - uri: ftp://my-apt-mirror/debian
+    suites:
+      - "{{ ansible_distribution_release | lower }}"
+      - "{{ ansible_distribution_release | lower }}-security"
+    components:
+      - main
+      - contrib
+    proxy: direct     # Do not use any proxy
+  - uri: http://my-another-mirror/debian
+    suites:
+      - "{{ ansible_distribution_release | lower }}"
+      - "{{ ansible_distribution_release | lower }}-security"
+    components:
+      - main
+      - contrib
+    proxy: http://proxy.my-company.tld:3128
+```
+
+For Debian bookworm, the generated `/etc/apt/sources.list` will be :
+
+```
+deb ftp://my-apt-mirror/debian bookworm main contrib
+deb ftp://my-apt-mirror/debian bookworm-security main contrib
+deb http://my-another-mirror/debian bookworm main contrib
+deb http://my-another-mirror/debian bookworm-security main contrib
+```
+
+And the `/etc/apt/apt.conf.d/01proxy` will be :
+
+```
+Acquire::ftp::Proxy::my-apt-mirror DIRECT;
+Acquire::http::Proxy::my-another-mirror "http://proxy.my-company.tld:3128";
+```
+
+You can change the name of the proxy configuration file through the
+`system_apt_conf_proxy_path` variable. Ensure to set the full absolute
+path, here is an example :
+
+```yaml
+system_apt_conf_proxy_path: /etc/apt/apt.conf.d/99proxy
+```
+
+If You specify a `name`, we will set the line in a seperate file in
+`/etc/apt/sources.list.d`. For example :
+
+```yaml
+system_apt_sources_list:
+  - name: my-mirror
+    uri: ftp://my-apt-mirror/debian
+    suites:
+      - "{{ ansible_distribution_release | lower }}"
+    components:
       - main
       - contrib
 ```
 
-The generated `/etc/apt/sources.list` will be :
+The generated file will be `/etc/apt/sources.list.d/my-mirror`.
 
-```
-deb ftp://my-apt-mirror debian main contrib
-deb ftp://my-apt-mirror debian-security main contrib
-```
+#### Backports
 
-### AUR (Archlinux User Repository)
+The `system_apt_prefer_backports` variable configure APT pinning to prioritize backports.
 
-If your package manager is Pacman (ArchLinux based distros), we add the [Yay][]
-AUR helper for desktop nodes.
+The possible values are :
+  - `true` : Prefer backports (the repo has to be set in your apt sources.list)
+  - `false` : Do nothing (default)
+  - `auto` : Prefer backports if present in sources.list
 
-You can force enable / disable setting the `system_archlinux_user_repository` to
-`true` or `false`.
-
-[Yay]: https://github.com/Jguer/yay/blob/next/README.md
-
-### EPEL (Extra Packages for Enterprise Linux)
-
-The Extra Packages for Enterprise Linux are enabled by default.
-
-You can disable it by setting the `system_el_use_epel` variable to `false`.
+The entire distribution will be upgraded with backports.
 
 > **Warning**
 >
-> If You disable EPEL repositories, some features, like bridging or time
-> synchronization won't work since `bridge-utils` and `systemd-systemd-timesyncd`
-> packages are in.
+> If `systemd-timesynd` or `firewalld` is used in Debian Buster, we force APT
+> pinning to use backports packages.
+
+### Pacman
+
+#### Packages installation
+
+As describe in the Pacman documentation :
+
+When installing packages in Arch, avoid refreshing the package list without
+upgrading the system (for example, when a package is no longer found in the
+official repositories). In practice, do not run pacman -Sy package_name
+instead of pacman -Syu package_name, as this could lead to dependency issues.
+
+https://wiki.archlinux.org/title/pacman#Installing_packages
+
+
+Because using `-u` can break idempotence, we try to install packages without
+this flag, but if it fails, we fallback to the `pacman -Syu` method.
+
+#### AUR (Archlinux User Repository)
+
+```yaml
+system_pacman_aur: "{{ system_profile != 'server' }}"
+```
+
+We add the [Yay][] AUR helper for desktop nodes.
+
+Setting the `system_pacman_aur` to `true` or `false`, You will force
+enable / disable it.
+
+[Yay]: https://github.com/Jguer/yay/blob/next/README.md
+
+### RedHat like package managers
+
+Require the Ansible collection `community.general` v8.2 or above.
+
+```yaml
+system_el_epel: false
+system_el_epel_next: false
+system_el_repos: []
+```
+
+`system_el_epel` and `system_el_epel_next` are an easy way to enable EPEL.
+
+> **Warning**
+>
+> Do not set `system_el_epel*` variables to `true` and manage your repositories
+> with `system_el_repos` at the same time, you may have breakages or, at least,
+> idempotencies issues.
+>
+> In this case, just enable epel in the appropriate entry of `system_el_repos`.
+>
+> For RedHat 8 like distros, when `system_el_repos` is empty **AND** the
+> time backend is `timesyncd`, EPEL repo will be activated to be able to
+> install `systemd-timesynd`.
+
+Each repository in `system_el_repos` represents a file in `/etc/yum.repos.d` and
+must contains `name` and `repositories` properties inside.
+
+For each repository item :
+
+- The `id` parameter is used to define the title of the `[section]`.
+  If it's missing, we remove variables and slugify the `name` of the repository.
+
+- The `name` parameter looks like a little description, but is required.
+  If it's missing, we use the `id` instead.
+
+- If neither `id`, neither `name` are given, we generate them from the file name.
+
+- Boolean values are converted to `0` and `1` as describe in [yum.conf(5)][].
+
+For example :
+
+```yaml
+system_el_repos:
+  - name: almalinux-crb
+    repositories:
+      - id: crb
+        name: AlmaLinux $releasever - CRB
+        baseurl: https://mirror.my-company.tld/almalinux/$releasever/CRB/Source/
+        enabled: true
+        gpgcheck: false
+  - name: almalinux-baseos
+    repositories:
+      - id: baseos
+        name: AlmaLinux $releasever - BaseOS
+        baseurl: https://mirror.my-company.tld/almalinux/$releasever/BaseOS/$basearch/os/
+        enabled: 1
+        gpgcheck: 0
+      - name: AlmaLinux $releasever - BaseOS - Debug
+        baseurl: https://repo.almalinux.org/vault/$releasever/BaseOS/debug/$basearch/
+        enabled: '0'
+        gpgcheck: '1'
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-AlmaLinux-$releasever
+```
+
+This two files will be created :
+
+```sh
+$ cat /etc/yum.repos.d/almalinux-crb.repo
+[crb]
+name=crb
+baseurl=https://mirror.my-company.tld/almalinux/$releasever/CRB/Source/
+enabled=1
+gpgcheck=0
+
+$ cat /etc/yum.repos.d/almalinux-baseos.repo
+[baseos]
+name=AlmaLinux $releasever - BaseOS
+baseurl=https://mirror.my-company.tld/almalinux/$releasever/BaseOS/$basearch/os/
+enabled=1
+gpgcheck=0
+
+[almalinux-baseos-debug]
+name=AlmaLinux $releasever - BaseOS - Debug
+baseurl=https://repo.almalinux.org/vault/$releasever/BaseOS/debug/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-AlmaLinux-$releasever
+```
+
+Look at the chapter `[repository] options` in the [yum.conf(5)][] manual page for more
+informations about available options their values and meanings.
+
+[yum.conf(5)]: https://linux.die.net/man/5/yum.conf
+
+> **Important**
+>
+> The`id` and the `name` parameters are very importants for each repositories,
+> please filled both of them.
+>
+> The package manager can throw errors for some bad `id`. Do not use random values.
 
 ### Portage
 
-#### Cache directory
+Portage is the package manager of the Gentoo based distros.
 
-If your package manager is Portage (Gentoo based distros), You can change the
-portage manifests directory (`PORTDIR`) with the `system_portage_directory` setting.
+#### Cache directories
+
+```yaml
+system_portage_repos_directory: /var/db/repos
+
+system_portage_binrepos: []
+system_portage_repos: []
+```
+
+You can change the location of your repositories through `system_portage_repos_directory`.
+
+Each entries of `system_portage_repos` and `system_portage_binrepos` result in
+a configuration file in `/etc/portage/repos.conf/` and
+`/etc/portage/binrepos.conf/` respectively.
+
+##### Repositories
+
+The supported keys and values are the same as described in the [repos.conf][]
+documentation using those defaults values per entry :
+
+- `location`: `system_portage_repos_directory`/`repo.name`
+- `sync-type`: `git`
+- `sync-uri`: https://github.com/gentoo-mirror/`name`.git
+
+Only the `name` is mandatory. For example :
+
+```yaml
+system_portage_repos:
+  - name: guru
+```
+
+Will generate the `/etc/portage/repos.conf/guru.conf` file as is :
+
+```ini
+[guru]
+location = /var/db/repos/guru
+sync-type = git
+sync-uri = https://github.com/gentoo-mirror/guru.git
+```
+
+[repos.conf]: https://wiki.gentoo.org/wiki//etc/portage/repos.conf
+
+##### Repositories of binaries
+
+The supported keys and values are the same as described in the [binrepos.conf][]
+documentation. For example :
+
+```yaml
+system_portage_binrepos:
+  - name: binhost
+    priority: 9999
+    sync-uri: https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/17.1/x86-64/
+```
+
+Will generate the `/etc/portage/binrepos.conf/binhost.conf` file as is :
+
+```ini
+[binhost]
+priority = 9999
+sync-uri = https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/17.1/x86-64/
+```
+
+[binrepos.conf]: https://wiki.gentoo.org/wiki//etc/portage/binrepos.conf
+
+##### PORTDIR
+
+```yaml
+# /var/db/repos/gentoo by default for Gentoo
+system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_distribution | lower }}"
+```
+
+The goal of this role is to manage systems easily, respecting the spirit of
+each distribution and the user's choices.
+
+We had to make an exception with the `PORTDIR` setting of
+`/etc/portage/make.conf` removing it.
+
+If `PORTDIR` was previously set, we move the data to `system_portage_directory`
+if their values are different.
+
+For a while, this variable permitted to set another location to the
+portage metadatas and took `/usr/portage` for default value.
+Now, Portage can manage multiple repositories and give its configuration
+in `/etc/portage/repos.conf/gentoo.conf`.
+
+If `/etc/portage/repos.conf/gentoo.conf` doesn't exist, portage will
+take its default configuration from `/usr/share/portage/config/repos.conf`.
+
+Since the default value as changed as of 2019-04-29 and later, and
+to prevent emerge failures, we replace both of the old and the new default
+location by a symlink pointing to `system_portage_directory` (if the locations
+are different ofcourse) to be sure to always have an up and ready to use
+package manager.
+
+See the [Default Gentoo ebuild repository location change][] chapter of the 
+Portage documentation for more informations.
+
+[Default Gentoo ebuild repository location change]: https://wiki.gentoo.org/wiki/Portage#Default_Gentoo_ebuild_repository_location_change
 
 #### System group
 
@@ -154,13 +455,10 @@ So, we install it if it's missing.
 
 ```yaml
 # Build from sources when possible
-system_packages_build: false
+system_packages_build: auto
 # https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
 system_packages_march: native
 ```
-
-If You don't want to use `*-bin` packages when they are available, set
-`system_packages_build` to `true`.
 
 If You want to compile your nodes with [distcc][], change the `system_packages_march`
 value, You can find help in the [Safe CFLAGS] manual.
@@ -170,18 +468,28 @@ value, You can find help in the [Safe CFLAGS] manual.
 
 #### Kernel
 
-Kernel to install :
+Wich kernel to install :
 
 ```yaml
-system_portage_kernel: gentoo-kernel
+system_portage_kernel: auto
 ```
 
-Possible values :
+Supported values :
 
-- `gentoo-kernel` : Install `gentoo-kernel-bin` (or `gentoo-kernel` if
-`system_packages_build` is `true`), see [distribution kernels][] for more informations
+- `auto` : Get from the list of installed packages
+- `gentoo-kernel`
+- `gentoo-kernel-bin`
+- `gentoo-sources` : Built with [Genkernel][]
+- `vanilla-kernel`
+
+See [distribution kernels][] and/or [Genkernel][] for more informations.
+
+You also can view the complete list of available kernels (but not only)
+on the [sys-kernel category][] web page.
 
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
+[Genkernel]: https://wiki.gentoo.org/wiki/Genkernel
+[sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
 Packages upgrade
 ----------------

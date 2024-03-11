@@ -1,0 +1,8 @@
+---
+- name: Pacman - Distribution upgrade
+  become: true
+  community.general.pacman:
+    upgrade: true
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

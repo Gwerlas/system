@@ -6,40 +6,51 @@ system_packages_cache_age: 7
 system_packages_add_by_key: []
 system_packages_add_by_name: []
 
-# Build from sources when possible
-system_packages_build: false
+# Build from sources when possible (true, false or 'auto')
+system_packages_build: auto
 # https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
-system_packages_march: native
+system_packages_build_cflags: -march=native -O2 -pipe
 
-# ArchLinux : Use AUR packages
-system_archlinux_user_repository: "{{ system_profile != 'server' }}"
+#############################
+# APT (Debian like distros) #
+#############################
+system_apt_conf_proxy_path: /etc/apt/apt.conf.d/01proxy
+system_apt_sources_list: []
+system_apt_prefer_backports: false
 
-# RedHat Like : Use EPEL
-system_el_use_epel: true
+######################
+# Pacman (ArchLinux) #
+######################
+system_pacman_aur: "{{ system_profile != 'server' }}"
 
-# Gentoo (portage)
+###############
+# RedHat Like #
+###############
+system_el_epel: false
+system_el_epel_next: false
+system_el_repos: []
+
+#################################
+# Portage (Gentoo like distros) #
+#################################
 system_portage_accept_keywords: []
 system_portage_gentoo_mirrors: []
-system_portage_directory: /var/db/repos/gentoo
-system_portage_kernel: gentoo-kernel
-system_portage_use_bin_suffix: "{{ not system_packages_build }}"
-system_portage_webrsync: "{{ system_manage_proxies }}"
+system_portage_kernel: auto
+system_portage_use_bin_suffix: "{{ not packages_build }}"
 ## Harware support
 system_portage_cameras: []
 system_portage_video_cards: []
 ## Software settings
-# system_portage_python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
+system_portage_python_single_target: python{{ ansible_python.version.major }}_{{ ansible_python.version.minor }}
 # system_portage_python_targets:
 #   - python3_10
 #   - python3_11
-system_portage_python_single_target: python3_11
 system_portage_ruby_targets:
   - ruby31
   - ruby32
 
-system_portage_binrepos:
-  - name: experimental
-    sync-uri: http://packages.gentooexperimental.org/amd64-stable/
-  - name: osuosl
-    priority: 9999
-    sync-uri: http://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/
+system_portage_repos_directory: /var/db/repos
+system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_distribution | lower }}"
+
+system_portage_binrepos: []
+system_portage_repos: []
