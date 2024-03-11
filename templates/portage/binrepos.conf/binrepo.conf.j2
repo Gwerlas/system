@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+[{{ repo.name }}]
+sync-uri = {{ repo['sync-uri'] }}
+{% if 'priority' in repo %}
+priority = {{ repo.priority }}
+{% endif %}

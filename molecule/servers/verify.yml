@@ -156,17 +156,29 @@
         cmd: chronyc sourcestats
       changed_when: false
 
+    - name: Backups directory stats
+      ansible.builtin.stat:
+        path: /var/backups
+      register: bkpdir
+
     - name: Backups storage
       ansible.builtin.assert:
         that:
           - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
+          - bkpdir.stat.pw_name == 'vagrant'
+          - bkpdir.stat.wgrp
+
+    - name: Last network interface    # noqa risky-shell-pipe - pipefail is not supported by sh
+      ansible.builtin.shell:
+        cmd: |
+          ip -o -f inet addr show | tail -n 1
+      register: result
+      changed_when: false
 
     - name: Private network
-      vars:
-        netiface: "{{ (ansible_interfaces | sort)[1] }}"
       ansible.builtin.assert:
         that:
-          - ansible_{{ netiface }}.ipv4.network == "192.168.250.0"
+          - "'brd 192.168.250.255' in result.stdout"
 
 - name: Check EPEL
   hosts: redhat_like

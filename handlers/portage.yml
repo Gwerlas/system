@@ -1,5 +1,5 @@
 ---
-- name: Prevent circular dependencies and multilib compilation failures
+- name: Portage - Prevent circular dependencies and multilib compilation failures
   listen:
     - change profile
   become: true
@@ -17,7 +17,7 @@
       - dev-python/setuptools
       - media-libs/libsndfile
 
-- name: Rebuild packages that need to be rebuilt
+- name: Portage - Rebuild packages that need to be rebuilt
   listen:
     - change profile
     - emerge --newuse
@@ -28,7 +28,29 @@
     update: "{{ system_packages_upgrade }}"
     package: '@world'
 
-- name: Clean dependencies
+- name: Portage - Repositories sync types
+  listen:
+    - sync repos
+  become: true
+  community.general.portage:
+    package:
+      - 'dev-vcs/git'
+
+- name: Portage - Sync repositories
+  listen:
+    - sync repos
+  become: true
+  ansible.builtin.command:
+    cmd: emerge --sync {{ repo.name }}
+  loop: "{{ system_portage_repos }}"
+  loop_control:
+    loop_var: repo
+  register: result
+  changed_when: not "You are already up to date" in result.stdout
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+
+- name: Portage - Clean dependencies
   listen:
     - change profile
     - emerge --newuse
@@ -36,7 +58,7 @@
   community.general.portage:
     depclean: true
 
-- name: Genkernel
+- name: Portage - Genkernel
   when: system_portage_kernel is regex('\w+-sources')
   listen: genkernel
   become: true
@@ -44,10 +66,28 @@
     cmd: genkernel all
   changed_when: true
 
-- name: Kernel modules rebuild
+- name: Portage - Kernel modules rebuild
   listen:
     - genkernel
     - emerge @module-rebuild
   become: true
   community.general.portage:
     package: '@module-rebuild'
+
+- name: Portage - Read make.conf
+  listen:
+    - grub-install
+  ansible.builtin.slurp:
+    src: /etc/portage/make.conf
+  register: result
+
+- name: Portage - Install Grub
+  listen:
+    - grub-install
+  become: true
+  vars:
+    config: "{{ result.content | b64decode }}"
+    platform: "{{ config | regex_findall('(?<!#)GRUB_PLATFORMS=\"(.+)\"') | last | split(' ') | first }}"
+  ansible.builtin.command:
+    cmd: grub-install --target={{ platform }}
+  changed_when: true

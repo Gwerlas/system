@@ -1,6 +1,6 @@
 ---
 - name: Time - Load variables
-  when: system_packages is undefined
+  when: system_uptime is undefined
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Time - Zone

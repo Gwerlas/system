@@ -1,0 +1,26 @@
+---
+- name: Portage - repositories
+  become: true
+  notify: sync repos
+  block:
+    - name: Portage - Binrepos
+      ansible.builtin.template:
+        src: portage/binrepos.conf/binrepo.conf.j2
+        dest: /etc/portage/binrepos.conf/{{ repo.name }}.conf
+        owner: portage
+        group: portage
+        mode: "0664"
+      loop: "{{ system_portage_binrepos }}"
+      loop_control:
+        loop_var: repo
+
+    - name: Portage - Repos
+      ansible.builtin.template:
+        src: portage/repos.conf/repo.conf.j2
+        dest: /etc/portage/repos.conf/{{ repo.name }}.conf
+        owner: portage
+        group: portage
+        mode: "0664"
+      loop: "{{ system_portage_repos }}"
+      loop_control:
+        loop_var: repo

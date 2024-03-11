@@ -18,17 +18,15 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
-  - name: debian12
-    box: debian/bookworm64
+  - name: debian-testing
+    box: debian/testing64
     provider_raw_config_args: *raw_config
-  - name: el8
-    box: generic/centos8s
-    memory: 2048
-    provider_raw_config_args: *raw_config
-  - name: el9
+  - name: centos9s
     box: generic/centos9s
     memory: 2048
     provider_raw_config_args: *raw_config
+    instance_raw_config_args:
+      - 'vm.provision :shell, inline: "rm /etc/yum.repos.d/*.repo"'
   - name: gentoo
     box: generic/gentoo
     cpus: 4

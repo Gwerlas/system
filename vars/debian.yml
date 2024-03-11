@@ -1,19 +1,4 @@
 ---
-default_apt_mirror: http://deb.debian.org
-apt_default_sections:
-  - main
-default_apt_mirrors:
-  - url: "{{ apt_mirror }}/debian"
-    branches:
-      - "{{ debian_release }}"
-      - "{{ debian_release }}-updates"
-      - "{{ debian_release }}-backports"
-    sections: "{{ apt_sections }}"
-  - url: "{{ apt_mirror }}/debian-security"
-    branches:
-      - "{{ debian_release }}{{ '-security' if ansible_distribution_major_version >= '11' else '' }}/updates"
-    sections: "{{ apt_sections }}"
-
 # Firefox is proposed under the ESR version only
 distro_packages:
   firefox:

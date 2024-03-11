@@ -1,0 +1,13 @@
+---
+pkg_mgr_cache_update_policy:
+  files:
+    - path: /usr/share/pacman/keyrings/archlinux.gpg
+      age: 60
+  directories:
+    - path: /var/lib/pacman/sync
+
+family_packages:
+  libreoffice:
+    - libreoffice-still
+  python3-netaddr:
+    - python-netaddr

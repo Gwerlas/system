@@ -183,7 +183,7 @@ argument_specs:
         description: Name of the admin group.
 
   users/linger:
-    short_description:
+    short_description: Enable linger for users managed by systemd
     options:
       system_user:
         type: dict

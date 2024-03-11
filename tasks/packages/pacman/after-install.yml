@@ -1,0 +1,10 @@
+---
+- name: Pacman - Reboot if kernel has been updated
+  when: not in_container
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail;
+      file -bL /boot/vmlinuz-linux | grep -oP '(?<=version )[^ ]*'
+  register: result
+  changed_when: result.stdout != ansible_kernel
+  notify: reboot

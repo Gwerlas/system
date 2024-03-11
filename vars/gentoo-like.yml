@@ -1,12 +1,6 @@
 ---
-default_portage_directory: /var/db/repos/gentoo
-
-packages_update_policy:
-  files:
-    - path: "{{ system_portage_directory }}/metadata/timestamp.chk"
-
-packages_add_by_name:
-  - app-eselect/eselect-repository
+# Under automatic mode, we build packages from sources
+packages_build: "{{ true if system_packages_build == 'auto' else system_packages_build }}"
 
 family_packages:
   bridge:
@@ -29,25 +23,6 @@ family_services:
   gdm:
     - "{{ (ansible_service_mgr == 'openrc') | ternary('display-manager', 'gdm.service') }}"
 
-portage_profiles:
-  server: no-multilib
-
-default_portage_opts:
-  - "{{ system_packages_build | ternary('', '--binpkg-changed-deps=y') }}"
-  - "{{ system_packages_build | ternary('', '--binpkg-respect-use=y') }}"
-  - --complete-graph
-  - --quiet-build=y
-  - --with-bdeps=y
-
-# https://devmanual.gentoo.org/eclass-reference/make.conf/index.html
-default_portage_features:
-  # - "{{ system_packages_build | ternary('', 'binpkg-request-signature') }}"
-  - "{{ system_packages_build | ternary('', 'getbinpkg') }}"
-  - parallel-fetch
-
 masks:
   packages:
     - systemd-timesyncd
-
-reboot_detection_policy:
-  use_template: true

@@ -43,8 +43,8 @@ platforms:
     interfaces: *interfaces
     provider_raw_config_args: *provider
     instance_raw_config_args: *instance
-  - name: ubuntu2304
-    box: generic/ubuntu2304
+  - name: ubuntu2310
+    box: generic/ubuntu2310
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider

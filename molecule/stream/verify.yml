@@ -12,10 +12,7 @@
       ansible.builtin.command:
         cmd: timedatectl
       register: result
-      failed_when: |
-        (result.rc > 0) or
-        ('synchronized: yes' not in result.stdout) or
-        ('service: active' not in result.stdout)
+      until: "'synchronized: yes' in result.stdout"
       changed_when: false
 
     - name: Time synchronisation
@@ -23,3 +20,12 @@
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
+
+- name: Check for the Guru Gentoo overlay
+  hosts: gentoo
+  tasks:
+    - name: Check for file
+      ansible.builtin.stat:
+        path: /data/guru
+      register: result
+      failed_when: not result.stat.exists

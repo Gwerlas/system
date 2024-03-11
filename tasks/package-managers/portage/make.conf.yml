@@ -1,0 +1,85 @@
+---
+- name: Portage - Equery
+  ansible.builtin.import_tasks:
+    file: "{{ role_path }}/tasks/package-managers/portage/equery.yml"
+
+- name: Portage - make.conf - Dependencies
+  become: true
+  community.general.portage:
+    package:
+      - app-portage/cpuid2cpuflags
+      - dev-vcs/git
+    state: present
+
+- name: Portage - make.conf - Get installed Python versions
+  ansible.builtin.command:
+    cmd: equery -q list -F '$slot' dev-lang/python
+  changed_when: false
+  register: equery
+
+- name: Portage - make.conf - CPU Flags
+  ansible.builtin.command:
+    cmd: cpuid2cpuflags
+  register: cpuid2cpuflags
+  changed_when: false
+
+- name: Portage - make.conf
+  become: true
+  when: item.value | length > 0
+  vars:
+    value: "{{ item.value | regex_replace('\\s+', ' ') }}"
+  ansible.builtin.lineinfile:
+    dest: /etc/portage/make.conf
+    line: '{{ item.key }}="{{ value }}"'
+    regexp: '^{{ item.key }}='
+    insertafter: "{{ item.insertafter | default(omit) }}"
+    insertbefore: "{{ item.insertbefore | default(omit) }}"
+    firstmatch: "{{ 'insertbefore' in item }}"
+  loop:
+    - key: COMMON_FLAGS
+      value: "{{ system_packages_build_cflags }}"
+      insertbefore: CFLAGS
+    - key: CFLAGS
+      value: ${COMMON_FLAGS}
+    - key: CXXFLAGS
+      value: ${COMMON_FLAGS}
+      insertafter: CFLAGS
+    - key: FCFLAGS
+      value: ${COMMON_FLAGS}
+      insertafter: CXXFLAGS
+    - key: FFLAGS
+      value: ${COMMON_FLAGS}
+      insertafter: FCFLAGS
+    - key: ACCEPT_KEYWORDS
+      value: "{{ system_portage_accept_keywords | join(' ') }}"
+    - key: L10N
+      value: "{{ system_l10n | join(' ') }}"
+    - key: EMERGE_DEFAULT_OPTS
+      value: "{{ portage_opts | join(' ') }}"
+    - key: FEATURES
+      value: "{{ (['${FEATURES}'] + portage_features) | join(' ') }}"
+    - key: GENTOO_MIRRORS
+      value: "{{ system_portage_gentoo_mirrors | join(' ') }}"
+    - key: "{{ cpuid2cpuflags.stdout | split(': ') | first }}"
+      value: "{{ cpuid2cpuflags.stdout | split(': ') | last }}"
+    - key: CAMERAS
+      value: "{{ system_portage_cameras | join(' ') }}"
+    - key: VIDEO_CARDS
+      value: "{{ system_portage_video_cards | join(' ') }}"
+    - key: PYTHON_TARGETS
+      value: |-
+        {{
+          system_portage_python_targets |
+          default(
+            ['python'] |
+            product(equery.stdout_lines | map('replace', '.', '_')) |
+            map('join') |
+            join(' ')
+          )
+        }}
+    - key: PYTHON_SINGLE_TARGET
+      value: "{{ system_portage_python_single_target }}"
+      insertafter: PYTHON_TARGETS
+    - key: RUBY_TARGETS
+      value: "{{ system_portage_ruby_targets | join(' ') }}"
+  notify: emerge --newuse

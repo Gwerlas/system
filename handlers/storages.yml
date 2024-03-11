@@ -1,0 +1,14 @@
+---
+- name: Storages - Mount points permissions
+  listen:
+    - check storage owner
+  become: true
+  ansible.builtin.file:
+    path: "{{ mount.path }}"
+    state: directory
+    owner: "{{ mount.owner }}"
+    group: "{{ mount.group }}"
+    mode: "{{ mount.mode }}"
+  loop: "{{ system_mounts }}"
+  loop_control:
+    loop_var: mount

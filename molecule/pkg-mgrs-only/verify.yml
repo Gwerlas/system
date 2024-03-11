@@ -1,0 +1,8 @@
+---
+- name: Verify the package manager
+  hosts: all
+  tasks:
+    - name: Package installation
+      become: true
+      ansible.builtin.package:
+        name: vim

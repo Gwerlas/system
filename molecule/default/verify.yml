@@ -21,9 +21,7 @@
       ansible.builtin.command:
         cmd: timedatectl
       register: result
-      failed_when: |
-        (result.rc > 0) or
-        (not 'synchronized: yes' in result.stdout)
+      until: "'synchronized: yes' in result.stdout"
       changed_when: false
 
     - name: Time synchronisation
@@ -35,4 +33,4 @@
     - name: Package installation
       become: true
       ansible.builtin.package:
-        name: httpie
+        name: vim

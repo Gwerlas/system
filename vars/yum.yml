@@ -1,0 +1,4 @@
+---
+pkg_mgr_cache_update_policy:
+  directories:
+    - path: "/var/cache/yum"

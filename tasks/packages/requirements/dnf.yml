@@ -1,7 +1,0 @@
----
-- name: Packages - Requirements - DNF
-  become: true
-  when: system_el_use_epel
-  ansible.builtin.dnf:
-    name: epel-release
-    state: present

@@ -1,6 +1,6 @@
 ---
 # No package epel-release available.
-system_el_use_epel: false
+system_el_epel: false
 
 # Timesync is embedded with systemd
 masks:

@@ -39,8 +39,8 @@ platforms:
     image: gwerlas/ansible-guest-ubuntu:22.04
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu2304
-    image: gwerlas/ansible-guest-ubuntu:23.04
+  - name: ubuntu2310
+    image: gwerlas/ansible-guest-ubuntu:23.10
     pre_build_mage: true
     volumes: *volumes
 

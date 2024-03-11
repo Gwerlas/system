@@ -1,0 +1,9 @@
+---
+- name: Packages - Distribution upgrade
+  become: true
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

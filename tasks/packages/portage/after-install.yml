@@ -1,0 +1,144 @@
+---
+- name: Portage - Clean dependencies
+  become: true
+  community.general.portage:
+    depclean: true
+  notify: emerge --newuse
+
+- name: Portage - Clean distfiles
+  become: true
+  ansible.builtin.command:
+    cmd: eclean-dist --deep
+  register: result
+  changed_when: not 'Your distfiles directory was already clean.' in result.stdout
+
+- name: Search and remove unused kernels
+  vars:
+    current_version: |-
+      {{
+        ansible_kernel |
+        regex_replace('(.*)-' + ansible_userspace_architecture, '\1')
+      }}
+  block:
+    - name: Portage - Unused kernels - Sources
+      ansible.builtin.find:
+        path: /usr/src
+        pattern: linux-*
+        file_type: directory
+        excludes:
+          - "*{{ current_version }}*"
+      register: kernel_sources
+
+    - name: Search and remove files and directories
+      vars:
+        sources: |
+          {{
+            kernel_sources.files |
+            map(attribute='path') |
+            map('basename') |
+            map('regex_replace', 'linux-(.*)', '\1')
+          }}
+        latest: |-
+          {{
+            sources |
+            community.general.version_sort |
+            last
+          }}
+        obsoletes: |
+          {{
+            sources |
+            reject('in', [current_version, latest])
+          }}
+      when: obsoletes | length > 0
+      become: true
+      block:
+        - name: Portage - Unused kernels - Remove
+          vars:
+            patterns:
+              - initramfs-%s-{{ ansible_userspace_architecture }}.img
+              - initramfs-%s-{{ ansible_userspace_architecture }}.img.old
+              - System.map-%s-{{ ansible_userspace_architecture }}
+              - System.map-%s-{{ ansible_userspace_architecture }}.old
+              - vmlinuz-%s-{{ ansible_userspace_architecture }}
+              - vmlinuz-%s-{{ ansible_userspace_architecture }}.old
+          ansible.builtin.file:
+            path: /boot/{{ kernel_version.1 | regex_replace('%s', kernel_version.0) }}
+            state: absent
+          with_nested:
+            - "{{ obsoletes }}"
+            - "{{ patterns }}"
+          loop_control:
+            loop_var: kernel_version
+          notify: grub-mkconfig
+
+        - name: Portage - Unused kernels - Remove modules
+          ansible.builtin.file:
+            path: /lib/modules/{{ kernel_version }}-{{ ansible_userspace_architecture }}
+            state: absent
+          loop: "{{ obsoletes }}"
+          loop_control:
+            loop_var: kernel_version
+
+        - name: Portage - Unused kernels - Remove sources
+          ansible.builtin.file:
+            path: /usr/src/linux-{{ kernel_version }}
+            state: absent
+          loop: "{{ obsoletes }}"
+          loop_control:
+            loop_var: kernel_version
+
+- name: Portage - Installed/updated packages since the last boot
+  ansible.builtin.command:
+    cmd: "awk -F ':  [=>:]{3} ' '/completed emerge/ { if ($1 >= {{ system_uptime }}) { print $2 } }' /var/log/emerge.log"
+  changed_when: false
+  register: installed
+
+# If cpuid2cpuflags has been updated, its output may change now so we have to
+# update /etc/portage/make.conf as well and rebuild the impacted packages if
+# required.
+- name: Portage - CPU flags
+  when: "'app-portage/cpuid2cpuflags' in installed.stdout"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/portage/make.conf.yml"
+
+- name: Portage - Grub
+  vars:
+    has_changed: "{{ 'sys-boot/grub' in installed.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Grub has been changed",
+          "Grub hasn't been changed"
+        )
+      }}
+  changed_when: has_changed
+  notify: grub-install
+
+- name: Portage - Service manager
+  vars:
+    has_changed: "{{ ('sys-apps/' + ansible_service_mgr) in installed.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          ansible_service_mgr + " has been changed",
+          ansible_service_mgr + " hasn't been changed"
+        )
+      }}
+  changed_when: has_changed
+  notify: reboot
+
+- name: Portage - Glibc
+  vars:
+    has_changed: "{{ 'sys-libs/glibc' in installed.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Glibc has been changed",
+          "Glibc hasn't been changed"
+        )
+      }}
+  changed_when: has_changed
+  notify: reload init system

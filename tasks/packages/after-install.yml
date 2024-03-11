@@ -1,0 +1,29 @@
+---
+- name: Packages - After install - Package manager based rules
+  vars:
+    task_file: "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}/after-install.yml"
+  when: task_file is file
+  ansible.builtin.include_tasks:
+    file: "{{ task_file }}"
+
+- name: Packages - After install - Distro family based rules
+  vars:
+    task_file: "{{ role_path }}/tasks/packages/{{ ansible_os_family | lower }}-like/after-install.yml"
+  when: task_file is file
+  ansible.builtin.include_tasks:
+    file: "{{ task_file }}"
+
+- name: Packages - Services - Show the list
+  ansible.builtin.debug:
+    var: system_services
+    verbosity: 1
+
+- name: Packages - Services
+  become: true
+  ansible.builtin.service:
+    name: "{{ service }}"
+    state: started
+    enabled: true
+  loop: "{{ system_services }}"
+  loop_control:
+    loop_var: service

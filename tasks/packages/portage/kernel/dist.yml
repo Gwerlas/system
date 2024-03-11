@@ -1,0 +1,42 @@
+---
+- name: Portage - Kernel - Dist kernel packages
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    package:
+      - sys-kernel/linux-firmware
+      - sys-kernel/{{ system_portage_kernel }}
+      - virtual/dist-kernel
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+  notify:
+    - grub-mkconfig
+    - reboot
+
+- name: Portage - Kernel - Symlink - List kernels
+  ansible.builtin.find:
+    path: /usr/src
+    pattern: linux-*
+    file_type: directory
+  register: result
+
+- name: Portage - Kernel - Symlink
+  become: true
+  when: result.matched > 0
+  vars:
+    latest: |-
+      {{
+        result.files |
+        map(attribute='path') |
+        community.general.version_sort |
+        last
+      }}
+  ansible.builtin.file:
+    src: "{{ latest }}"
+    dest: /usr/src/linux
+    state: link
+    follow: false
+    force: true
+  notify:
+    - emerge @module-rebuild

@@ -1,0 +1,29 @@
+---
+- name: Become root
+  become: true
+  block:
+    - name: Portage - PORTDIR - Not in make.conf
+      ansible.builtin.lineinfile:
+        path: /etc/portage/make.conf
+        regex: ^PORTDIR=
+        state: absent
+
+    - name: Portage - PORTDIR - Move old metadatas to the new location
+      when: initial_portdir | length > 0
+      ansible.builtin.command:
+        cmd: mv '{{ initial_portdir }}' '{{ system_portage_directory }}'
+      changed_when: true
+
+    - name: Portage - PORTDIR - Links
+      when: system_portage_directory != default_portdir
+      ansible.builtin.file:
+        src: "{{ system_portage_directory }}"
+        dest: "{{ default_portdir }}"
+        state: link
+        force: true
+        follow: false
+      loop:
+        - /usr/portage          # Default value before 2019-04-29
+        - /var/db/repos/gentoo  # Default value as of 2019-04-29 and later
+      loop_control:
+        loop_var: default_portdir

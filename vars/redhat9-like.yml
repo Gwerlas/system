@@ -11,3 +11,5 @@ masks:
 release_packages:
   gnome-console:
     - gnome-terminal
+  gnome-text-editor:
+    - gedit

@@ -1,0 +1,10 @@
+---
+- name: DNF - Distribution upgrade
+  become: true
+  ansible.builtin.dnf:
+    allowerasing: true
+    name: "*"
+    state: latest
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

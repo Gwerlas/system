@@ -1,0 +1,11 @@
+---
+- name: DNF - Repositories
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/yum/repositories.yml"
+
+- name: DNF - Enable repos for EPEL
+  become: true
+  when: system_el_epel or system_el_epel_next
+  community.general.dnf_config_manager:
+    name: "{{ dnf_epel_repo }}"
+    state: enabled

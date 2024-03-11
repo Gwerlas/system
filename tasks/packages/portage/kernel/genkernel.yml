@@ -1,0 +1,17 @@
+---
+- name: Portage - Kernel - Genkernel packages
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    package:
+      - sys-kernel/linux-firmware
+      - sys-kernel/{{ system_portage_kernel }}
+      - sys-kernel/genkernel
+      - virtual/linux-sources
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"
+  notify:
+    - genkernel
+    - grub-mkconfig
+    - reboot
