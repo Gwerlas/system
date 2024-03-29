@@ -1,6 +1,7 @@
 ---
 # Packages
 packages_add_by_name:
+  - dbus-user-session   # To be able to linger system users
   - locales
 
 family_packages:
