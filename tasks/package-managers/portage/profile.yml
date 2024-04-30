@@ -1,12 +1,25 @@
 ---
+- name: Portage - Profile - Check for profiles directory
+  ansible.builtin.stat:
+    path: "{{ system_portage_directory }}/profiles"
+  register: dir
+
+- name: Portage - Profile - Manual emerge sync
+  when: not dir.stat.exists
+  become: true
+  ansible.builtin.command:
+    cmd: emerge --sync
+  register: sync
+  changed_when: sync.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
+
 - name: Portage - Profile - Check for broken link
   ansible.builtin.stat:
     path: /etc/portage/make.profile
     follow: true
-  register: result
+  register: link
 
 - name: Portage - Profile - Force to default profile
-  when: not result.stat.exists
+  when: not link.stat.exists
   become: true
   ansible.builtin.file:
     src: |-

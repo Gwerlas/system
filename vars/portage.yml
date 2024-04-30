@@ -20,3 +20,4 @@ portage_features:
   # - "{{ packages_build | ternary('', 'binpkg-request-signature') }}"
   - "{{ packages_build | ternary('', 'getbinpkg') }}"
   - parallel-fetch
+  - "{{ in_container | ternary('-ipc-sandbox -mount-sandbox -network-sandbox -pid-sandbox', '') }}"

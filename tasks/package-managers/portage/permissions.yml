@@ -27,6 +27,7 @@
     - /etc/portage/package.use
     - /etc/portage/repos.conf
     - /etc/portage/savedconfig
+    - /var/cache/distfiles
     - "{{ system_portage_repos_directory }}"
   loop_control:
     loop_var: dir

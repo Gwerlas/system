@@ -74,20 +74,13 @@
   community.general.portage:
     package: '@module-rebuild'
 
-- name: Portage - Read make.conf
-  listen:
-    - grub-install
-  ansible.builtin.slurp:
-    src: /etc/portage/make.conf
-  register: result
-
 - name: Portage - Install Grub
   listen:
     - grub-install
   become: true
-  vars:
-    config: "{{ result.content | b64decode }}"
-    platform: "{{ config | regex_findall('(?<!#)GRUB_PLATFORMS=\"(.+)\"') | last | split(' ') | first }}"
   ansible.builtin.command:
-    cmd: grub-install --target={{ platform }}
+    cmd: >-
+      grub-install
+        --target={{ ansible_architecture }}-{{ system_boot_mode }}
+        {% if system_boot_mode == 'efi' %}--efi-directory={{ system_grub_efi_directory }}{% endif %}
   changed_when: true

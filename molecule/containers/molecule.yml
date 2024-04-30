@@ -9,10 +9,10 @@ platforms:
     pre_build_mage: true
     volumes: &volumes
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  # - name: gentoo
-  #   image: gwerlas/ansible-guest-gentoo
-  #   pre_build_mage: true
-  #   volumes: *volumes
+  - name: gentoo
+    image: gwerlas/ansible-guest-gentoo
+    pre_build_mage: true
+    volumes: *volumes
 
   # Debian like
   - name: debian10

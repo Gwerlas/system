@@ -104,25 +104,37 @@
 - name: Facts - Installed packages
   ansible.builtin.package_facts:
 
-- name: Facts - Autodetect installed kernel package
-  when:
-    - not in_container
-    - ansible_pkg_mgr == 'portage'
-    - system_portage_kernel == 'auto'
-  vars:
-    current_kernel: |
-      {{
-        ansible_facts.packages.values() |
-        flatten |
-        json_query("[?category=='sys-kernel' && (name.contains(@, '-kernel') || name.contains(@, '-sources'))]") |
-        last
-      }}
-  ansible.builtin.set_fact:
-    system_uptime: "{{ (ansible_date_time.epoch | int) - ansible_uptime_seconds }}"
-    system_portage_kernel: "{{ current_kernel.name }}"
-    system_portage_kernel_provider: |-
-      {{
-        current_kernel.name is match('.*-sources$') |
-        ternary('genkernel', 'dist')
-      }}
-    cacheable: true
+- name: Unconfined facts
+  when: not in_container
+  block:
+    - name: Facts - Stat /sys/firmware/efi
+      ansible.builtin.stat:
+        path: /sys/firmware/efi
+      register: result
+
+    - name: Facts - Autodetections
+      ansible.builtin.set_fact:
+        system_uptime: "{{ (ansible_date_time.epoch | int) - ansible_uptime_seconds }}"
+        system_boot_mode: "{{ result.stat.exists | ternary('efi', 'pc') }}"
+        cacheable: true
+
+    - name: Facts - Autodetect installed kernel package
+      when:
+        - ansible_pkg_mgr == 'portage'
+        - system_portage_kernel == 'auto'
+      vars:
+        current_kernel: |
+          {{
+            ansible_facts.packages.values() |
+            flatten |
+            json_query("[?category=='sys-kernel' && (name.contains(@, '-kernel') || name.contains(@, '-sources'))]") |
+            last
+          }}
+      ansible.builtin.set_fact:
+        system_portage_kernel: "{{ current_kernel.name }}"
+        system_portage_kernel_provider: |-
+          {{
+            current_kernel.name is match('.*-sources$') |
+            ternary('genkernel', 'dist')
+          }}
+        cacheable: true
