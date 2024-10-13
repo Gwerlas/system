@@ -21,8 +21,6 @@ galaxy_info:
         - bookworm
     - name: EL
       versions:
-        - "7"
-        - "8"
         - "9"
     - name: Fedora
       versions:

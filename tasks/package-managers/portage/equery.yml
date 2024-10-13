@@ -4,12 +4,20 @@
     path: /usr/bin/equery
   register: bin
 
-- name: Portage - Equery - Manual installation
+- name: Portage - Equery - Installation
   when: not bin.stat.exists
   become: true
-  environment:
-    PYTHON_TARGETS: "{{ system_portage_python_single_target }}"
-  ansible.builtin.command:
-    cmd: emerge app-portage/gentoolkit
-  register: result
-  changed_when: result.stdout | regex_findall('>>> Installing') | length > 0
+  block:
+    - name: Portage - Equery - Manual installation
+      ansible.builtin.command:
+        cmd: emerge app-portage/gentoolkit
+      register: result
+      changed_when: result.stdout | regex_findall('>>> Installing') | length > 0
+  rescue:
+    - name: Portage - Equery - Manual installation forcing PYTHON_TARGETS
+      environment:
+        PYTHON_TARGETS: "{{ system_portage_python_single_target }}"
+      ansible.builtin.command:
+        cmd: emerge app-portage/gentoolkit
+      register: result
+      changed_when: result.stdout | regex_findall('>>> Installing') | length > 0

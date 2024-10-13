@@ -30,34 +30,26 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
 
   # Debian like
-  - name: debian10
-    box: debian/buster64
-    provider_raw_config_args: *raw_config
-  - name: debian11
+  - name: bullseye  # EOL 2026-08-31
     box: debian/bullseye64
     provider_raw_config_args: *raw_config
-  - name: debian12
+  - name: bookworm
     box: debian/bookworm64
     provider_raw_config_args: *raw_config
-  - name: ubuntu1804
-    box: generic/ubuntu1804
+  - name: trixie
+    box: debian/testing64
     provider_raw_config_args: *raw_config
-  - name: ubuntu2004
+  - name: focal  # EOL 2025-04-02
     box: generic/ubuntu2004
     memory: 2048
     provider_raw_config_args: *raw_config
-  - name: ubuntu2204
+  - name: jammy
     box: generic/ubuntu2204
     memory: 2048
     provider_raw_config_args: *raw_config
-  - name: ubuntu2310
-    box: generic/ubuntu2310
+  - name: noble
+    box: generic/ubuntu2404
     memory: 2048
-    provider_raw_config_args: *raw_config
-
-  # RedHat like
-  - name: centos7
-    box: centos/7
     provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:

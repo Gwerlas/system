@@ -15,54 +15,46 @@ platforms:
     volumes: *volumes
 
   # Debian like
-  - name: debian10
-    image: gwerlas/ansible-guest-debian:buster
-    pre_build_mage: true
-    volumes: *volumes
-  - name: debian11
+  - name: bullseye
     image: gwerlas/ansible-guest-debian:bullseye
     pre_build_mage: true
     volumes: *volumes
-  - name: debian12
+  - name: bookworm
     image: gwerlas/ansible-guest-debian:bookworm
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu1804
-    image: gwerlas/ansible-guest-ubuntu:18.04
+  - name: trixie
+    image: gwerlas/ansible-guest-debian:trixie
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu2004
+  - name: focal
     image: gwerlas/ansible-guest-ubuntu:20.04
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu2204
+  - name: jammy
     image: gwerlas/ansible-guest-ubuntu:22.04
     pre_build_mage: true
     volumes: *volumes
-  - name: ubuntu2310
-    image: gwerlas/ansible-guest-ubuntu:23.10
+  - name: noble
+    image: gwerlas/ansible-guest-ubuntu:24.04
     pre_build_mage: true
     volumes: *volumes
 
   # RedHat like
-  - name: centos7
-    image: gwerlas/ansible-guest-centos:7
-    pre_build_mage: true
-    volumes: *volumes
-  - name: centos8s
-    image: gwerlas/ansible-guest-centos:stream8
-    pre_build_mage: true
-    volumes: *volumes
   - name: centos9s
     image: gwerlas/ansible-guest-centos:stream9
     pre_build_mage: true
     volumes: *volumes
-  - name: alma8
-    image: gwerlas/ansible-guest-almalinux:8
-    pre_build_mage: true
-    volumes: *volumes
   - name: alma9
     image: gwerlas/ansible-guest-almalinux:9
+    pre_build_mage: true
+    volumes: *volumes
+  - name: fedora39
+    image: gwerlas/ansible-guest-fedora:39
+    pre_build_mage: true
+    volumes: *volumes
+  - name: fedora40
+    image: gwerlas/ansible-guest-fedora:40
     pre_build_mage: true
     volumes: *volumes
 lint: ansible-lint

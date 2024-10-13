@@ -1,4 +1,9 @@
 ---
+- name: Storages - Load facts
+  when: system_mounts is undefined
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/facts.yml"
+
 - name: Storages
   become: true
   block:

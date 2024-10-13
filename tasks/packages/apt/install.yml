@@ -1,9 +1,28 @@
 ---
 - name: APT - Install
   become: true
+  environment:
+    LANGUAGE: en_US
   ansible.builtin.apt:
     autoremove: true
     name: "{{ system_packages }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
+
+- name: APT - Change the version of Python
+  vars:
+    versions: |
+      {{
+        result.stdout |
+        regex_search(
+          'Unpacking python3 \(3\.([0-9]+).*\) over \(3\.([0-9]+).*\)',
+          '\1',
+          '\2'
+        )
+      }}
+  when:
+    - versions | type_debug == "list"
+    - (versions[0] | int) > (versions[1] | int)
+  ansible.builtin.set_fact:
+    ansible_python_interpreter: /usr/bin/python3.{{ versions[0] }}
