@@ -531,7 +531,6 @@ through this role, You have to do it yourself.
 Supported package managers at this time :
 
 - `apt` (Debian like)
-- `dnf` (RedHat like version 8 or upper)
 
 Static package lists
 --------------------
