@@ -1,3 +1,5 @@
 ---
+system_el_epel: true
+
 system_packages_add_by_name:
   - wget

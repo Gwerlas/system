@@ -115,8 +115,13 @@
         cmd: loginctl user-status my_service
       register: result
       failed_when: |
-        (result.rc > 0) or
-        (not 'Linger: yes' in result.stdout)
+        result.rc > 0
+        or
+        (
+          not 'Linger: yes' in result.stdout
+          and
+          not 'State: lingering' in result.stdout
+        )
       changed_when: false
 
     - name: Load CA variables
@@ -129,56 +134,56 @@
           paths:
             - vars
 
-    - name: Get cert headers
+    - name: Check Gwerlas CA
       ansible.builtin.command:
         cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ ca_certificates.bundle }}"
       changed_when: false
       register: result
+      failed_when: |
+        result.rc > 0
+        or
+        not 'GWERLAS CA' in result.stdout
 
-    - name: Check Gwerlas CA
-      ansible.builtin.assert:
-        that:
-          - "'GWERLAS CA' in result.stdout"
-
-    - name: Time synchronisation
+    - name: Check that timedatectl is synchronized
       when: ansible_service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: timedatectl
       register: result
       failed_when: |
-        (result.rc > 0) or
-        (not 'synchronized: yes' in result.stdout)
+        result.rc > 0
+        or
+        not 'synchronized: yes' in result.stdout
       changed_when: false
 
-    - name: Time synchronisation
+    - name: Check that chronyc is synchronized
       when: ansible_service_mgr == 'openrc'
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
 
-    - name: Backups directory stats
+    - name: Check backup storage mount
       ansible.builtin.stat:
         path: /var/backups
       register: bkpdir
+      failed_when: |
+        not '/var/backups' in (ansible_mounts | map(attribute='mount'))
+        or
+        not bkpdir.stat.pw_name == 'vagrant'
+        or
+        not bkpdir.stat.wgrp
 
-    - name: Backups storage
-      ansible.builtin.assert:
-        that:
-          - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
-          - bkpdir.stat.pw_name == 'vagrant'
-          - bkpdir.stat.wgrp
-
-    - name: Last network interface    # noqa risky-shell-pipe - pipefail is not supported by sh
+    - name: Check private network    # noqa risky-shell-pipe - pipefail is not supported by sh
+      environment:
+        PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
       ansible.builtin.shell:
         cmd: |
           ip -o -f inet addr show | tail -n 1
       register: result
       changed_when: false
-
-    - name: Private network
-      ansible.builtin.assert:
-        that:
-          - "'brd 192.168.250.255' in result.stdout"
+      failed_when: |
+        result.rc > 0
+        or
+        not 'brd 192.168.250.255' in result.stdout
 
 - name: Check EPEL
   hosts: redhat_like
