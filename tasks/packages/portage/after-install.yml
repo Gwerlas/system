@@ -111,8 +111,8 @@
         msg: |-
           {{
             has_changed | ternary(
-              "Grub has been changed",
-              "Grub hasn't been changed"
+              "Grub has changed",
+              "Grub hasn't changed"
             )
           }}
       changed_when: has_changed
@@ -125,8 +125,8 @@
         msg: |-
           {{
             has_changed | ternary(
-              ansible_service_mgr + " has been changed",
-              ansible_service_mgr + " hasn't been changed"
+              ansible_service_mgr + " has changed",
+              ansible_service_mgr + " hasn't changed"
             )
           }}
       changed_when: has_changed
@@ -139,8 +139,8 @@
         msg: |-
           {{
             has_changed | ternary(
-              "Glibc has been changed",
-              "Glibc hasn't been changed"
+              "Glibc has changed",
+              "Glibc hasn't changed"
             )
           }}
       changed_when: has_changed

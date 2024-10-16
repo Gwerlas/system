@@ -1,8 +1,0 @@
----
-- name: YUM - Repositories
-  become: true
-  ansible.builtin.template:
-    src: yum.repos.d/item.repo.j2
-    dest: /etc/yum.repos.d/{{ item.name }}.repo
-    mode: "0644"
-  loop: "{{ system_el_repos }}"

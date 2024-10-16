@@ -1,5 +1,0 @@
----
-- name: Packages - YUM - Auto remove
-  become: true
-  ansible.builtin.yum:
-    autoremove: true

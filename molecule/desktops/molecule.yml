@@ -60,7 +60,7 @@ platforms:
   - name: fedora40
     box: fedora/40-cloud-base
     memory: 2048
-    provider_raw_config_args: *raw_config
+    provider_raw_config_args: *provider
 lint: ansible-lint
 provisioner:
   name: ansible
