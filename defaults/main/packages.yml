@@ -46,8 +46,8 @@ system_portage_python_single_target: python{{ ansible_python.version.major }}_{{
 #   - python3_10
 #   - python3_11
 system_portage_ruby_targets:
-  - ruby31
   - ruby32
+  - ruby33
 
 system_portage_repos_directory: /var/db/repos
 system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_distribution | lower }}"
