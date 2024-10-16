@@ -1,11 +1,11 @@
 ---
 system_networks_interfaces:
-  - name: eth0
+  - name: ens6
     description: Public network
     bootproto: dhcp
-  - name: eth1
+  - name: ens7
     description: Private network
     bootproto: static
-    ip: 192.168.250.42/24
+    ip: 192.168.250.51/24
     routes:
       - network: 192.168.250.0/24

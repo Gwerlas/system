@@ -1,5 +1,5 @@
 ---
-system_manage_hosts: "{{ system_hosts | length > 0 }}"
+system_manage_hosts: "{{ not in_container }}"
 system_manage_firewall: "{{ not in_container }}"
 system_manage_networks: "{{ system_networks_interfaces | length > 0 }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"

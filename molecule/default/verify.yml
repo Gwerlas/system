@@ -7,6 +7,12 @@
         src: verify.yml
         dest: /tmp/verify.yml
 
+    - name: Check host FQDN
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - ansible_fqdn == inventory_hostname + '.localdomain'
+
     - name: System tools
       ansible.builtin.command:
         cmd: "{{ command }}"

@@ -21,6 +21,12 @@ Install and configure :
 
 If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
 
+Some tests use a web proxy, if you don't have one, install
+Squid locally with at least :
+
+- localnet allowed
+- 3128/tcp port granted to the libvirt zone
+
 Run tests
 ---------
 

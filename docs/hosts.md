@@ -8,10 +8,11 @@ Variables
 
 ### Feature flipping
 
-By default, hosts names management is enabled only if the `system_hosts` is filled.
+By default, hosts names management is disabled in a container to prevent
+conflicts with the engine.
 
 ```yaml
-system_manage_hosts: "{{ system_hosts | length > 0 }}"
+system_manage_hosts: "{{ not in_container }}"
 ```
 
 You can force enabling or disabling it defining the `system_manage_hosts` to `true` or `false`.

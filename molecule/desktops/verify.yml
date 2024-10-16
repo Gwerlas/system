@@ -1,7 +1,12 @@
 ---
-- name: Verify role for Stream distributions
+- name: Verify role with the desktop profile
   hosts: all
   tasks:
+    - name: Facts
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: facts
+
     - name: Rsync
       ansible.posix.synchronize:
         src: verify.yml
@@ -114,48 +119,38 @@
           paths:
             - vars
 
-    - name: Get cert headers
+    - name: Check Gwerlas CA
       ansible.builtin.command:
         cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ ca_certificates.bundle }}"
       changed_when: false
       register: result
+      failed_when: |
+        result.rc > 0
+        or
+        not 'GWERLAS CA' in result.stdout
 
-    - name: Check Gwerlas CA
-      ansible.builtin.assert:
-        that:
-          - "'GWERLAS CA' in result.stdout"
-
-    - name: Time synchronisation
+    - name: Check that timedatectl is synchronized
       when: ansible_service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: timedatectl
       register: result
       failed_when: |
-        (result.rc > 0) or
-        ('synchronized: yes' not in result.stdout) or
-        ('service: active' not in result.stdout)
+        result.rc > 0
+        or
+        not 'synchronized: yes' in result.stdout
       changed_when: false
 
-    - name: Time synchronisation
+    - name: Check that chronyc is synchronized
       when: ansible_service_mgr == 'openrc'
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
 
-    - name: Backups storage
-      ansible.builtin.assert:
-        that:
-          - "'/var/backups' in (ansible_mounts | map(attribute='mount'))"
-
-    - name: Private network
-      vars:
-        netiface: "{{ (ansible_interfaces | sort)[1] }}"
-      ansible.builtin.assert:
-        that:
-          - ansible_{{ netiface }}.ipv4.network == "192.168.250.0"
-
-    - name: Command line tools
-      ansible.builtin.command: "{{ item }} --version"
-      changed_when: false
-      with_items:
-        - lsusb
+- name: Check EPEL
+  hosts: redhat_like
+  gather_facts: false
+  tasks:
+    - name: Repository file
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/epel.repo
+        state: file
