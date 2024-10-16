@@ -1,6 +1,11 @@
 Development guide
 =================
 
+| **Important**
+|
+| The GitHub repository exist only because Ansible Galaxy support only GitHub.
+| Please, do your merge requests on [Gitlab][].
+
 Requirements
 ------------
 
@@ -15,8 +20,6 @@ Install and configure :
 * molecule-plugins
 
 If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
-
-[blog post]: https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/
 
 Run tests
 ---------
@@ -70,4 +73,8 @@ molecule verify
 Submit your changes
 -------------------
 
-Merge request in Gitlab.
+Merge request in [Gitlab][].
+
+<!-- Links section -->
+[blog post]: https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/
+[Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
