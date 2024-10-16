@@ -1,2 +1,2 @@
 ---
-system_grub_efi_directory: /boot
+system_grub_efi_directory: /efi
