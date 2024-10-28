@@ -23,6 +23,7 @@
     - reboot
   become: true
   ansible.builtin.reboot:
+    reboot_timeout: "{{ system_reboot_timeout }}"
     msg: Reboot initiated by gwerlas.system Ansible role
 
 - name: Gather facts to update networks informations
