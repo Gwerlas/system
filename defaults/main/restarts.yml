@@ -1,2 +1,2 @@
 ---
-system_restart_timeout: 600
+system_reboot_timeout: 600
