@@ -14,19 +14,37 @@
           - base-devel
           - fakeroot
           - git
+          - go
           - make
 
-    - name: Pacman - Yay - Clone from github
-      ansible.builtin.git:
-        repo: https://aur.archlinux.org/yay.git
-        dest: /tmp/yay
-        version: "{{ system_yay_version | default(omit) }}"
+    - name: Pacman - Yay - Temporary user for building sources securely
+      when: ansible_user_id == 'root'
+      ansible.builtin.user:
+        name: build_user
+        group: users
 
-    - name: Pacman - Yay - Build
-      ansible.builtin.command:
-        cmd: makepkg --noconfirm -si
-        chdir: /tmp/yay
-        creates: /usr/bin/yay
+    - name: Pacman - Yay - Build from sources
+      become: "{{ ansible_user_id == 'root' }}"
+      become_user: build_user
+      block:
+        - name: Pacman - Yay - Clone from github
+          ansible.builtin.git:
+            repo: https://aur.archlinux.org/yay.git
+            dest: /tmp/yay
+            version: "{{ system_yay_version | default(omit) }}"
+
+        - name: Pacman - Yay - Build
+          ansible.builtin.command:
+            cmd: makepkg --noconfirm -si
+            chdir: /tmp/yay
+            creates: /usr/bin/yay
+
+    - name: Pacman - Yay - Remove the temporary user
+      when: ansible_user_id == 'root'
+      ansible.builtin.user:
+        name: build_user
+        state: absent
+        remove: true
 
 - name: Pacman - Yay - Ansible module
   become: true
