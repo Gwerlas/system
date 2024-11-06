@@ -28,7 +28,7 @@ platforms:
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "rm /etc/yum.repos.d/*.repo"'
   - name: gentoo
-    box: generic/gentoo
+    box: generic-x64/gentoo
     cpus: 4
     memory: 8192
     provider_raw_config_args:

@@ -19,7 +19,7 @@ platforms:
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
   - name: gentoo
-    box: generic/gentoo
+    box: generic-x64/gentoo
     cpus: 4
     memory: 8192
     provider_raw_config_args:
@@ -72,13 +72,13 @@ platforms:
 
   # RedHat like
   - name: centos9s
-    box: centos/stream9
+    box: generic-x64/centos9s
     groups:
       - redhat_like
     memory: 2048
     provider_raw_config_args: *raw_config
   - name: alma9
-    box: almalinux/9
+    box: generic-x64/alma9
     groups:
       - redhat_like
     memory: 2048

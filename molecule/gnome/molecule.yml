@@ -20,7 +20,7 @@ platforms:
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
   - name: gentoo
-    box: generic/gentoo
+    box: generic-x64/gentoo
     cpus: 4
     memory: 8192
     provider_raw_config_args:

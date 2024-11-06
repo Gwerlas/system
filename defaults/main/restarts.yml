@@ -1,2 +1,7 @@
 ---
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html#parameter-reboot_timeout
+#
+# Maximum seconds to wait for machine to reboot and respond to a test command.
+#
+# This timeout is evaluated separately for both reboot verification and test command success so the maximum execution time for the module is twice this amount.
 system_reboot_timeout: 600
