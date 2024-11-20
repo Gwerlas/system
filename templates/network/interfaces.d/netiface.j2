@@ -15,7 +15,6 @@ iface {{ netiface.name }} inet {{ bootproto }}
 {% if netiface.gateway is defined %}
     gateway {{ netiface.gateway | ansible.utils.ipaddr('address') }}
 {% endif %}
-{% endif %}
 {% if netiface.options is defined %}
 {% for option in netiface.options %}
     {{ option }}
@@ -26,4 +25,5 @@ iface {{ netiface.name }} inet {{ bootproto }}
 {% for route in netiface.routes %}
     up ip route add {{ route.network }}{% if route.gateway is defined %} via {{ route.gateway | ansible.utils.ipaddr('address') }}{% endif %} dev {{ netiface.name }}
 {% endfor %}
+{% endif %}
 {% endif %}
