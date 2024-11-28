@@ -1,7 +1,7 @@
 ---
 - name: CA - Load variables
   when: system_packages is undefined
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: CA - Certificates - Store directory
   become: true
