@@ -1,11 +1,11 @@
 ---
 - name: Load variables
   when: system_shells is undefined
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/facts.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: ZSH
   when: "'zsh' in system_shells"
-  ansible.builtin.import_tasks: "{{ role_path }}/tasks/users/zsh.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/zsh.yml"
 
 - name: Users and groups management
   become: true

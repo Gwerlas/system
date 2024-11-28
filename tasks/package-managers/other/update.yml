@@ -1,6 +1,6 @@
 ---
 - name: Package managers - Needs update
-  ansible.builtin.import_tasks:
+  ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/package-managers/needs-update.yml"
 
 - name: Package managers - Cache update

@@ -9,7 +9,7 @@
 - name: Packages - Before install - Services
   when: not in_container
   block:
-    - name: Packages - Before install - Get services gacts
+    - name: Packages - Before install - Get services facts
       ansible.builtin.service_facts:
 
     - name: Packages - Before install - Stop anoying services
