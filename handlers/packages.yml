@@ -1,11 +1,11 @@
 ---
 - name: APT
   when: ansible_pkg_mgr == 'apt'
-  ansible.builtin.include_tasks: "{{ role_path }}/handlers/apt.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/apt.yml"
 
 - name: Portage
   when: ansible_pkg_mgr == 'portage'
-  ansible.builtin.include_tasks: "{{ role_path }}/handlers/portage.yml"
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/portage.yml"
 
 - name: Restart the Display Manager
   listen:
