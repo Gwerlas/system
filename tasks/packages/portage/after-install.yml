@@ -94,6 +94,7 @@
       ansible.builtin.command:
         cmd: "awk -F ':  [=>:]{3} ' '/completed emerge/ { if ($1 >= {{ system_uptime }}) { print $2 } }' /var/log/emerge.log"
       changed_when: false
+      check_mode: false
       register: installed
 
     # If cpuid2cpuflags has been updated, its output may change now so we have to

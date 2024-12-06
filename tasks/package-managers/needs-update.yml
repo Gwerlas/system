@@ -12,6 +12,7 @@
   register: result
   failed_when: result.rc > 1
   changed_when: false
+  check_mode: false
 
 - name: Package managers - Set fact
   ansible.builtin.set_fact:

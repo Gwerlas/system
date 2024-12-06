@@ -21,6 +21,7 @@
         cmd: cpuid2cpuflags
       register: cpuid2cpuflags
       changed_when: false
+      check_mode: false
 
     - name: Portage - make.conf - Hardware support
       become: true
@@ -62,6 +63,7 @@
   ansible.builtin.command:
     cmd: equery -q list -F '$slot' dev-lang/python
   changed_when: false
+  check_mode: false
   register: equery
 
 - name: Portage - make.conf - Common settings

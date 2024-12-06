@@ -7,6 +7,7 @@
         cmd: grep '\<{{ ansible_distribution_release | lower }}-backports\>' /etc/apt/sources.list /etc/apt/sources.list.d/*
       failed_when: false
       changed_when: false
+      check_mode: false
       register: result
 
     - name: APT - Backports - Pinning
