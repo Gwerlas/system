@@ -4,6 +4,12 @@ ca_certificates:
   path: /etc/ca-certificates/trust-source/anchors
   command: update-ca-trust
 
+# Packages
+family_packages:
+  gnome:
+    - gnome
+    - gnome-control-center
+
 masks:
   packages:
     - systemd-timesyncd
