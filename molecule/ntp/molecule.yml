@@ -18,16 +18,17 @@ platforms:
       - "storage :file, bus: 'virtio', cache: 'writeback'"
     instance_raw_config_args:
       - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
-  - name: gentoo
-    box: generic-x64/gentoo
-    cpus: 4
-    memory: 8192
-    provider_raw_config_args:
-      - "cpu_mode = 'host-passthrough'"
-      - "nic_model_type = 'virtio'"
-      - "video_type = 'virtio'"
-      - "disk_driver :cache => 'writeback'"
-      - "storage :file, bus: 'virtio', cache: 'writeback'"
+  # Very very long build due to old box
+  # - name: gentoo
+  #   box: generic-x64/gentoo
+  #   cpus: 4
+  #   memory: 8192
+  #   provider_raw_config_args:
+  #     - "cpu_mode = 'host-passthrough'"
+  #     - "nic_model_type = 'virtio'"
+  #     - "video_type = 'virtio'"
+  #     - "disk_driver :cache => 'writeback'"
+  #     - "storage :file, bus: 'virtio', cache: 'writeback'"
 
   # Debian like
   - name: bullseye  # EOL 2026-08-31
@@ -47,10 +48,11 @@ platforms:
     box: generic/ubuntu2204
     memory: 2048
     provider_raw_config_args: *raw_config
-  - name: noble
-    box: generic/ubuntu2404
-    memory: 2048
-    provider_raw_config_args: *raw_config
+  # Commented temporarily due to broken box
+  # - name: noble
+  #   box: generic/ubuntu2404
+  #   memory: 2048
+  #   provider_raw_config_args: *raw_config
 lint: ansible-lint
 provisioner:
   name: ansible

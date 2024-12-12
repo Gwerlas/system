@@ -117,7 +117,7 @@
       notify: emerge --newuse
 
     - name: Packages - make.conf - Gnome
-      when: "'gnome' in current_profiles_keys"
+      when: "'gnome' in current_profiles"
       ansible.builtin.lineinfile:
         path: /etc/conf.d/display-manager
         line: DISPLAYMANAGER="gdm"

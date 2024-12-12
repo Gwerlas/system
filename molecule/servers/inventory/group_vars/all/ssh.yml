@@ -1,0 +1,4 @@
+---
+system_sshd_config:
+  PubkeyAuthentication: true
+  X11Forwarding: false

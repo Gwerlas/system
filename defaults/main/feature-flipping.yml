@@ -3,7 +3,6 @@ system_manage_hosts: "{{ not in_container }}"
 system_manage_firewall: "{{ not in_container }}"
 system_manage_networks: "{{ system_networks_interfaces | length > 0 }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
-system_manage_sudo: "{{ not in_container }}"
 system_manage_time: "{{ not in_container }}"
 system_manage_storages: |
   {{
@@ -13,4 +12,8 @@ system_manage_storages: |
       system_storages_lvol
     ) | length > 0
   }}
-system_manage_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
+system_manage_lvm: "{{ system_manage_storages and system_storages_vg | length > 0 }}"
+
+# Access
+system_manage_sshd: "{{ not in_container and system_sshd_config | length > 0 }}"
+system_manage_sudo: "{{ not in_container }}"

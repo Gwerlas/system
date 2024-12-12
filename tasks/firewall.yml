@@ -4,7 +4,7 @@
   block:
     - name: Firewall - Service
       ansible.builtin.service:
-        name: firewalld{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+        name: "{{ lookup('service', 'firewalld') }}"
         state: started
         enabled: true
 

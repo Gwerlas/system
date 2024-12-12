@@ -83,6 +83,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 * [ca][]
 * [time][]
 * [firewall][]
+* [remote-access][]
 
 [facts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/facts.md
 [proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
@@ -96,6 +97,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 [ca]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/ca.md
 [time]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/time.md
 [firewall]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/firewall.md
+[remote-access]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/remote-access.md
 
 Role Variables
 --------------

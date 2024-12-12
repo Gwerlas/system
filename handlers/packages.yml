@@ -10,10 +10,9 @@
 - name: Restart the Display Manager
   listen:
     - restart display-manager
-  when: ansible_service_mgr == "openrc"
   become: true
   ansible.builtin.service:
-    name: display-manager
+    name: "{{ lookup('service', 'gdm') }}"
     state: restarted
 
 - name: Update Grub configuration

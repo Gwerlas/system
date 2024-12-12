@@ -3,3 +3,7 @@
 distro_packages:
   firefox:
     - firefox-esr
+
+services_map:
+  chronyd: chrony
+  ntpd: ntp

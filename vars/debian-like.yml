@@ -11,17 +11,6 @@ family_packages:
     - apt-listchanges
     - unattended-upgrades
 
-# Services
-family_services:
-  chronyd:
-    - chrony
-  chronyd.service:
-    - chrony.service
-  ntpd:
-    - ntp
-  ntpd.service:
-    - ntp.service
-
 # Networks
 default_network_backend_name: ifupdown
 
