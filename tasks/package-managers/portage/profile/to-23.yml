@@ -1,0 +1,100 @@
+---
+# https://www.gentoo.org/support/news-items/2024-03-22-new-23-profiles.html
+
+- name: Portage - Profile - Become root
+  become: true
+  block:
+    - name: Portage - Profile - To 23 - Sync
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/package-managers/portage/update.yml"
+
+    - name: Portage - Profile - To 23 - Upgrade preparation
+      community.general.portage:
+        deep: true
+        newuse: true
+        update: true
+        package:
+          - sys-devel/gcc
+          - sys-libs/glibc
+        oneshot: true
+      register: result
+      until: result.failed == false
+      retries: "{{ system_retries }}"
+
+    - name: Portage - Profile - To 23 - System upgrade
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/packages/portage/dist-upgrade.yml"
+
+    - name: Portage - Profile - To 23 - Remove CHOST entries
+      ansible.builtin.lineinfile:
+        path: /etc/portage/make.conf
+        regexp: ^CHOST
+        state: absent
+
+    - name: Portage - Profile - To 23 - Switch to the new profile
+      ansible.builtin.file:
+        src: |-
+          {{
+            '../..' + system_portage_directory +
+            '/profiles/default/linux/amd64/23.0' +
+            ('/split-usr' if ansible_service_mgr == 'openrc' else '') +
+            '/no-multilib' +
+            ('/systemd' if ansible_service_mgr == 'systemd' else '')
+          }}
+        dest: /etc/portage/make.profile
+        state: link
+        force: true
+        follow: false
+      notify:
+        - emerge --newuse
+
+    - name: Portage - Profile - To 23 - Remove binpkgs cache
+      ansible.builtin.file:
+        path: /var/cache/binpkgs
+        state: absent
+
+    - name: Portage - Profile - To 23 - Find binrepos.conf
+      ansible.builtin.find:
+        paths:
+          - /etc/portage/binrepos.conf
+        file_type: file
+      register: binrepos
+
+    - name: Portage - Profile - To 23 - Update URIs
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: "{{ portage_profile_version | regex_escape }}"
+        replace: "23.0"
+      loop: "{{ binrepos.files | map(attribute='path') }}"
+
+    - name: Portage - Profile - To 23 - Rebuild/reinstall sensitive packages
+      community.general.portage:
+        name: "{{ item }}"
+        nodeps: true    # Prevent gcc rebuilding glibc as a dependency which may cause breackages
+        noreplace: false
+        oneshot: true
+      register: result
+      until: result.failed == false
+      retries: "{{ system_retries }}"
+      loop:
+        - sys-devel/binutils
+        - sys-devel/gcc
+        - dev-build/libtool
+
+    - name: Portage - Profile - To 23 - Remove binpkgs cache
+      ansible.builtin.file:
+        path: /var/cache/binpkgs
+        state: absent
+
+    - name: Portage - Profile - To 23 - Environment update
+      ansible.builtin.command:
+        cmd: env-update
+      changed_when: false
+
+    - name: Portage - Profile - To 23 - Rebuild/reinstall world
+      ansible.builtin.command:
+        cmd: emerge --emptytree @world
+      register: result
+      until: result.failed == false
+      retries: "{{ system_retries }}"
+      changed_when: true

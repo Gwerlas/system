@@ -1,11 +1,17 @@
 ---
-- name: Portage
+- name: Portage - Become root
   become: true
-  community.general.portage:
-    deep: true
-    newuse: true
-    update: true
-    package: '@world'
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
+  block:
+    - name: Portage - Distribution upgrade
+      community.general.portage:
+        deep: true
+        newuse: true
+        update: true
+        package: '@world'
+      register: result
+      until: result.failed == false
+      retries: "{{ system_retries }}"
+
+    - name: Portage - Dependency cleaning
+      community.general.portage:
+        depclean: true

@@ -7,7 +7,7 @@
   when: system_cache_needs_update
   become: true
   community.general.portage:
-    sync: true
+    sync: "{{ 'web' if system_manage_proxies else true }}"
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"

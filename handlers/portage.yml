@@ -74,13 +74,30 @@
   community.general.portage:
     package: '@module-rebuild'
 
+- name: Portage - Detect root filesystem
+  listen:
+    - grub-install
+  become: true
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      lsblk -oMOUNTPOINT,PKNAME -rn | awk '$1 ~ /^\/$/ { print $2 }'
+    executable: /bin/bash
+  changed_when: false
+  register: result
+
 - name: Portage - Install Grub
   listen:
     - grub-install
   become: true
-  ansible.builtin.command:
-    cmd: >-
-      grub-install
+  vars:
+    arguments: >-
+      {% if system_boot_mode == 'efi' %}
         --target={{ ansible_architecture }}-{{ system_boot_mode }}
-        {% if system_boot_mode == 'efi' %}--efi-directory={{ system_grub_efi_directory }}{% endif %}
+        --efi-directory={{ system_grub_efi_directory }}
+      {% else %}
+        /dev/{{ result.stdout }}
+      {% endif %}
+  ansible.builtin.command:
+    cmd: grub-install {{ arguments }}
   changed_when: true

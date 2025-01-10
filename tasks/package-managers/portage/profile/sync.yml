@@ -1,0 +1,13 @@
+---
+- name: Portage - Profile - Sync - Check for profiles directory
+  ansible.builtin.stat:
+    path: "{{ system_portage_directory }}/profiles"
+  register: dir
+
+- name: Portage - Profile - Sync - Manual emerge --sync
+  when: not dir.stat.exists
+  become: true
+  ansible.builtin.command:
+    cmd: emerge --sync
+  register: sync
+  changed_when: sync.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1

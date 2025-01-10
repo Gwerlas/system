@@ -388,7 +388,7 @@ documentation. For example :
 system_portage_binrepos:
   - name: binhost
     priority: 9999
-    sync-uri: https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/17.1/x86-64/
+    sync-uri: https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/23.0/x86-64/
 ```
 
 Will generate the `/etc/portage/binrepos.conf/binhost.conf` file as is :
@@ -396,7 +396,7 @@ Will generate the `/etc/portage/binrepos.conf/binhost.conf` file as is :
 ```ini
 [binhost]
 priority = 9999
-sync-uri = https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/17.1/x86-64/
+sync-uri = https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/23.0/x86-64/
 ```
 
 [binrepos.conf]: https://wiki.gentoo.org/wiki//etc/portage/binrepos.conf

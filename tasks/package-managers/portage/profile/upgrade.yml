@@ -1,0 +1,5 @@
+---
+- name: Portage - Force the upgrade to the profile v23.0
+  when: portage_profile_version is version('23.0', '<')
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/portage/profile/to-23.yml"

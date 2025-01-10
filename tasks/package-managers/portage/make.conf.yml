@@ -1,13 +1,4 @@
 ---
-- name: Portage - Equery
-  ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/package-managers/portage/equery.yml"
-
-- name: Portage - make.conf - Git package
-  become: true
-  community.general.portage:
-    package: dev-vcs/git
-
 - name: Hardware support
   when: not in_container
   block:
@@ -104,3 +95,35 @@
     - key: RUBY_TARGETS
       value: "{{ system_portage_ruby_targets | join(' ') }}"
   notify: emerge --newuse
+
+- name: Become root
+  become: true
+  block:
+    - name: Portage - make.conf - Configuration files
+      ansible.builtin.template:
+        src: portage/{{ file }}.j2
+        dest: /etc/portage/{{ file }}
+        group: portage
+        mode: "0664"
+      loop:
+        - package.license/kernels
+        - package.mask/python
+        - package.use/firewalld
+        - package.use/kernel
+        - package.use/libreoffice
+        - package.use/lvm2
+      loop_control:
+        loop_var: file
+      notify: emerge --newuse
+
+    - name: Packages - make.conf - Gnome
+      when: "'gnome' in current_profiles_keys"
+      ansible.builtin.lineinfile:
+        path: /etc/conf.d/display-manager
+        line: DISPLAYMANAGER="gdm"
+        regexp: ^DISPLAYMANAGER=
+        create: true
+        group: portage
+        mode: "0664"
+      notify:
+        - restart display-manager

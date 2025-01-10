@@ -1,0 +1,26 @@
+---
+- name: Portage - Profile - Link - Check for broken link
+  ansible.builtin.stat:
+    path: /etc/portage/make.profile
+    follow: true
+  register: link
+
+- name: Portage - Profile - Link - Force to default profile
+  when: not link.stat.exists
+  become: true
+  ansible.builtin.file:
+    src: |-
+      {{
+        '../..' +
+        system_portage_directory +
+        '/profiles/default/linux/amd64/' +
+        portage_default_profile +
+        '/no-multilib' +
+        ('/systemd' if ansible_service_mgr == 'systemd' else '')
+      }}
+    dest: /etc/portage/make.profile
+    state: link
+    force: true
+    follow: false
+  notify:
+    - emerge --newuse

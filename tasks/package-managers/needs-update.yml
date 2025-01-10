@@ -8,7 +8,7 @@
 
 - name: Package managers - Needs update - Detect the need of a refresh
   ansible.builtin.command:
-    cmd: needs-update
+    cmd: "{{ system_bin_path }}/needs-update"
   register: result
   failed_when: result.rc > 1
   changed_when: false
