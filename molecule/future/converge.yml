@@ -1,5 +1,5 @@
 ---
-- name: Converge customization
+- name: In developments releases
   hosts: all
   tasks:
     - name: Include gwerlas.system
@@ -8,6 +8,8 @@
       vars:
         system_retries: 5
         system_packages_upgrade: true
+        system_portage_accept_keywords:
+          - ~amd64
         system_portage_kernel: vanilla-kernel
         system_portage_repos_directory: /data
         system_portage_repos:

@@ -1,0 +1,4 @@
+---
+- name: DNF5 - Repositories
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/dnf/configure.yml"

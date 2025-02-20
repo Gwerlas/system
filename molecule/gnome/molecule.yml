@@ -45,8 +45,8 @@ platforms:
     box: generic/centos9s
     memory: 2048
     provider_raw_config_args: *provider_raw_config
-  - name: fedora40
-    box: fedora/40-cloud-base
+  - name: fedora41
+    box: fedora/41-cloud-base
     memory: 2048
     provider_raw_config_args: *provider_raw_config
 lint: ansible-lint

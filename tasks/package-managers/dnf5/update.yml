@@ -1,0 +1,11 @@
+---
+- name: DNF5 - Install libs
+  become: true
+  ansible.builtin.command:
+    cmd: dnf5 install -y python3-libdnf5
+  register: result
+  changed_when: (result.stdout_lines | last) == 'Complete!'
+
+- name: DNF5 - Common update method
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/other/update.yml"

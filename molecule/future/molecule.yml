@@ -7,8 +7,8 @@ driver:
     name: libvirt
   provision: true
 platforms:
-  - name: archlinux
-    box: archlinux/archlinux
+  - name: debian-testing
+    box: debian/testing64
     provider_raw_config_args: &raw_config
       - "cpu_mode = 'host-passthrough'"
       - "disk_bus = 'virtio'"
@@ -16,13 +16,14 @@ platforms:
       - "video_type = 'virtio'"
       - "disk_driver :cache => 'writeback'"
       - "storage :file, bus: 'virtio', cache: 'writeback'"
-    instance_raw_config_args:
-      - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
-  - name: debian-testing
-    box: debian/testing64
+  - name: centos10s
+    box: generic-x64/centos10s
+    memory: 2048
     provider_raw_config_args: *raw_config
-  - name: centos9s
-    box: generic/centos9s
+    instance_raw_config_args:
+      - 'vm.provision :shell, inline: "rm /etc/yum.repos.d/*.repo"'
+  - name: fedora-rawhide
+    box: generic-x64/fedora-rawhide
     memory: 2048
     provider_raw_config_args: *raw_config
     instance_raw_config_args:

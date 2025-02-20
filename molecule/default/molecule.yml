@@ -42,12 +42,6 @@ platforms:
       - debian_like
       - debian
     provider_raw_config_args: *raw_config
-  - name: trixie
-    box: debian/testing64
-    groups:
-      - debian_like
-      - debian
-    provider_raw_config_args: *raw_config
   - name: focal                              # EOL 2025-04-02
     box: cloud-image/ubuntu-20.04
     groups:
@@ -83,19 +77,18 @@ platforms:
       - redhat_like
     memory: 2048
     provider_raw_config_args: *raw_config
-  - name: fedora39
-    box: fedora/39-cloud-base
-    groups:
-      - redhat_like
-    memory: 2048
-    provider_raw_config_args: *raw_config
   - name: fedora40
     box: fedora/40-cloud-base
     groups:
       - redhat_like
     memory: 2048
     provider_raw_config_args: *raw_config
-lint: ansible-lint
+  - name: fedora41
+    box: fedora/41-cloud-base
+    groups:
+      - redhat_like
+    memory: 2048
+    provider_raw_config_args: *raw_config
 provisioner:
   name: ansible
 verifier:
