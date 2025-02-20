@@ -21,6 +21,15 @@
     - genkernel
     - grub-mkconfig
   become: true
+  vars:
+    output: |-
+      {{
+        ('GRUB_CFG' in ansible_env) |
+        ternary(
+          ansible_env.GRUB_CFG,
+          '/boot/grub/grub.cfg'
+        )
+      }}
   ansible.builtin.command:
-    cmd: grub-mkconfig -o /boot/grub/grub.cfg
+    cmd: grub-mkconfig -o {{ output }}
   changed_when: true
