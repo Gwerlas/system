@@ -35,6 +35,18 @@ configuration if the interface is present in the Ansible facts.
 
 This mode is faster than `files`, but configuration changes won't be applied.
 
+### Restart mode
+
+```yaml
+system_networks_restart_handler: reboot
+```
+
+Possible choice :
+
+- `restart network service`
+- `skip`
+- `reboot`
+
 Examples
 --------
 
