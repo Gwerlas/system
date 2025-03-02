@@ -1,0 +1,35 @@
+# {{ ansible_managed }}
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+{% if 'include' in (config.keys() | map('lower')) %}
+# Make sure that all Match options are below this Include!
+Include "/etc/ssh/sshd_config.d/*.conf"
+
+{% endif %}
+{% for key, value in config.items() if not (key | lower) == ['include', 'match'] %}
+
+{% if (key | lower) in (list_separated_by_comma | map('lower')) %}
+{% if value is mapping %}
+{{ key }} {{ value | join(',') }}
+{% else %}
+{{ key }} {{ value }}
+{% endif %}
+{% elif value is mapping %}
+{% for v in value %}
+{{ key }} {{ v }}
+{% endfor %}
+
+{% elif value is boolean %}
+{{ key }} {{ value | ternary('yes', 'no') }}
+{% else %}
+{% endif %}
+{% endfor %}
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#	X11Forwarding no
+#	AllowTcpForwarding no
+#	PermitTTY no
+#	ForceCommand cvs server

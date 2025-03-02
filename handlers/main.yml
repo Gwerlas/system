@@ -4,6 +4,9 @@
     - ca
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/ca.yml"
 
+- name: Remote access
+  ansible.builtin.import_tasks: "{{ role_path }}/handlers/remote-access.yml"
+
 - name: Firewall
   tags:
     - firewall

@@ -28,19 +28,20 @@ platforms:
       - 'vm.disk :disk, size: "1GB", name: "vdb"'
       - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
 
-  - name: gentoo
-    box: generic-x64/gentoo
-    cpus: 4
-    memory: 8192
-    interfaces: *interfaces
-    provider_raw_config_args:
-      - "cpu_mode = 'host-passthrough'"
-      - "nic_model_type = 'virtio'"
-      - "video_type = 'virtio'"
-      - "disk_driver :cache => 'writeback'"
-      - "storage :file, bus: 'virtio', cache: 'writeback'"
-    instance_raw_config_args: &instance_raw_config
-      - 'vm.disk :disk, size: "1GB", name: "vdb"'
+  # Very very long build due to old box
+  # - name: gentoo
+  #   box: generic-x64/gentoo
+  #   cpus: 4
+  #   memory: 8192
+  #   interfaces: *interfaces
+  #   provider_raw_config_args:
+  #     - "cpu_mode = 'host-passthrough'"
+  #     - "nic_model_type = 'virtio'"
+  #     - "video_type = 'virtio'"
+  #     - "disk_driver :cache => 'writeback'"
+  #     - "storage :file, bus: 'virtio', cache: 'writeback'"
+  #   instance_raw_config_args:
+  #     - 'vm.disk :disk, size: "1GB", name: "vdb"'
 
 
   # Debian like
@@ -51,6 +52,8 @@ platforms:
       - debian
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
+    instance_raw_config_args: &instance_raw_config
+      - 'vm.disk :disk, size: "1GB", name: "vdb"'
   - name: bookworm
     box: debian/bookworm64
     groups:
@@ -85,15 +88,16 @@ platforms:
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
-  - name: noble
-    box: cloud-image/ubuntu-24.04
-    groups:
-      - debian_like
-      - ubuntu
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider_raw_config
-    instance_raw_config_args: *instance_raw_config
+  # Commented temporarily due to broken box
+  # - name: noble
+  #   box: cloud-image/ubuntu-24.04
+  #   groups:
+  #     - debian_like
+  #     - ubuntu
+  #   memory: 2048
+  #   interfaces: *interfaces
+  #   provider_raw_config_args: *provider_raw_config
+  #   instance_raw_config_args: *instance_raw_config
 
   # RedHat like
   - name: centos9s

@@ -1,0 +1,21 @@
+---
+sshd_config:
+  PubkeyAuthentication: true
+  AllowAgentForwarding: false
+  PermitRootLogin: prohibit-password
+  PubkeyAcceptedAlgorithms:
+    - ssh-ed25519-cert-v01@openssh.com
+    - sk-ssh-ed25519-cert-v01@openssh.com
+    - ssh-ed25519
+    - sk-ssh-ed25519@openssh.com
+  PubkeyAcceptedKeyTypes:
+    - ssh-ed25519-cert-v01@openssh.com
+    - ssh-ed25519
+  PasswordAuthentication: false
+  PermitEmptyPasswords: false
+  KbdInteractiveAuthentication: false
+  ChallengeResponseAuthentication: false
+  UseDNS: false
+  X11Forwarding: false
+  MaxAuthTries: 2
+  AllowTcpForwarding: false

@@ -19,10 +19,6 @@ family_packages:
     - app-shells/zsh-syntax-highlighting
     - app-shells/gentoo-zsh-completions
 
-family_services:
-  gdm:
-    - "{{ (ansible_service_mgr == 'openrc') | ternary('display-manager', 'gdm.service') }}"
-
 masks:
   packages:
     - systemd-timesyncd

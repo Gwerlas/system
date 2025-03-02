@@ -43,10 +43,12 @@ profiles:
     services:
       - gdm
 
-current_profiles_keys: "{{ (['all'] + (system_profile | split('/'))) }}"
+current_profiles: "{{ system_profile | split('/') }}"
+
+# FIXME use the vars/<profile>.yml file
 current_profiles_values: |
   {{
-    current_profiles_keys |
+    (['all'] + current_profiles) |
     intersect(profiles.keys()) |
     map('extract', profiles)
   }}
@@ -99,6 +101,13 @@ current_network_types: |
     map('extract', networks_types)
   }}
 
+############
+### SSHd ###
+############
+
+sshd_config:
+  Include: /etc/ssh/sshd_config.d/*.conf
+
 ################
 ###   Time   ###
 ################
@@ -124,12 +133,12 @@ time_backends: "{{ default_time_backends }}"
 default_time_backends:
   chrony:
     services:
-      - chronyd{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+      - chronyd
     templates:
       - chrony.conf
   ntp:
     services:
-      - ntpd{{ (ansible_service_mgr == 'systemd') | ternary('.service', '') }}
+      - ntpd
     templates:
       - ntp.conf
   systemd-timesyncd:

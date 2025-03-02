@@ -62,3 +62,6 @@
   tags:
     - firewall
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/firewall.yml"
+
+- name: Remote access
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/remote-access.yml"

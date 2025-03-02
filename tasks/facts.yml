@@ -6,14 +6,27 @@
 
 - name: Facts - Local variables
   ansible.builtin.include_vars: "{{ item }}"
-  with_fileglob:
-    - "{{ role_path }}/vars/{{ ansible_pkg_mgr }}.yml"                                                         # apt,           dnf,          etc.
-    - "{{ role_path }}/vars/{{ ansible_service_mgr }}.yml"                                                     # openrc
-    - "{{ role_path }}/vars/{{ ansible_os_family | lower }}-like.yml"                                          # debian-like,   redhat-like,  etc.
-    - "{{ role_path }}/vars/{{ ansible_distribution | lower }}.yml"                                            # debian,        fedora,       etc.
-    - "{{ role_path }}/vars/{{ ansible_os_family | lower }}{{ ansible_distribution_major_version }}-like.yml"  # redhat7-like,  redhat8-like, etc.
-    - "{{ role_path }}/vars/{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}.yml"    # debian10,      debian11
-    - "{{ role_path }}/vars/{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}.yml" # ubuntu-bionic, ubuntu-focal
+  vars:
+    dir:
+      - "{{ role_path }}/vars/"
+    flavors:
+      - "{{ ansible_pkg_mgr }}"                                                         # apt,           dnf,          etc.
+      - "{{ ansible_service_mgr }}"                                                     # openrc
+      - "{{ ansible_os_family | lower }}-like"                                          # debian-like,   redhat-like,  etc.
+      - "{{ ansible_distribution | lower }}"                                            # debian,        fedora,       etc.
+      - "{{ ansible_os_family | lower }}{{ ansible_distribution_major_version }}-like"  # redhat7-like,  redhat8-like, etc.
+      - "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}"    # debian10,      debian11
+      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}" # ubuntu-bionic, ubuntu-focal
+    ext:
+      - .yml
+  with_fileglob: |
+    {{
+      dir |
+      product(current_profiles + flavors) |
+      map('join') |
+      product(ext) |
+      map('join')
+    }}
 
 - name: Facts - Global
   vars:

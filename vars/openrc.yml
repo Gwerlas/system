@@ -5,3 +5,6 @@ default_network_backend_name: netifrc
 masks:
   time_backends:
     - systemd-timesyncd
+
+services_map:
+  gdm: display-manager
