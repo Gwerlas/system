@@ -1,0 +1,3 @@
+---
+default_network_backend_name: systemd-networkd
+default_time_backend_name: systemd-timesyncd

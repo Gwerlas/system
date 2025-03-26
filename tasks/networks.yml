@@ -1,6 +1,6 @@
 ---
 - name: Networks - Load variables
-  when: network_backend is undefined
+  when: default_network_backend_name is undefined
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Networks - IPv6 support

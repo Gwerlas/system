@@ -1,15 +1,11 @@
 ---
 - name: Sudo - Group
-  tags:
-    - sudoers
   become: true
   ansible.builtin.group:
     name: "{{ system_sudo_group }}"
     state: present
 
 - name: Sudo - Get version
-  tags:
-    - sudoers
   ansible.builtin.command:
     cmd: sudo --version
   register: result
@@ -17,15 +13,11 @@
   check_mode: false
 
 - name: Sudo - Store version
-  tags:
-    - sudoers
   ansible.builtin.set_fact:
     cacheable: true
     system_sudo_version: "{{ result.stdout_lines | first | split(' ') | last }}"
 
 - name: Sudo - Config directory
-  tags:
-    - sudoers
   become: true
   ansible.builtin.file:
     path: /etc/sudoers.d
@@ -38,8 +30,6 @@
     PATH: /bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
   block:
     - name: Sudo - Config file
-      tags:
-        - sudoers
       ansible.builtin.template:
         src: sudoers.j2
         dest: /etc/sudoers
@@ -48,7 +38,6 @@
 
     - name: Sudo - Proxies
       tags:
-        - sudoers
         - proxies
       ansible.builtin.template:
         src: sudoers.d/50-proxy.j2

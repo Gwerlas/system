@@ -19,6 +19,8 @@
 
 - name: Sudo
   when: system_manage_sudo
+  tags:
+    - sudoers
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/sudo.yml"
 
 - name: Package managers

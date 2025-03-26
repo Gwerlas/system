@@ -1,8 +1,8 @@
 # {{ ansible_managed }}
+
 {% if netiface.description is defined %}
 # {{ netiface.description }}
 {% endif %}
-
 {% set bootproto = netiface.bootproto | default('dhcp') %}
 {% if (netiface.onboot | default(true)) %}
 auto {{ netiface.name }}

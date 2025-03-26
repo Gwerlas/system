@@ -63,7 +63,6 @@ ca_certificates:
 ## Networking ##
 ################
 
-default_network_backend_name: systemd
 network_backend_name: "{{ system_network_backend | default(default_network_backend_name) }}"
 network_backend: "{{ network_backends[network_backend_name] }}"
 
@@ -116,10 +115,6 @@ sshd_config:
 # Do not use default_time_backend_name unless you know what You're doing.
 time_backend_name: "{{ system_time_backend | default(default_time_backend_name) }}"
 
-# If systemd_timesyncd is missing or not well implemented, You can change
-# the default NTP engine in appropriate vars files.
-default_time_backend_name: systemd-timesyncd
-
 # The current NTP engine, prefer this variable in tasks and handlers
 # and use its properties (services, templates).
 time_backend: "{{ time_backends[time_backend_name] }}"
@@ -129,7 +124,6 @@ time_backend: "{{ time_backends[time_backend_name] }}"
 time_backends: "{{ default_time_backends }}"
 
 # Defaults NTP engines properties, use it only to fill the time_backends variable.
-# See debian-like.yml vars file as example.
 default_time_backends:
   chrony:
     services:
@@ -143,7 +137,7 @@ default_time_backends:
       - ntp.conf
   systemd-timesyncd:
     services:
-      - systemd-timesyncd.service
+      - systemd-timesyncd
     templates:
       - systemd/timesyncd.conf
 

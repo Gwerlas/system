@@ -11,6 +11,7 @@
   until: result.failed == false
   retries: "{{ system_retries }}"
   notify:
+    - emerge @module-rebuild
     - grub-mkconfig
     - reboot
 

@@ -1,6 +1,6 @@
 ---
 - name: Time - Load variables
-  when: system_services is undefined
+  when: default_time_backend_name is undefined
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
 - name: Time - Zone
