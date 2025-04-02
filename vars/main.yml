@@ -113,7 +113,7 @@ sshd_config:
 
 # The name of the current NTP engine, use this variables in tasks and handlers.
 # Do not use default_time_backend_name unless you know what You're doing.
-time_backend_name: "{{ system_time_backend | default(default_time_backend_name) }}"
+time_backend_name: "{{ system_time_backend | default(default_time_backend_name | default('')) }}"
 
 # The current NTP engine, prefer this variable in tasks and handlers
 # and use its properties (services, templates).
