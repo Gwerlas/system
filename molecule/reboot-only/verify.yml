@@ -1,0 +1,20 @@
+---
+- name: Verify the fact
+  hosts: all
+  vars:
+    system_reboot_handler: skip
+  tasks:
+    - name: Get the fact
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: reboot
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Show the result
+      ansible.builtin.debug:
+        var: system_needs_reboot
+    - name: Show the result
+      ansible.builtin.assert:
+        that: system_needs_reboot is false

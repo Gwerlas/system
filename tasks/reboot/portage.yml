@@ -1,0 +1,67 @@
+---
+- name: Portage - Installed/updated packages during this boot
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/packages/portage/installed-this-boot.yml"
+
+- name: Portage - Set fact system_needs_reboot
+  vars:
+    patterns:
+      - sys-boot/grub
+      - sys-apps/{{ ansible_service_mgr }}
+      - sys-libs/glibc
+    occurences: |
+      {{
+        installed_this_boot.stdout_lines |
+        select(
+          'search',
+          patterns | join('|')
+        )
+      }}
+  ansible.builtin.set_fact:
+    system_needs_reboot: "{{ (occurences | length) > 0 }}"
+
+- name: Portage - Grub
+  vars:
+    has_changed: "{{ 'sys-boot/grub' in installed_this_boot.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Grub has changed",
+          "Grub hasn't changed"
+        )
+      }}
+  changed_when: has_changed
+  notify:
+    - grub-install
+    - "{{ system_reboot_handler }}"
+
+- name: Portage - Service manager
+  vars:
+    has_changed: "{{ ('sys-apps/' + ansible_service_mgr) in installed_this_boot.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          ansible_service_mgr + " has changed",
+          ansible_service_mgr + " hasn't changed"
+        )
+      }}
+  changed_when: has_changed
+  notify: "{{ system_reboot_handler }}"
+
+- name: Portage - Glibc
+  vars:
+    has_changed: "{{ 'sys-libs/glibc' in installed_this_boot.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Glibc has changed",
+          "Glibc hasn't changed"
+        )
+      }}
+  changed_when: has_changed
+  notify:
+    - reload init system
+    - "{{ system_reboot_handler }}"

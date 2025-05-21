@@ -27,10 +27,6 @@ platforms:
     image: gwerlas/ansible-guest-debian:trixie
     pre_build_mage: true
     volumes: *volumes
-  - name: focal
-    image: gwerlas/ansible-guest-ubuntu:20.04
-    pre_build_mage: true
-    volumes: *volumes
   - name: jammy
     image: gwerlas/ansible-guest-ubuntu:22.04
     pre_build_mage: true

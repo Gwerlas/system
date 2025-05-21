@@ -66,7 +66,7 @@ argument_specs:
   packages:
     short_description: Configure the package manager and install/update the system
     options:
-      system_bin_path:
+      system_scripts_path:
         default: /usr/local/bin
         description: Path location for our scripts
       system_packages_add_by_key:
@@ -114,7 +114,7 @@ argument_specs:
   reboot:
     short_description: Reboot the system if needed
     options:
-      system_bin_path:
+      system_scripts_path:
         default: /usr/local/bin
         description: Path location for our scripts
 

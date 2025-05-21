@@ -22,11 +22,6 @@
     - ca
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/packages.yml"
 
-- name: Networks
-  tags:
-    - networks
-  ansible.builtin.import_tasks: "{{ role_path }}/handlers/networks.yml"
-
 - name: Storages
   when: system_manage_storages
   tags:
@@ -40,4 +35,6 @@
 
 - name: System restarts
   when: not in_container
+  tags:
+    - always
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/restarts.yml"

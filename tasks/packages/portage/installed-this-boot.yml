@@ -1,0 +1,12 @@
+---
+- name: Portage - Load variables
+  when: system_uptime is undefined
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
+
+- name: Portage - Installed/updated during this boot
+  become: true
+  ansible.builtin.command:
+    cmd: "awk -F ':  [=>:]{3} ' '/completed emerge/ { if ($1 >= {{ system_uptime }}) { print $2 } }' /var/log/emerge.log"
+  changed_when: false
+  check_mode: false
+  register: installed_this_boot

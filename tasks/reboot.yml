@@ -1,0 +1,12 @@
+---
+- name: Find the best rules
+  when: task_file is file
+  ansible.builtin.include_tasks:
+    file: "{{ task_file }}"
+  with_first_found:
+    - "{{ role_path }}/tasks/reboot/{{ ansible_pkg_mgr }}.yml"
+    - "{{ role_path }}/tasks/reboot/{{ ansible_distribution | lower }}.yml"
+    - "{{ role_path }}/tasks/reboot/{{ ansible_os_family | lower }}-like.yml"
+    - "{{ role_path }}/tasks/reboot/other.yml"
+  loop_control:
+    loop_var: task_file
