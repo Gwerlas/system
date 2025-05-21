@@ -1,0 +1,10 @@
+---
+- name: DNF5 - Distribution upgrade
+  become: true
+  ansible.builtin.dnf5:
+    allowerasing: true
+    name: "*"
+    state: latest
+  register: result
+  until: result.failed == false
+  retries: "{{ system_retries }}"

@@ -33,6 +33,3 @@
     - name: Networks - Interfaces configuration from template
       when: network_backend.template is defined
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/networks/template.yml"
-
-- name: Networks - Changes take effects immediately
-  ansible.builtin.meta: flush_handlers
