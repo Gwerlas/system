@@ -1,0 +1,13 @@
+---
+- name: Show useful facts
+  vars:
+    useful_facts:
+      ansible_pkg_mgr: "{{ ansible_pkg_mgr }}"
+      ansible_distribution: "{{ ansible_distribution }}"
+      ansible_os_family: "{{ ansible_os_family }}"
+  ansible.builtin.debug:
+    var: useful_facts
+
+- name: System not recognized
+  ansible.builtin.fail:
+    msg: This system is not recognized

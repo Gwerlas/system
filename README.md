@@ -117,20 +117,17 @@ Look at [`defaults/main/shared.yml`][shared].
 [shared]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/shared.yml
 
 ```yaml
-system_bin_path: /usr/local/bin
+system_scripts_path: /usr/local/bin
 system_profile: server
 system_retries: 2
 ```
 
-Some distributions does not provide command line to easily know if a reboot is
-required, or if the packages cache is outdated. So we put scripts to do it.
-
-You can change those scripts location through the `system_bin_path`.
+Some tasks of this role need to put scripts. They are stored in `system_bin_path` directory.
 
 The `system_profile` can impact the behaviour of some parts of the system,
 for example the packages to install (or not).
 
-If You have some network troubles during installation, you can increase the
+If You have many download failures due to networks troubles, you can increase the
 `system_retries` value.
 
 Dependencies
@@ -154,7 +151,7 @@ First deployment or distribution upgrade, 10 steps rolling update :
         system_packages_upgrade: true
 ```
 
-Use just one task :
+Using just one task :
 
 ```yaml
 ---

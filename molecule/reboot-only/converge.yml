@@ -1,0 +1,8 @@
+---
+- name: Reboot only
+  hosts: all
+  tasks:
+    - name: Just reboot the machines if needed
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: reboot

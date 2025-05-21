@@ -1,4 +1,24 @@
 ---
+- name: Reboot is needed
+  listen:
+    - skip
+    - reboot
+  ansible.builtin.set_fact:
+    system_needs_reboot: true
+
+- name: Restart network
+  listen:
+    - restart network service
+  become: true
+  ansible.builtin.service:
+    name: "{{ default_networks.service_name }}"
+
+- name: Skip restart
+  listen:
+    - skip
+  ansible.builtin.debug:
+    msg: You skipped the network restart or the reboot !
+
 - name: Reload OpenRC
   listen:
     - reload init system
@@ -18,15 +38,19 @@
 
 - name: Reboot
   listen:
-    - grub-install
-    - grub-mkconfig
     - reboot
   become: true
   ansible.builtin.reboot:
     reboot_timeout: "{{ system_reboot_timeout }}"
-    msg: Reboot initiated by gwerlas.system Ansible role
+    msg: Reboot initiated by the playbook {{ ansible_play_name }}
 
-- name: Gather facts to update networks informations
+- name: Reboot completed
+  listen:
+    - reboot
+  ansible.builtin.set_fact:
+    system_needs_reboot: false
+
+- name: Gather facts again
   listen:
     - restart network service
     - reboot

@@ -1,0 +1,13 @@
+---
+- name: Archlinux - Reboot if kernel has been updated
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail;
+      file -bL /boot/vmlinuz-linux | grep -oP '(?<=version )[^ ]*'
+  register: result
+  changed_when: result.stdout != ansible_kernel
+  notify: "{{ system_reboot_handler }}"
+
+- name: Archlinux - Set fact system_needs_reboot
+  ansible.builtin.set_fact:
+    system_needs_reboot: "{{ result.stdout != ansible_kernel }}"

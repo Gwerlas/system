@@ -1,8 +1,0 @@
----
-- name: RedHat like - Check if a reboot is required
-  ansible.builtin.command:
-    cmd: needs-restarting -r
-  register: result
-  changed_when: result.rc == 1
-  failed_when: result.rc > 1
-  notify: reboot

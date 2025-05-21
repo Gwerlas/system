@@ -40,10 +40,6 @@ platforms:
   - name: trixie
     box: debian/testing64
     provider_raw_config_args: *raw_config
-  - name: focal  # EOL 2025-04-02
-    box: generic/ubuntu2004
-    memory: 2048
-    provider_raw_config_args: *raw_config
   - name: jammy
     box: generic/ubuntu2204
     memory: 2048

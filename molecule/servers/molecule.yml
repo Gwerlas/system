@@ -70,15 +70,6 @@ platforms:
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
-  - name: focal                              # EOL 2025-04-02
-    box: cloud-image/ubuntu-20.04
-    groups:
-      - debian_like
-      - ubuntu
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider_raw_config
-    instance_raw_config_args: *instance_raw_config
   - name: jammy
     box: cloud-image/ubuntu-22.04
     groups:

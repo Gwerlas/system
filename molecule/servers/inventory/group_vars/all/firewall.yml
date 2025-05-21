@@ -1,0 +1,2 @@
+---
+system_firewall_public_interface: "{{ system_networks_interfaces[0].name }}"

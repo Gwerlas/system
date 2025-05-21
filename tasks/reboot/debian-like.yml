@@ -1,0 +1,11 @@
+---
+- name: Debian like - Check if a reboot is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: result
+  changed_when: result.stat.exists
+  notify: "{{ system_reboot_handler }}"
+
+- name: Debian like - Set fact system_needs_reboot
+  ansible.builtin.set_fact:
+    system_needs_reboot: "{{ result.stat.exists }}"

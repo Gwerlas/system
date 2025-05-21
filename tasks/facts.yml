@@ -97,6 +97,7 @@
           }')
         )) | sort(attribute='path')
       }}
+    system_needs_reboot: "{{ system_needs_reboot | default(false) }}"
     system_packages: |
       {{
         ( system_packages_add_by_name

@@ -1,0 +1,18 @@
+---
+- name: RedHat like - Requirements
+  become: true
+  ansible.builtin.package:
+    name: yum-utils
+    state: present
+
+- name: RedHat like - Check if a reboot is required
+  ansible.builtin.command:
+    cmd: needs-restarting -r
+  register: result
+  changed_when: result.rc == 1
+  failed_when: result.rc > 1
+  notify: "{{ system_reboot_handler }}"
+
+- name: RedHat like - Set fact system_needs_reboot
+  ansible.builtin.set_fact:
+    system_needs_reboot: "{{ result.rc == 1 }}"
