@@ -1,4 +1,17 @@
 ---
+- name: Packages - Update package list
+  when: system_packages_upgrade
+  ansible.builtin.include_tasks:
+    file: "{{ package_task }}"
+  with_first_found:
+    - files:
+        - update.yml
+      paths:
+        - "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/package-managers/other"
+  loop_control:
+    loop_var: package_task
+
 - name: Packages - Distribution upgrade
   when: system_packages_upgrade
   ansible.builtin.include_tasks:
