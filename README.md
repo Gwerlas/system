@@ -52,6 +52,8 @@ Because some values are dispatched in multiple tasks. You can quickly update som
 - `networks`
 - `packages`
 - `proxies`
+- `remote-access`
+- `ssh`
 - `storages`
 - `sudoers`
 - `time`

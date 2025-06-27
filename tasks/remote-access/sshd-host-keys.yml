@@ -1,0 +1,11 @@
+---
+- name: Remote access - SSHd Host keys
+  become: true
+  ansible.posix.synchronize:
+    src: "{{ system_sshd_host_keys.sync_from }}/"
+    dest: /etc/ssh/
+    use_ssh_args: true
+    rsync_opts:
+      - --include=ssh_host_*
+      - --exclude=*
+  notify: restart sshd
