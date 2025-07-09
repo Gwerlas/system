@@ -81,11 +81,12 @@
       register: result
       failed_when: result is changed
 
-    - name: ZSH configuration that should exists
+    - name: Paths that should exists
       become: true
       ansible.builtin.stat:
         path: "{{ item }}"
       loop:
+        - /etc/ssh/sshd_config.d
         - /etc/skel/.zshrc
         - /etc/skel/.zsh/history
         - /home/jane/.zshrc

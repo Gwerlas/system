@@ -1,28 +1,14 @@
 ---
 - name: SSHd
   when: system_manage_sshd
-  become: true
-  block:
-    - name: SSHd - Modular configuration directory
-      ansible.builtin.file:
-        state: directory
-        path: /etc/ssh/sshd_config.d
-        mode: "0700"
+  tags:
+    - ssh
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/remote-access/sshd.yml"
 
-    - name: SSHd - Configuration file
-      vars:
-        config: "{{ sshd_config | combine(system_sshd_config) }}"
-        list_separated_by_comma:
-          - AuthenticationMethods
-          - CASignatureAlgorithms
-          - Ciphers
-          - HostbasedAcceptedKeyTypes
-          - HostKeyAlgorithms
-          - KexAlgorithms
-          - MACs
-          - PubkeyAcceptedKeyTypes
-      ansible.builtin.template:
-        src: ssh/sshd_config.j2
-        dest: /etc/ssh/sshd_config
-        mode: "0600"
-        validate: sshd -T -f %s
+- name: SSHd hosts keys
+  when: system_sshd_host_keys is defined
+  tags:
+    - ssh
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/remote-access/sshd-host-keys.yml"

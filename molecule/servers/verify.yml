@@ -1,5 +1,5 @@
 ---
-- name: Verify role with the server profile (default)
+- name: Verify all custom settings
   hosts: all
   tasks:
     - name: Facts
@@ -134,6 +134,13 @@
           paths:
             - vars
 
+    - name: Package installation
+      become: true
+      ansible.builtin.package:
+        name:
+          - openssl
+          - httpie
+
     - name: Check Gwerlas CA
       ansible.builtin.command:
         cmd: "awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' {{ ca_certificates.bundle }}"
@@ -172,21 +179,49 @@
         or
         not bkpdir.stat.wgrp
 
-    - name: Check private network    # noqa risky-shell-pipe - pipefail is not supported by sh
-      environment:
-        PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-      ansible.builtin.shell:
-        cmd: |
-          ip -o -f inet addr show | tail -n 1
-      register: result
-      changed_when: false
-      failed_when: |
-        result.rc > 0
-        or
-        not 'brd 192.168.250.255' in result.stdout
+    # FIXME may fail due to unpredictable network interface name
+    # - name: Check private network    # noqa risky-shell-pipe - pipefail is not supported by sh
+    #   environment:
+    #     PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+    #   ansible.builtin.shell:
+    #     cmd: |
+    #       ip -o -f inet addr show | tail -n 1
+    #   register: result
+    #   changed_when: false
+    #   failed_when: |
+    #     result.rc > 0
+    #     or
+    #     not 'brd 192.168.250.255' in result.stdout
+
+    - name: Read SSH host keys fixtures
+      delegate_to: localhost
+      ansible.builtin.slurp:
+        src: "{{ item }}"
+      with_fileglob:
+        - "{{ inventory_hostname }}/ssh_host_*"
+      register: ssh_host_keys
+
+    - name: Check
+      vars:
+        pubkeys: |
+          {{
+            ssh_host_keys |
+            json_query('results[?ends_with(source, `.pub`)].content') |
+            map('b64decode')
+          }}
+        facts:
+          - [ssh_host_key_ecdsa_public_keytype, ssh_host_key_ecdsa_public]
+          - [ssh_host_key_ed25519_public_keytype, ssh_host_key_ed25519_public]
+          - [ssh_host_key_rsa_public_keytype, ssh_host_key_rsa_public]
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - pubkeys[0] is search(facts[0] | map('extract', ansible_facts) | join(' ') | regex_escape)
+          - pubkeys[1] is search(facts[1] | map('extract', ansible_facts) | join(' ') | regex_escape)
+          - pubkeys[2] is search(facts[2] | map('extract', ansible_facts) | join(' ') | regex_escape)
 
 - name: Check EPEL
-  hosts: redhat_like
+  hosts: el
   gather_facts: false
   tasks:
     - name: Repository file

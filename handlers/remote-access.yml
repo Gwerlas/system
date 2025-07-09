@@ -6,3 +6,8 @@
   ansible.builtin.service:
     name: "{{ lookup('service', 'sshd') }}"
     state: restarted
+
+- name: Reset SSH connection
+  listen:
+    - restart sshd
+  ansible.builtin.meta: reset_connection

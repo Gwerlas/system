@@ -104,8 +104,7 @@ current_network_types: |
 ### SSHd ###
 ############
 
-sshd_config:
-  Include: /etc/ssh/sshd_config.d/*.conf
+sshd_config: {}
 
 ################
 ###   Time   ###

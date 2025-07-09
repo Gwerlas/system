@@ -11,7 +11,7 @@
       - "{{ role_path }}/vars/"
     flavors:
       - "{{ ansible_pkg_mgr }}"                                                         # apt,           dnf,          etc.
-      - "{{ ansible_service_mgr }}"                                                     # openrc
+      - "{{ ansible_service_mgr }}"                                                     # openrc,        systemd
       - "{{ ansible_os_family | lower }}-like"                                          # debian-like,   redhat-like,  etc.
       - "{{ ansible_distribution | lower }}"                                            # debian,        fedora,       etc.
       - "{{ ansible_os_family | lower }}{{ ansible_distribution_major_version }}-like"  # redhat7-like,  redhat8-like, etc.

@@ -103,7 +103,7 @@ platforms:
   - name: centos9s  # EOL 2027-05-31
     box: generic-x64/centos9s
     groups:
-      - redhat_like
+      - el
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
@@ -111,7 +111,7 @@ platforms:
   # - name: centos10s  # EOL 2027-05-31
   #   box: alvistack/centos-10-stream
   #   groups:
-  #     - redhat_like
+  #     - el
   #   memory: 2048
   #   interfaces: *interfaces
   #   provider_raw_config_args: *provider_raw_config
@@ -119,23 +119,19 @@ platforms:
   - name: alma9     # EOL 2027-05-31
     box: generic-x64/alma9
     groups:
-      - redhat_like
+      - el
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
   - name: fedora41  # EOL 2025-11-19
     box: fedora/41-cloud-base
-    groups:
-      - redhat_like
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
   - name: fedora42  # EOL 2026-05-13
     box: alvistack/fedora-42
-    groups:
-      - redhat_like
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
