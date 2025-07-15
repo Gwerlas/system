@@ -1,0 +1,16 @@
+---
+- name: Remote access - SSHd Host keys
+  become: true
+  vars:
+    file: "{{ system_sshd_host_keys[key] }}"
+    type: "{{ key | regex_replace('_public$', '') }}"
+    is_pub: "{{ key is search('_public$') }}"
+  ansible.builtin.copy:
+    content: "{{ file.content | default(omit) }}"
+    src: "{{ file.src | default(omit) }}"
+    dest: /etc/ssh/ssh_host_{{ type }}_key{{ is_pub | ternary('.pub', '') }}
+    mode: "{{ is_pub | ternary('0644', '0600') }}"
+  loop: "{{ system_sshd_host_keys.keys() }}"
+  loop_control:
+    loop_var: key
+  notify: restart sshd

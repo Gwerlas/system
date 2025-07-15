@@ -46,11 +46,11 @@ Here is an example of a playbook that backup your hosts keys :
 
 ### Restore your hosts keys
 
-Currently, we have implemented a synchronization of `ssh_host_*` files between
-a directory on the remote host to the node.
+Two possible ways are available: `sync` or `copy`.
+
+#### Sync back your keys
 
 This method is simple, but You are not free to name your files as You want.
-A more flexible method will be implemented in the future.
 
 Here is an example of a playbook that restore your hosts key pairs :
 
@@ -66,3 +66,45 @@ Here is an example of a playbook that restore your hosts key pairs :
   roles:
     - role: gwerlas.system
 ```
+
+### Copy back your keys
+
+This method is a bit more complexe but also more flexible :
+
+```yaml
+- name: Backup SSHd hosts keys
+  hosts: all
+  vars:
+    ansible_ssh_common_args: >-
+      -o StrictHostKeyChecking=no
+      -o UserKnownHostsFile=/dev/null
+    system_sshd_host_keys:
+      ecdsa:
+        src: ecdsa.key
+      ecdsa_public:
+        src: ecdsa.pub
+      ed25519:
+        content: "{{ lookup('ansible.builtin.file', 'ed25519.key') }}"
+      ed25519_public:
+        content: "{{ lookup('ansible.builtin.file', 'ed25519.pub') }}"
+      rsa:
+        src: rsa.key
+      rsa_public:
+        content: "{{ lookup('ansible.builtin.file', 'rsa.pub') }}"
+  roles:
+    - role: gwerlas.system
+```
+
+The keys of the `system_sshd_host_keys` must be :
+
+- `ecdsa`
+- `ecdsa_public`
+- `ed25519`
+- `ed25519_public`
+- `rsa`
+- `rsa_public`
+
+And the attributes must be `content` or `src` as soon as they are forwarded to
+the [ansible.builtin.copy][] Ansible module.
+
+[ansible.builtin.copy]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html#attributes
