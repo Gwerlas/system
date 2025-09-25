@@ -10,6 +10,19 @@
         system_http_proxy: http://192.168.122.1:3128
         system_https_proxy: "{{ system_http_proxy }}"
         system_ftp_proxy: "{{ system_http_proxy }}"
+        system_sshd_host_keys:
+          ecdsa:
+            src: ecdsa.key
+          ecdsa_public:
+            src: ecdsa.pub
+          ed25519:
+            content: "{{ lookup('ansible.builtin.file', 'ed25519.key') }}"
+          ed25519_public:
+            content: "{{ lookup('ansible.builtin.file', 'ed25519.pub') }}"
+          rsa:
+            src: rsa.key
+          rsa_public:
+            content: "{{ lookup('ansible.builtin.file', 'rsa.pub') }}"
         system_users:
           - name: vagrant   # Console login: vagrant / vagrant
             password: "$6$sc1Fu113nXXNx/KT$ZZ9QpiisBuXevhxIUdlN6tbAyxsR3BYUBayVP2NH0DPF6//sKe2bQ6vDGM0/wfAxRYZAd0tMQYVUtoEq.reB41"

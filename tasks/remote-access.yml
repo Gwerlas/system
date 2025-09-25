@@ -10,5 +10,7 @@
   when: system_sshd_host_keys is defined
   tags:
     - ssh
+  vars:
+    restore_mode: "{{ ('sync_from' in system_sshd_host_keys) | ternary('sync', 'copy') }}"
   ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/remote-access/sshd-host-keys.yml"
+    file: "{{ role_path }}/tasks/remote-access/sshd-{{ restore_mode }}-host-keys.yml"
