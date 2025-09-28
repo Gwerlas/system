@@ -12,9 +12,6 @@
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
 
-    - name: Show the result
-      ansible.builtin.debug:
-        var: system_needs_reboot
-    - name: Show the result
+    - name: Reboot isn't required
       ansible.builtin.assert:
         that: system_needs_reboot is false

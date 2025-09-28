@@ -1,12 +1,15 @@
 ---
-- name: Storages - Load facts
-  when: system_mounts is undefined
-  ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/facts.yml"
-
 - name: Storages
+  when: system_manage_storages
+  tags:
+    - storages
   become: true
   block:
+    - name: Storages - Load facts
+      when: system_mounts is undefined
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/facts.yml"
+
     - name: Storages - Unmount before removing
       ansible.posix.mount:
         path: "{{ path }}"

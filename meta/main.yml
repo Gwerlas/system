@@ -8,7 +8,7 @@ galaxy_info:
 
   license: BSD-3-Clause
 
-  min_ansible_version: "2.10"
+  min_ansible_version: "2.19"
 
   platforms:
     - name: ArchLinux

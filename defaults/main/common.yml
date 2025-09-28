@@ -1,0 +1,19 @@
+---
+system_sequence:
+  - modules
+  - proxies
+  - hosts
+  - sudo
+  - package-managers
+  - packages
+  - networks
+  - storages
+  - users
+  - ca
+  - time
+  - firewall
+  - remote-access
+
+system_scripts_path: /usr/local/bin
+system_profile: server
+system_retries: 2

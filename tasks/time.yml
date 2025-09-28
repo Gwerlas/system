@@ -1,33 +1,38 @@
 ---
-- name: Time - Load variables
-  when: default_time_backend_name is undefined
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
-
-- name: Time - Zone
-  when: system_time_zone is defined
-  become: true
-  community.general.timezone:
-    name: "{{ system_time_zone }}"
-
-- name: Checks
-  when: not time_backend_name in supported_time_backends
+- name: Time
+  when: system_manage_time
+  tags:
+    - time
   block:
-    - name: Supported time backends
-      ansible.builtin.debug:
-        var: supported_time_backends
+    - name: Time - Load variables
+      when: default_time_backend_name is undefined
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
-    - name: Check the backend
-      ansible.builtin.fail:
-        msg: "{{ time_backend_name }} not supported"
+    - name: Time - Zone
+      when: system_time_zone is defined
+      become: true
+      community.general.timezone:
+        name: "{{ system_time_zone }}"
 
-- name: Time - Configuration file
-  when: system_time_servers | length > 0
-  become: true
-  ansible.builtin.template:
-    src: "{{ path }}.j2"
-    dest: "/etc/{{ path }}"
-    mode: "0644"
-  loop: "{{ time_backend.templates }}"
-  loop_control:
-    loop_var: path
-  notify: restart time service
+    - name: Checks
+      when: not time_backend_name in supported_time_backends
+      block:
+        - name: Supported time backends
+          ansible.builtin.debug:
+            var: supported_time_backends
+
+        - name: Check the backend
+          ansible.builtin.fail:
+            msg: "{{ time_backend_name }} not supported"
+
+    - name: Time - Configuration file
+      when: system_time_servers | length > 0
+      become: true
+      ansible.builtin.template:
+        src: "{{ path }}.j2"
+        dest: "/etc/{{ path }}"
+        mode: "0644"
+      loop: "{{ time_backend.templates }}"
+      loop_control:
+        loop_var: path
+      notify: restart time service

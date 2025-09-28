@@ -1,13 +1,17 @@
 ---
-- name: Packages - Load facts
-  when: system_packages is undefined
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
+- name: Packages
+  tags:
+    - packages
+  block:
+    - name: Packages - Load facts
+      when: system_packages is undefined
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: Packages - Before install
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/before-install.yml"
+    - name: Packages - Before install
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/before-install.yml"
 
-- name: Packages - Install
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/install.yml"
+    - name: Packages - Install
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/install.yml"
 
-- name: Packages - After install
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/after-install.yml"
+    - name: Packages - After install
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/after-install.yml"

@@ -1,0 +1,8 @@
+---
+- name: Converge with defaults settings
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+  roles:
+    - role: gwerlas.system

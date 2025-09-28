@@ -77,6 +77,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 * [proxies][]
 * [hosts][]
 * [packages][]
+* [modules][]
 * [networks][]
 * [storages][]
 * [sudo][]
@@ -91,6 +92,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 [proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
 [hosts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/hosts.md
 [packages]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/packages.md
+[modules]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/modules.md
 [networks]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/networks.md
 [storages]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/storages.md
 [sudo]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/sudo.md
@@ -112,11 +114,41 @@ Enable/disable some features by setting them to `true`/`false`.
 
 [ff]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/feature-flipping.yml
 
-### Shared variables
+### Tasks sequence
 
-Look at [`defaults/main/shared.yml`][shared].
+Some tasks may depends of another one. For example, storage and network
+management may require the installation of packages, but they are fetch
+through the network and stored on disk.
 
-[shared]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/shared.yml
+You can change the installation sequence for your specific situation
+defining the `system_sequence` variable.
+
+Here is the default sequence :
+
+```yaml
+system_sequence:
+  - modules
+  - proxies
+  - hosts
+  - sudo
+  - package-managers
+  - packages
+  - networks
+  - storages
+  - users
+  - ca
+  - time
+  - firewall
+  - remote-access
+```
+
+Note that the `facts` task is implicitly called by the other tasks if needed.
+
+### Common variables
+
+Look at [`defaults/main/common.yml`][common].
+
+[common]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/defaults/main/common.yml
 
 ```yaml
 system_scripts_path: /usr/local/bin

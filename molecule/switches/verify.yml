@@ -2,7 +2,7 @@
 - name: Verify after time backend switch
   hosts: all
   tasks:
-    - name: Time synchronisation
+    - name: Time synchronisation with ntpq
       when: switch_to == 'ntp'
       ansible.builtin.command:
         cmd: ntpq -p
@@ -10,7 +10,7 @@
       environment:
         PATH: /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
 
-    - name: Time synchronisation
+    - name: Time synchronisation with chronyc
       when: switch_to == 'chrony'
       ansible.builtin.command:
         cmd: chronyc sourcestats

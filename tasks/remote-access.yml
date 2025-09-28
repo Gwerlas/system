@@ -2,6 +2,7 @@
 - name: SSHd
   when: system_manage_sshd
   tags:
+    - remote-access
     - ssh
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/remote-access/sshd.yml"
@@ -9,6 +10,7 @@
 - name: SSHd hosts keys
   when: system_sshd_host_keys is defined
   tags:
+    - remote-access
     - ssh
   vars:
     restore_mode: "{{ ('sync_from' in system_sshd_host_keys) | ternary('sync', 'copy') }}"

@@ -5,7 +5,7 @@
     msg: Ansible facts must be gathered
 
 - name: Facts - Local variables
-  ansible.builtin.include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ file }}"
   vars:
     dir:
       - "{{ role_path }}/vars/"
@@ -27,6 +27,8 @@
       product(ext) |
       map('join')
     }}
+  loop_control:
+    loop_var: file
 
 - name: Facts - Global
   vars:

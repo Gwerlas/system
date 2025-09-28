@@ -1,22 +1,27 @@
 ---
-- name: CA - Load variables
-  when: system_packages is undefined
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
+- name: CA certificates
+  when: system_ca_certificates | length > 0
+  tags:
+    - ca
+  block:
+    - name: CA - Load variables
+      when: system_packages is undefined
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
-- name: CA - Certificates - Store directory
-  become: true
-  ansible.builtin.file:
-    path: "{{ ca_certificates.path }}"
-    state: directory
-    mode: "0755"
+    - name: CA - Certificates - Store directory
+      become: true
+      ansible.builtin.file:
+        path: "{{ ca_certificates.path }}"
+        state: directory
+        mode: "0755"
 
-- name: CA - Certificates
-  become: true
-  ansible.builtin.copy:
-    src: "{{ certificate }}"
-    dest: "{{ ca_certificates.path }}"
-    mode: "0644"
-  loop: "{{ system_ca_certificates }}"
-  loop_control:
-    loop_var: certificate
-  notify: update ca
+    - name: CA - Certificates
+      become: true
+      ansible.builtin.copy:
+        src: "{{ certificate }}"
+        dest: "{{ ca_certificates.path }}"
+        mode: "0644"
+      loop: "{{ system_ca_certificates }}"
+      loop_control:
+        loop_var: certificate
+      notify: update ca

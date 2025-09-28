@@ -1,122 +1,126 @@
 ---
-- name: Load variables
-  when: system_shells is undefined
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
-
-- name: ZSH
-  when: "'zsh' in system_shells"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/zsh.yml"
-
-- name: Users and groups management
-  become: true
+- name: Users
+  tags:
+    - users
   block:
-    - name: Users - Groups to be present
-      ansible.builtin.group:
-        name: "{{ group.name }}"
-        gid: "{{ group.gid | default(omit) }}"
-        local: "{{ group.local | default(omit) }}"
-        non_unique: "{{ group.non_unique | default(omit) }}"
-        state: "{{ group.state | default(omit) }}"
-        system: "{{ group.system | default(omit) }}"
-      loop: "{{ groups_present }}"
-      loop_control:
-        loop_var: group
+    - name: Load variables
+      when: system_shells is undefined
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
-    - name: Users - Groups - Implicit
-      ansible.builtin.group:
-        name: "{{ group }}"
-      loop: |
-        {{ (
-          [system_users_admin_group]
-        + (users_present | selectattr('group', 'defined') | map(attribute='group'))
-        + (users_present | selectattr('groups', 'defined') | map(attribute='groups'))
-        ) | flatten | sort | unique }}
-      loop_control:
-        loop_var: group
+    - name: ZSH
+      when: "'zsh' in system_shells"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/zsh.yml"
 
-    - name: Users
-      ansible.builtin.user:
-        name: "{{ user.name }}"
-        append: "{{ user.append | default(omit) }}"
-        comment: "{{ user.comment | default(omit) }}"
-        create_home: "{{ user.create_home | default(omit) }}"
-        expires: "{{ user.expires | default(omit) }}"
-        force: "{{ user.force | default(omit) }}"
-        generate_ssh_key: "{{ user.generate_ssh_key | default(omit) }}"
-        group: "{{ user.group | default(omit) }}"
-        groups: "{{ user.groups | default(omit) }}"
-        home: "{{ user.home | default(omit) }}"
-        local: "{{ user.local | default(omit) }}"
-        move_home: "{{ user.move_home | default(omit) }}"
-        non_unique: "{{ user.non_unique | default(omit) }}"
-        password: "{{ user.password | default(omit) }}"
-        password_expire_max: "{{ user.password_expire_max | default(omit) }}"
-        password_expire_min: "{{ user.password_expire_min | default(omit) }}"
-        password_lock: "{{ user.password_lock | default(omit) }}"
-        remove: "{{ user.remove | default(omit) }}"
-        seuser: "{{ user.seuser | default(omit) }}"
-        shell: "{{ user.shell | default(omit) }}"
-        skeleton: "{{ user.skeleton | default(omit) }}"
-        ssh_key_bits: "{{ user.ssh_key_bits | default(omit) }}"
-        ssh_key_comment: "{{ user.ssh_key_comment | default(omit) }}"
-        ssh_key_file: "{{ user.ssh_key_file | default(omit) }}"
-        ssh_key_passphrase: "{{ user.ssh_key_passphrase | default(omit) }}"
-        ssh_key_type: "{{ user.ssh_key_type | default(omit) }}"
-        state: "{{ user.state | default(omit) }}"
-        system: "{{ user.system | default(omit) }}"
-        uid: "{{ user.uid | default(omit) }}"
-        umask: "{{ user.umask | default(omit) }}"
-        update_password: "{{ user.update_password | default(omit) }}"
-      loop: "{{ system_users }}"
-      loop_control:
-        loop_var: user
-      no_log: true
+    - name: Users and groups management
+      become: true
+      block:
+        - name: Users - Groups to be present
+          ansible.builtin.group:
+            name: "{{ group.name }}"
+            gid: "{{ group.gid | default(omit) }}"
+            local: "{{ group.local | default(omit) }}"
+            non_unique: "{{ group.non_unique | default(omit) }}"
+            state: "{{ group.state | default(omit) }}"
+            system: "{{ group.system | default(omit) }}"
+          loop: "{{ groups_present }}"
+          loop_control:
+            loop_var: group
 
-    - name: Users - Keys
-      ansible.posix.authorized_key:
-        comment: "{{ key.comment | default(omit) }}"
-        exclusive: "{{ key.exclusive | default(omit) }}"
-        follow: "{{ key.follow | default(omit) }}"
-        key: "{{ key.key }}"
-        key_options: "{{ key.key_options | default(omit) }}"
-        manage_dir: "{{ key.manage_dir | default(omit) }}"
-        path: "{{ key.path | default(omit) }}"
-        state: "{{ key.state | default(omit) }}"
-        user: "{{ user.name }}"
-        validate_certs: "{{ key.validate_certs | default(omit) }}"
+        - name: Users - Groups - Implicit
+          ansible.builtin.group:
+            name: "{{ group }}"
+          loop: |
+            {{ (
+              [system_users_admin_group]
+            + (users_present | selectattr('group', 'defined') | map(attribute='group'))
+            + (users_present | selectattr('groups', 'defined') | map(attribute='groups'))
+            ) | flatten | sort | unique }}
+          loop_control:
+            loop_var: group
+
+        - name: Users
+          ansible.builtin.user:
+            name: "{{ user.name }}"
+            append: "{{ user.append | default(omit) }}"
+            comment: "{{ user.comment | default(omit) }}"
+            create_home: "{{ user.create_home | default(omit) }}"
+            expires: "{{ user.expires | default(omit) }}"
+            force: "{{ user.force | default(omit) }}"
+            generate_ssh_key: "{{ user.generate_ssh_key | default(omit) }}"
+            group: "{{ user.group | default(omit) }}"
+            groups: "{{ user.groups | default(omit) }}"
+            home: "{{ user.home | default(omit) }}"
+            local: "{{ user.local | default(omit) }}"
+            move_home: "{{ user.move_home | default(omit) }}"
+            non_unique: "{{ user.non_unique | default(omit) }}"
+            password: "{{ user.password | default(omit) }}"
+            password_expire_max: "{{ user.password_expire_max | default(omit) }}"
+            password_expire_min: "{{ user.password_expire_min | default(omit) }}"
+            password_lock: "{{ user.password_lock | default(omit) }}"
+            remove: "{{ user.remove | default(omit) }}"
+            seuser: "{{ user.seuser | default(omit) }}"
+            shell: "{{ user.shell | default(omit) }}"
+            skeleton: "{{ user.skeleton | default(omit) }}"
+            ssh_key_bits: "{{ user.ssh_key_bits | default(omit) }}"
+            ssh_key_comment: "{{ user.ssh_key_comment | default(omit) }}"
+            ssh_key_file: "{{ user.ssh_key_file | default(omit) }}"
+            ssh_key_passphrase: "{{ user.ssh_key_passphrase | default(omit) }}"
+            ssh_key_type: "{{ user.ssh_key_type | default(omit) }}"
+            state: "{{ user.state | default(omit) }}"
+            system: "{{ user.system | default(omit) }}"
+            uid: "{{ user.uid | default(omit) }}"
+            umask: "{{ user.umask | default(omit) }}"
+            update_password: "{{ user.update_password | default(omit) }}"
+          loop: "{{ system_users }}"
+          loop_control:
+            loop_var: user
+          no_log: true
+
+        - name: Users - Keys
+          ansible.posix.authorized_key:
+            comment: "{{ key.comment | default(omit) }}"
+            exclusive: "{{ key.exclusive | default(omit) }}"
+            follow: "{{ key.follow | default(omit) }}"
+            key: "{{ key.key }}"
+            key_options: "{{ key.key_options | default(omit) }}"
+            manage_dir: "{{ key.manage_dir | default(omit) }}"
+            path: "{{ key.path | default(omit) }}"
+            state: "{{ key.state | default(omit) }}"
+            user: "{{ user.name }}"
+            validate_certs: "{{ key.validate_certs | default(omit) }}"
+          vars:
+            users: "{{ system_users | selectattr('authorized_keys', 'defined') }}"
+            user: "{{ item.0 }}"
+            key: "{{ item.1 }}"
+          with_subelements:
+            - |
+              {{
+                (users | selectattr('state', 'undefined'))
+              + (users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+              }}
+            - authorized_keys
+
+        - name: Users - Groups to be absent
+          ansible.builtin.group:
+            name: "{{ group.name }}"
+            gid: "{{ group.gid | default(omit) }}"
+            local: "{{ group.local | default(omit) }}"
+            non_unique: "{{ group.non_unique | default(omit) }}"
+            state: absent
+            system: "{{ group.system | default(omit) }}"
+          loop: "{{ groups_absent }}"
+          loop_control:
+            loop_var: group
+
+    - name: Users - Linger system users
+      when: ansible_service_mgr == 'systemd'
       vars:
-        users: "{{ system_users | selectattr('authorized_keys', 'defined') }}"
-        user: "{{ item.0 }}"
-        key: "{{ item.1 }}"
-      with_subelements:
-        - |
-          {{
-            (users | selectattr('state', 'undefined'))
-          + (users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-          }}
-        - authorized_keys
-
-    - name: Users - Groups to be absent
-      ansible.builtin.group:
-        name: "{{ group.name }}"
-        gid: "{{ group.gid | default(omit) }}"
-        local: "{{ group.local | default(omit) }}"
-        non_unique: "{{ group.non_unique | default(omit) }}"
-        state: absent
-        system: "{{ group.system | default(omit) }}"
-      loop: "{{ groups_absent }}"
+        users: "{{ system_users | selectattr('system', 'defined') | selectattr('system', 'is', true) }}"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/linger.yml"
+      loop: |
+        {{
+          (system_users | selectattr('state', 'undefined'))
+        + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
+        }}
       loop_control:
-        loop_var: group
-
-- name: Users - Linger system users
-  when: ansible_service_mgr == 'systemd'
-  vars:
-    users: "{{ system_users | selectattr('system', 'defined') | selectattr('system', 'is', true) }}"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/linger.yml"
-  loop: |
-    {{
-      (system_users | selectattr('state', 'undefined'))
-    + (system_users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
-    }}
-  loop_control:
-    loop_var: system_user
+        loop_var: system_user
