@@ -79,7 +79,7 @@
             mode: not_null(mode, `0755`),
             owner: not_null(owner, `root`),
             path: mount,
-            resize: not_null(resize, `true`),
+            resize: not_null(resize, `false`),
             src: join(``, [device, to_string(not_null(number, `1`))])
           }')
         ) + (
