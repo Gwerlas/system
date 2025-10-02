@@ -39,7 +39,7 @@
         part_end: "{{ part.part_end | default(omit) }}"
         part_start: "{{ part.part_start | default(omit) }}"
         part_type: "{{ part.part_type | default(omit) }}"
-        resize: "{{ part.resize | default(true) }}"
+        resize: "{{ part.resize | default(false) }}"
         state: "{{ part.state | default('present') }}"
         unit: "{{ part.unit | default(omit) }}"
       loop: "{{ system_storages_partitions }}"

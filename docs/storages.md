@@ -40,7 +40,6 @@ For some arguments, we changed the default values as is :
 
 - `fs_type`: `ext4`
 - `number`: `1`
-- `resize`: `true`
 - `state`: `present`
 
 ### Logical Volume Manager (LVM)
