@@ -65,6 +65,7 @@
       }}
   ansible.builtin.set_fact:
     cacheable: true
+    system_kernel: "{{ ansible_kernel | regex_replace('([0-9.]+).*', '\\1') }}"
     system_mounts: |
       {{
         ((

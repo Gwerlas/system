@@ -1,4 +1,6 @@
 ---
 - name: Run task sequence
+  tags:
+    - always
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/{{ item }}.yml"
   loop: "{{ system_sequence }}"

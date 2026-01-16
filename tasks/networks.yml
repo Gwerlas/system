@@ -26,13 +26,15 @@
 
         - name: Networks - Distribution rules
           ansible.builtin.include_tasks:
-            file: "{{ item }}"
+            file: "{{ file }}"
           with_first_found:
             - files:
                 - "{{ default_network_backend_name }}.yml"
               paths:
                 - "{{ role_path }}/tasks/networks"
               skip: true
+          loop_control:
+            loop_var: file
 
         - name: Networks - Interfaces configuration from template
           when: network_backend.template is defined

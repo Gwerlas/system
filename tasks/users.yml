@@ -74,7 +74,7 @@
           loop: "{{ system_users }}"
           loop_control:
             loop_var: user
-          no_log: true
+          no_log: "{{ 'password' in user }}"
 
         - name: Users - Keys
           ansible.posix.authorized_key:
@@ -90,8 +90,8 @@
             validate_certs: "{{ key.validate_certs | default(omit) }}"
           vars:
             users: "{{ system_users | selectattr('authorized_keys', 'defined') }}"
-            user: "{{ item.0 }}"
-            key: "{{ item.1 }}"
+            user: "{{ system_user_key.0 }}"
+            key: "{{ system_user_key.1 }}"
           with_subelements:
             - |
               {{
@@ -99,6 +99,8 @@
               + (users | selectattr('state', 'defined') | selectattr('state', '==', 'present'))
               }}
             - authorized_keys
+          loop_control:
+            loop_var: system_user_key
 
         - name: Users - Groups to be absent
           ansible.builtin.group:

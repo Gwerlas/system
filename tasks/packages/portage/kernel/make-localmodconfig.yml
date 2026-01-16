@@ -1,0 +1,23 @@
+---
+- name: Portage - Kernel - First configuration
+  become: true
+  block:
+    - name: Portage - Kernel - Ebuild configure
+      ansible.builtin.command:
+        cmd: ebuild {{ system_portage_repos_directory }}/gentoo/sys-kernel/gentoo-kernel/{{ system_portage_kernel }}-{{ system_kernel }}.ebuild configure
+        creates: /var/tmp/portage/sys-kernel/{{ system_portage_kernel }}-{{ system_kernel }}/work/modprep/.config
+
+    - name: Portage - Kernel - Local modules configuration
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        chdir: /var/tmp/portage/sys-kernel/{{ system_portage_kernel }}-{{ system_kernel }}/work/modprep/
+        cmd: >
+          set -o pipefail;
+          yes "" | make localmodconfig
+      register: result
+      changed_when: "'Restart config...' in result.stdout"
+
+- name: Portage - Kernel - Copy the first saved config
+  vars:
+    savedconfig: /var/tmp/portage/sys-kernel/{{ system_portage_kernel }}-{{ system_kernel }}/work/modprep/.config
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/portage/kernel/copy-savedconfig.yml"

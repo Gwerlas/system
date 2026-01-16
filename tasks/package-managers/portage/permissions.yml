@@ -14,7 +14,7 @@
 - name: Portage - Permissions - Configuration directories
   become: true
   ansible.builtin.file:
-    path: "{{ dir }}"
+    path: "{{ system_dir }}"
     state: directory
     group: portage
     mode: "0775"
@@ -30,4 +30,4 @@
     - /var/cache/distfiles
     - "{{ system_portage_repos_directory }}"
   loop_control:
-    loop_var: dir
+    loop_var: system_dir

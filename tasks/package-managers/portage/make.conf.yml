@@ -16,14 +16,14 @@
 
     - name: Portage - make.conf - Hardware support
       become: true
-      when: item.value | length > 0
+      when: line.value | length > 0
       ansible.builtin.lineinfile:
         dest: /etc/portage/make.conf
-        line: '{{ item.key }}="{{ item.value }}"'
-        regexp: '^{{ item.key }}='
-        insertafter: "{{ item.insertafter | default(omit) }}"
-        insertbefore: "{{ item.insertbefore | default(omit) }}"
-        firstmatch: "{{ 'insertbefore' in item }}"
+        line: '{{ line.key }}="{{ line.value }}"'
+        regexp: '^{{ line.key }}='
+        insertafter: "{{ line.insertafter | default(omit) }}"
+        insertbefore: "{{ line.insertbefore | default(omit) }}"
+        firstmatch: "{{ 'insertbefore' in line }}"
       loop:
         - key: COMMON_FLAGS
           value: "{{ system_packages_build_cflags }}"
@@ -49,6 +49,8 @@
           value: "{{ system_portage_video_cards | join(' ') }}"
           state: "{{ in_container | ternary('absent', 'present') }}"
       notify: emerge --newuse
+      loop_control:
+        loop_var: line
 
 - name: Portage - make.conf - Get installed Python versions
   ansible.builtin.command:
@@ -59,14 +61,14 @@
 
 - name: Portage - make.conf - Common settings
   become: true
-  when: item.value | length > 0
+  when: line.value | length > 0
   ansible.builtin.lineinfile:
     dest: /etc/portage/make.conf
-    line: '{{ item.key }}="{{ item.value }}"'
-    regexp: '^{{ item.key }}='
-    insertafter: "{{ item.insertafter | default(omit) }}"
-    insertbefore: "{{ item.insertbefore | default(omit) }}"
-    firstmatch: "{{ 'insertbefore' in item }}"
+    line: '{{ line.key }}="{{ line.value }}"'
+    regexp: '^{{ line.key }}='
+    insertafter: "{{ line.insertafter | default(omit) }}"
+    insertbefore: "{{ line.insertbefore | default(omit) }}"
+    firstmatch: "{{ 'insertbefore' in line }}"
   loop:
     - key: ACCEPT_KEYWORDS
       value: "{{ system_portage_accept_keywords | join(' ') }}"
@@ -82,19 +84,22 @@
       value: |-
         {{
           system_portage_python_targets |
-          default(
-            ['python'] |
-            product(equery.stdout_lines | map('replace', '.', '_')) |
-            map('join') |
-            join(' ')
-          )
+          default([]) |
+          join(' ')
         }}
     - key: PYTHON_SINGLE_TARGET
-      value: "{{ system_portage_python_single_target }}"
+      value: "{{ system_portage_python_single_target | default('') }}"
       insertafter: PYTHON_TARGETS
     - key: RUBY_TARGETS
-      value: "{{ system_portage_ruby_targets | join(' ') }}"
+      value: |-
+        {{
+          system_portage_ruby_targets |
+          default([]) |
+          join(' ')
+        }}
   notify: emerge --newuse
+  loop_control:
+    loop_var: line
 
 - name: Become root
   become: true
@@ -107,7 +112,6 @@
         mode: "0664"
       loop:
         - package.license/kernels
-        - package.mask/python
         - package.use/firewalld
         - package.use/kernel
         - package.use/libreoffice
