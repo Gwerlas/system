@@ -115,7 +115,7 @@
             loop_var: group
 
     - name: Users - Linger system users
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts.service_mgr == 'systemd'
       vars:
         users: "{{ system_users | selectattr('system', 'defined') | selectattr('system', 'is', true) }}"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/users/linger.yml"

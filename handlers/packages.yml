@@ -1,10 +1,10 @@
 ---
 - name: APT
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_facts.pkg_mgr == 'apt'
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/apt.yml"
 
 - name: Portage
-  when: ansible_pkg_mgr == 'portage'
+  when: ansible_facts.pkg_mgr == 'portage'
   ansible.builtin.import_tasks: "{{ role_path }}/handlers/portage.yml"
 
 - name: Restart the Display Manager
@@ -23,9 +23,9 @@
   vars:
     output: |-
       {{
-        ('GRUB_CFG' in ansible_env) |
+        ('GRUB_CFG' in ansible_facts.env) |
         ternary(
-          ansible_env.GRUB_CFG,
+          ansible_facts.env.GRUB_CFG,
           '/boot/grub/grub.cfg'
         )
       }}

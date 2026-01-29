@@ -41,13 +41,14 @@ yet ready :
   tasks:
     - name: System facts
       vars:
-        ansible_os_family: Debian
-        ansible_distribution: Debian
-        ansible_distribution_major_version: "11"
-        ansible_distribution_release: bullseye
-        ansible_service_mgr: systemd
-        ansible_pkg_mgr: apt
-        ansible_virtualization_tech_guest: []
+        ansible_facts:
+          os_family: Debian
+          distribution: Debian
+          distribution_major_version: "11"
+          distribution_release: bullseye
+          service_mgr: systemd
+          pkg_mgr: apt
+          virtualization_tech_guest: []
       ansible.builtin.import_role:
         name: gwerlas.system
         tasks_from: facts

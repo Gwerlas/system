@@ -1,5 +1,5 @@
-# {{ ansible_managed }}
+# Ansible managed, do not edit
 
 Package: *
-Pin: release a={{ ansible_distribution_release | lower }}-backports
+Pin: release a={{ ansible_facts.distribution_release | lower }}-backports
 Pin-Priority: 900

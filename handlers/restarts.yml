@@ -22,7 +22,7 @@
 - name: Reload OpenRC
   listen:
     - reload init system
-  when: ansible_service_mgr == "openrc"
+  when: ansible_facts.service_mgr == "openrc"
   become: true
   ansible.builtin.command:
     cmd: telinit u
@@ -31,7 +31,7 @@
 - name: Reload systemd
   listen:
     - reload init system
-  when: ansible_service_mgr == "systemd"
+  when: ansible_facts.service_mgr == "systemd"
   become: true
   ansible.builtin.systemd:
     daemon_reload: true

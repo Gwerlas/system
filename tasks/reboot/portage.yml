@@ -7,7 +7,7 @@
   vars:
     patterns:
       - sys-boot/grub
-      - sys-apps/{{ ansible_service_mgr }}
+      - sys-apps/{{ ansible_facts.service_mgr }}
       - sys-libs/glibc
     occurences: |
       {{
@@ -38,13 +38,13 @@
 
 - name: Portage - Service manager
   vars:
-    has_changed: "{{ ('sys-apps/' + ansible_service_mgr) in installed_this_boot.stdout }}"
+    has_changed: "{{ ('sys-apps/' + ansible_facts.service_mgr) in installed_this_boot.stdout }}"
   ansible.builtin.debug:
     msg: |-
       {{
         has_changed | ternary(
-          ansible_service_mgr + " has changed",
-          ansible_service_mgr + " hasn't changed"
+          ansible_facts.service_mgr + " has changed",
+          ansible_facts.service_mgr + " hasn't changed"
         )
       }}
   changed_when: has_changed

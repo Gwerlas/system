@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+# Ansible managed, do not edit
 
 {% for repo in item.repositories %}
 {% set title = repo.name | default(([item.name, loop.index] | join('')) if (item.repositories | length) > 1 else item.name) %}

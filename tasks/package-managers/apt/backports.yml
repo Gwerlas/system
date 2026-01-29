@@ -4,7 +4,7 @@
   block:
     - name: APT - Backports - Detection
       ansible.builtin.command:
-        cmd: grep '\<{{ ansible_distribution_release | lower }}-backports\>' /etc/apt/sources.list /etc/apt/sources.list.d/*
+        cmd: grep '\<{{ ansible_facts.distribution_release | lower }}-backports\>' /etc/apt/sources.list /etc/apt/sources.list.d/*
       failed_when: false
       changed_when: false
       check_mode: false
@@ -21,7 +21,7 @@
         )
         or
         (
-          ansible_distribution_major_version == '10'
+          ansible_facts.distribution_major_version == '10'
           and
           (
             'systemd-timesyncd' in system_packages

@@ -33,7 +33,7 @@ The version of sudo is available through the `system_sudo_version` fact.
 
 ```yaml
 system_sudo_nopasswd: true
-system_sudo_group: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+system_sudo_group: "{{ 'sudo' if ansible_facts.os_family == 'Debian' else 'wheel' }}"
 system_sudo_defaults: []
 ```
 

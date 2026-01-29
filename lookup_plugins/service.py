@@ -25,7 +25,7 @@ class LookupModule(LookupBase):
         if variables is None:
             variables = {}
 
-        svc_mgr = variables.get('ansible_service_mgr', 'systemd')
+        svc_mgr = variables.get('ansible_facts').get('service_mgr', 'systemd')
         services_map = variables.get('services_map', {})
 
         display.v(f"Service manager: {svc_mgr}, Services map: {services_map}")

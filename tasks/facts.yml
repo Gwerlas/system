@@ -1,6 +1,6 @@
 ---
 - name: Facts - Checks
-  when: ansible_os_family is undefined
+  when: ansible_facts.os_family is undefined
   ansible.builtin.fail:
     msg: Ansible facts must be gathered
 
@@ -10,13 +10,13 @@
     dir:
       - "{{ role_path }}/vars/"
     flavors:
-      - "{{ ansible_pkg_mgr }}"                                                         # apt,           dnf,          etc.
-      - "{{ ansible_service_mgr }}"                                                     # openrc,        systemd
-      - "{{ ansible_os_family | lower }}-like"                                          # debian-like,   redhat-like,  etc.
-      - "{{ ansible_distribution | lower }}"                                            # debian,        fedora,       etc.
-      - "{{ ansible_os_family | lower }}{{ ansible_distribution_major_version }}-like"  # redhat7-like,  redhat8-like, etc.
-      - "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}"    # debian10,      debian11
-      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}" # ubuntu-bionic, ubuntu-focal
+      - "{{ ansible_facts.pkg_mgr }}"                                                         # apt,           dnf,          etc.
+      - "{{ ansible_facts.service_mgr }}"                                                     # openrc,        systemd
+      - "{{ ansible_facts.os_family | lower }}-like"                                          # debian-like,   redhat-like,  etc.
+      - "{{ ansible_facts.distribution | lower }}"                                            # debian,        fedora,       etc.
+      - "{{ ansible_facts.os_family | lower }}{{ ansible_facts.distribution_major_version }}-like"  # redhat7-like,  redhat8-like, etc.
+      - "{{ ansible_facts.distribution | lower }}{{ ansible_facts.distribution_major_version }}"    # debian10,      debian11
+      - "{{ ansible_facts.distribution | lower }}-{{ ansible_facts.distribution_release | lower }}" # ubuntu-bionic, ubuntu-focal
     ext:
       - .yml
   with_fileglob: |
@@ -65,7 +65,7 @@
       }}
   ansible.builtin.set_fact:
     cacheable: true
-    system_kernel: "{{ ansible_kernel | regex_replace('([0-9.]+).*', '\\1') }}"
+    system_kernel: "{{ ansible_facts.kernel | regex_replace('([0-9.]+).*', '\\1') }}"
     system_mounts: |
       {{
         ((
@@ -131,13 +131,13 @@
 
     - name: Facts - Autodetections
       ansible.builtin.set_fact:
-        system_uptime: "{{ (ansible_date_time.epoch | int) - ansible_uptime_seconds }}"
+        system_uptime: "{{ (ansible_facts.date_time.epoch | int) - ansible_facts.uptime_seconds }}"
         system_boot_mode: "{{ result.stat.exists | ternary('efi', 'pc') }}"
         cacheable: true
 
     - name: Facts - Autodetect installed kernel package
       when:
-        - ansible_pkg_mgr == 'portage'
+        - ansible_facts.pkg_mgr == 'portage'
         - system_portage_kernel == 'auto'
       vars:
         current_kernel: |

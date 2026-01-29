@@ -6,7 +6,7 @@
 
 - name: Package managers - Configuration
   vars:
-    task_file: "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}/configure.yml"
+    task_file: "{{ role_path }}/tasks/package-managers/{{ ansible_facts.pkg_mgr }}/configure.yml"
   when: task_file is file
   ansible.builtin.include_tasks:
     file: "{{ task_file }}"
@@ -18,7 +18,7 @@
     - files:
         - update.yml
       paths:
-        - "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/package-managers/{{ ansible_facts.pkg_mgr }}"
         - "{{ role_path }}/tasks/package-managers/other"
   loop_control:
     loop_var: pkg_mgr_task

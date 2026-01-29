@@ -16,7 +16,7 @@
         '/profiles/default/linux/amd64/' +
         portage_default_profile +
         '/no-multilib' +
-        ('/systemd' if ansible_service_mgr == 'systemd' else '')
+        ('/systemd' if ansible_facts.service_mgr == 'systemd' else '')
       }}
     dest: /etc/portage/make.profile
     state: link

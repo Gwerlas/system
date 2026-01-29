@@ -16,7 +16,7 @@
       ansible.builtin.assert:
         quiet: true
         that:
-          - ansible_fqdn == inventory_hostname + '.mydomain.tld'
+          - ansible_facts.fqdn == inventory_hostname + '.mydomain.tld'
 
     - name: Command line tools
       ansible.builtin.command: "{{ item }} --version"
@@ -110,7 +110,7 @@
       failed_when: result.stat.exists
 
     - name: User my_service is lingered
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts.service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: loginctl user-status my_service
       register: result
@@ -129,7 +129,7 @@
       vars:
         params:
           files:
-            - "{{ ansible_os_family | lower }}-like.yml"
+            - "{{ ansible_facts.os_family | lower }}-like.yml"
             - other.yml
           paths:
             - vars
@@ -152,7 +152,7 @@
         not 'GWERLAS CA' in result.stdout
 
     - name: Check that timedatectl is synchronized
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts.service_mgr == 'systemd'
       ansible.builtin.command:
         cmd: timedatectl
       register: result
@@ -163,7 +163,7 @@
       changed_when: false
 
     - name: Check that chronyc is synchronized
-      when: ansible_service_mgr == 'openrc'
+      when: ansible_facts.service_mgr == 'openrc'
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
@@ -173,7 +173,7 @@
         path: /var/backups
       register: bkpdir
       failed_when: |
-        not '/var/backups' in (ansible_mounts | map(attribute='mount'))
+        not '/var/backups' in (ansible_facts.mounts | map(attribute='mount'))
         or
         not bkpdir.stat.pw_name == 'vagrant'
         or

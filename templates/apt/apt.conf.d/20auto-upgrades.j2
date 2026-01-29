@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+# Ansible managed, do not edit
 
 APT::Periodic::Update-Package-Lists "{{ system_packages_upgrade_unattended | int }}";
 APT::Periodic::Unattended-Upgrade "{{ system_packages_upgrade_unattended | int }}";

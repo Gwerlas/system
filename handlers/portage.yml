@@ -93,7 +93,7 @@
   vars:
     arguments: >-
       {% if system_boot_mode == 'efi' %}
-        --target={{ ansible_architecture }}-{{ system_boot_mode }}
+        --target={{ ansible_facts.architecture }}-{{ system_boot_mode }}
         --efi-directory={{ system_grub_efi_directory }}
       {% else %}
         /dev/{{ result.stdout }}

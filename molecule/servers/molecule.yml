@@ -44,8 +44,7 @@ platforms:
   #   instance_raw_config_args:
   #     - 'vm.disk :disk, size: "1GB", name: "vdb"'
 
-
-  # Debian like
+  # Debian like - https://www.debian.org/releases/
   - name: bullseye  # EOL 2026-08-31
     box: debian/bullseye64
     groups:
@@ -72,8 +71,8 @@ platforms:
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
-  - name: trixie
-    box: debian/testing64
+  - name: trixie    # EOL 2030-06-30
+    box: debian/trixie64
     groups:
       - debian_like
       - debian
@@ -90,7 +89,7 @@ platforms:
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
   - name: noble     # EOL 2029-04-25
-    box: alvistack/ubuntu-24.04
+    box: cloud-image/ubuntu-24.04
     groups:
       - debian_like
       - ubuntu
@@ -101,37 +100,33 @@ platforms:
 
   # RedHat like
   - name: centos9s  # EOL 2027-05-31
-    box: generic-x64/centos9s
+    box: cloud-image/centos-10-stream
     groups:
       - el
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
-  # - name: centos10s  # EOL 2027-05-31
-  #   box: alvistack/centos-10-stream
-  #   groups:
-  #     - el
-  #   memory: 2048
-  #   interfaces: *interfaces
-  #   provider_raw_config_args: *provider_raw_config
-  #   instance_raw_config_args: *instance_raw_config
+  - name: centos10s  # EOL 2030-01-01
+    box: cloud-image/centos-10-stream
+    groups:
+      - el
+    memory: 2048
+    interfaces: *interfaces
+    provider_raw_config_args: *provider_raw_config
+    instance_raw_config_args: *instance_raw_config
   - name: alma9     # EOL 2027-05-31
-    box: generic-x64/alma9
+    box: cloud-image/almalinux-9
     groups:
       - el
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config
     instance_raw_config_args: *instance_raw_config
-  - name: fedora41  # EOL 2025-11-19
-    box: fedora/41-cloud-base
-    memory: 2048
-    interfaces: *interfaces
-    provider_raw_config_args: *provider_raw_config
-    instance_raw_config_args: *instance_raw_config
-  - name: fedora42  # EOL 2026-05-13
-    box: alvistack/fedora-42
+  - name: alma10     # EOL 2030-05-31
+    box: cloud-image/almalinux-10
+    groups:
+      - el
     memory: 2048
     interfaces: *interfaces
     provider_raw_config_args: *provider_raw_config

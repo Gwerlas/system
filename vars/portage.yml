@@ -3,7 +3,7 @@ pkg_mgr_cache_update_policy:
   files:
     - path: "{{ system_portage_directory }}/metadata/timestamp.chk"
 
-portage_main_repo: "{{ ansible_distribution | lower }}"
+portage_main_repo: "{{ ansible_facts.distribution | lower }}"
 
 portage_profiles:
   server: no-multilib

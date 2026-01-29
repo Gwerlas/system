@@ -1,6 +1,6 @@
 ---
 # For feature flipping purpose
-in_container: "{{ 'container' in ansible_virtualization_tech_guest }}"
+in_container: "{{ 'container' in ansible_facts.virtualization_tech_guest }}"
 is_desktop: "{{ 'desktop' in system_profile }}"
 use_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
 

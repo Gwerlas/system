@@ -37,9 +37,9 @@
           {{
             '../..' + system_portage_directory +
             '/profiles/default/linux/amd64/23.0' +
-            ('/split-usr' if ansible_service_mgr == 'openrc' else '') +
+            ('/split-usr' if ansible_facts.service_mgr == 'openrc' else '') +
             '/no-multilib' +
-            ('/systemd' if ansible_service_mgr == 'systemd' else '')
+            ('/systemd' if ansible_facts.service_mgr == 'systemd' else '')
           }}
         dest: /etc/portage/make.profile
         state: link

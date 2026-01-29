@@ -1,7 +1,7 @@
 ---
 - name: Packages - Before install
   vars:
-    task_file: "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}/before-install.yml"
+    task_file: "{{ role_path }}/tasks/packages/{{ ansible_facts.pkg_mgr }}/before-install.yml"
   when: task_file is file
   ansible.builtin.include_tasks:
     file: "{{ task_file }}"

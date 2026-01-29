@@ -7,7 +7,7 @@ Variables
 ---------
 
 ```yaml
-system_users_admin_group: "{{ 'adm' if ansible_os_family == 'Debian' else 'wheel' }}"
+system_users_admin_group: "{{ 'adm' if ansible_facts.os_family == 'Debian' else 'wheel' }}"
 system_users_groups: []
 system_users: []
 ```

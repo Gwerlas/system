@@ -111,14 +111,14 @@ Here is an example of sources list using the official main server :
 system_apt_sources_list:
   - uri: http://deb.debian.org/debian
     suites:
-      - "{{ ansible_distribution_release }}"
-      - "{{ ansible_distribution_release }}-updates"
-      - "{{ ansible_distribution_release }}-backports"
+      - "{{ ansible_facts.distribution_release }}"
+      - "{{ ansible_facts.distribution_release }}-updates"
+      - "{{ ansible_facts.distribution_release }}-backports"
     components:
       - main
   - uri: http://deb.debian.org/debian-security
     suites:
-      - "{{ ansible_distribution_release }}{{ '-security' if ansible_distribution_major_version >= '11' else '' }}/updates"
+      - "{{ ansible_facts.distribution_release }}{{ '-security' if ansible_facts.distribution_major_version >= '11' else '' }}/updates"
     components:
       - main
 ```
@@ -130,16 +130,16 @@ use the `proxy` property like this :
 system_apt_sources_list:
   - uri: ftp://my-apt-mirror/debian
     suites:
-      - "{{ ansible_distribution_release | lower }}"
-      - "{{ ansible_distribution_release | lower }}-security"
+      - "{{ ansible_facts.distribution_release | lower }}"
+      - "{{ ansible_facts.distribution_release | lower }}-security"
     components:
       - main
       - contrib
     proxy: direct     # Do not use any proxy
   - uri: http://my-another-mirror/debian
     suites:
-      - "{{ ansible_distribution_release | lower }}"
-      - "{{ ansible_distribution_release | lower }}-security"
+      - "{{ ansible_facts.distribution_release | lower }}"
+      - "{{ ansible_facts.distribution_release | lower }}-security"
     components:
       - main
       - contrib
@@ -178,7 +178,7 @@ system_apt_sources_list:
   - name: my-mirror
     uri: ftp://my-apt-mirror/debian
     suites:
-      - "{{ ansible_distribution_release | lower }}"
+      - "{{ ansible_facts.distribution_release | lower }}"
     components:
       - main
       - contrib
@@ -405,7 +405,7 @@ sync-uri = https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/23.0/
 
 ```yaml
 # /var/db/repos/gentoo by default for Gentoo
-system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_distribution | lower }}"
+system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_facts.distribution | lower }}"
 ```
 
 The goal of this role is to manage systems easily, respecting the spirit of

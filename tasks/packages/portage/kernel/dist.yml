@@ -13,7 +13,7 @@
 - name: Portage - Kernel - Dist - Get the latest version
   when:
     - system_packages_upgrade
-    - ansible_kernel is not match(system_latest_kernel | regex_escape)
+    - ansible_facts.kernel is not match(system_latest_kernel | regex_escape)
   block:
     - name: Portage - Kernel - Dist - Get saved config
       ansible.builtin.stat:

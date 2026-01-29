@@ -23,7 +23,7 @@
             pattern: linux-*
             file_type: directory
             excludes:
-              - "*{{ ansible_kernel }}*"
+              - "*{{ ansible_facts.kernel }}*"
               - "*{{ system_latest_kernel }}*"
           register: kernel_sources
 
@@ -45,7 +45,7 @@
             obsoletes: |
               {{
                 sources |
-                reject('in', [ansible_kernel, latest])
+                reject('in', [ansible_facts.kernel, latest])
               }}
           when: obsoletes | length > 0
           become: true
@@ -53,12 +53,12 @@
             - name: Portage - Unused kernels - Remove
               vars:
                 patterns:
-                  - initramfs-%s-{{ ansible_userspace_architecture }}.img
-                  - initramfs-%s-{{ ansible_userspace_architecture }}.img.old
-                  - System.map-%s-{{ ansible_userspace_architecture }}
-                  - System.map-%s-{{ ansible_userspace_architecture }}.old
-                  - vmlinuz-%s-{{ ansible_userspace_architecture }}
-                  - vmlinuz-%s-{{ ansible_userspace_architecture }}.old
+                  - initramfs-%s-{{ ansible_facts.userspace_architecture }}.img
+                  - initramfs-%s-{{ ansible_facts.userspace_architecture }}.img.old
+                  - System.map-%s-{{ ansible_facts.userspace_architecture }}
+                  - System.map-%s-{{ ansible_facts.userspace_architecture }}.old
+                  - vmlinuz-%s-{{ ansible_facts.userspace_architecture }}
+                  - vmlinuz-%s-{{ ansible_facts.userspace_architecture }}.old
               ansible.builtin.file:
                 path: /boot/{{ kernel_version.1 | regex_replace('%s', kernel_version.0) }}
                 state: absent
@@ -71,7 +71,7 @@
 
             - name: Portage - Unused kernels - Remove modules
               ansible.builtin.file:
-                path: /lib/modules/{{ kernel_version }}-{{ ansible_userspace_architecture }}
+                path: /lib/modules/{{ kernel_version }}-{{ ansible_facts.userspace_architecture }}
                 state: absent
               loop: "{{ obsoletes }}"
               loop_control:

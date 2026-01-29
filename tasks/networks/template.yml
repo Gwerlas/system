@@ -10,7 +10,7 @@
 
     - name: Networks - Interfaces configuration - Files
       when: |
-        (not netiface.name in ansible_interfaces)
+        (not netiface.name in ansible_facts.interfaces)
         or
         (system_networks_check_mode == 'files')
       ansible.builtin.template:

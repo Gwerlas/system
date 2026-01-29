@@ -11,7 +11,7 @@ Here are the defaults values :
 ```yaml
 system_firewall_default_zone: public
 system_firewall_log: true
-system_firewall_public_interface: "{{ ansible_default_ipv4.interface }}"
+system_firewall_public_interface: "{{ ansible_facts.default_ipv4.interface }}"
 system_firewall_rules: []
 ```
 

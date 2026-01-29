@@ -9,7 +9,7 @@
         - files:
             - update.yml
           paths:
-            - "{{ role_path }}/tasks/package-managers/{{ ansible_pkg_mgr }}"
+            - "{{ role_path }}/tasks/package-managers/{{ ansible_facts.pkg_mgr }}"
             - "{{ role_path }}/tasks/package-managers/other"
       loop_control:
         loop_var: package_task
@@ -21,7 +21,7 @@
         - files:
             - dist-upgrade.yml
           paths:
-            - "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}"
+            - "{{ role_path }}/tasks/packages/{{ ansible_facts.pkg_mgr }}"
             - "{{ role_path }}/tasks/packages/other"
       loop_control:
         loop_var: package_task
@@ -38,7 +38,7 @@
     - files:
         - install.yml
       paths:
-        - "{{ role_path }}/tasks/packages/{{ ansible_pkg_mgr }}"
+        - "{{ role_path }}/tasks/packages/{{ ansible_facts.pkg_mgr }}"
         - "{{ role_path }}/tasks/packages/other"
   loop_control:
     loop_var: package_task
