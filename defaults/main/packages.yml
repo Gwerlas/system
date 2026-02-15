@@ -39,6 +39,7 @@ system_portage_kernel: auto
 system_portage_use_bin_suffix: "{{ not packages_build }}"
 ## Harware support
 system_portage_cameras: []
+system_portage_sane_backends: []
 system_portage_video_cards: []
 ## Software settings
 # system_portage_python_single_target: python{{ ansible_facts.python.version.major }}_{{ ansible_facts.python.version.minor }}
