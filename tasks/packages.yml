@@ -7,6 +7,10 @@
       when: system_packages is undefined
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
+    - name: Packages - Update package list
+      when: system_packages_upgrade | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/update.yml"
+
     - name: Packages - Before install
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages/before-install.yml"
 

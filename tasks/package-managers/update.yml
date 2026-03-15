@@ -1,0 +1,12 @@
+---
+- name: Package managers - Update package list
+  ansible.builtin.include_tasks:
+    file: "{{ package_task }}"
+  with_first_found:
+    - files:
+        - update.yml
+      paths:
+        - "{{ role_path }}/tasks/package-managers/{{ ansible_facts.pkg_mgr }}"
+        - "{{ role_path }}/tasks/package-managers/other"
+  loop_control:
+    loop_var: package_task
