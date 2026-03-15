@@ -65,7 +65,12 @@
       }}
   ansible.builtin.set_fact:
     cacheable: true
-    system_kernel: "{{ ansible_facts.kernel | regex_replace('([0-9.]+).*', '\\1') }}"
+    system_kernel: |-
+      {{
+        ansible_facts.kernel |
+        regex_replace('^(\d[\d.]+)(-p\d+)?.*$', '\1\2') |
+        regex_replace('-p(\d+)$', '_p\1')
+      }}
     system_mounts: |
       {{
         ((
@@ -149,9 +154,4 @@
           }}
       ansible.builtin.set_fact:
         system_portage_kernel: "{{ current_kernel.name }}"
-        system_portage_kernel_provider: |-
-          {{
-            current_kernel.name is match('.*-sources$') |
-            ternary('genkernel', 'dist')
-          }}
         cacheable: true

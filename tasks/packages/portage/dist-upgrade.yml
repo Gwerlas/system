@@ -11,7 +11,3 @@
       register: result
       until: result.failed == false
       retries: "{{ system_retries }}"
-
-    - name: Portage - Dependency cleaning
-      community.general.portage:
-        depclean: true

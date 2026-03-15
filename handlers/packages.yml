@@ -17,7 +17,6 @@
 
 - name: Update Grub configuration
   listen:
-    - genkernel
     - grub-mkconfig
   become: true
   vars:

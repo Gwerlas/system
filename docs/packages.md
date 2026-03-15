@@ -479,16 +479,14 @@ Supported values :
 - `auto` : Get from the list of installed packages
 - `gentoo-kernel`
 - `gentoo-kernel-bin`
-- `gentoo-sources` : Built with [Genkernel][]
 - `vanilla-kernel`
 
-See [distribution kernels][] and/or [Genkernel][] for more informations.
+See [distribution kernels][] for more informations.
 
 You also can view the complete list of available kernels (but not only)
 on the [sys-kernel category][] web page.
 
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
-[Genkernel]: https://wiki.gentoo.org/wiki/Genkernel
 [sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
 Packages upgrade
