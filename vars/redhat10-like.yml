@@ -1,0 +1,15 @@
+---
+# https://bugzilla.redhat.com/show_bug.cgi?id=1970865
+default_time_backend_name: chrony
+
+masks:
+  time_backends:
+    - systemd-timesyncd
+    - ntp
+
+# Gnome Console is not yet available
+release_packages:
+  gnome-console:
+    - gnome-terminal
+  gnome-text-editor:
+    - gedit
