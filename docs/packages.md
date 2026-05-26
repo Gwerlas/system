@@ -399,6 +399,10 @@ priority = 9999
 sync-uri = https://mirror.bytemark.co.uk/gentoo/releases/amd64/binpackages/23.0/x86-64/
 ```
 
+On the first emerge, the role imports the Gentoo release signing keys with
+`getuto` so binpkg signatures verify out of the box (idempotent: skipped if
+`/etc/portage/gnupg/pubring.kbx` already exists).
+
 [binrepos.conf]: https://wiki.gentoo.org/wiki//etc/portage/binrepos.conf
 
 ##### PORTDIR

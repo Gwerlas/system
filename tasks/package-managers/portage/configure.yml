@@ -18,6 +18,7 @@
 - name: Portage - Tasks sequence
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/package-managers/portage/{{ portage_task }}.yml"
   loop:
+    - trust
     - permissions
     - portdir
     - profile

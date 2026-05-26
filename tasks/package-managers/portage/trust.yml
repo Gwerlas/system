@@ -1,0 +1,11 @@
+---
+# Cloud images (e.g. Gentoo's cloudinit qcow2) ship with `FEATURES=getbinpkg`
+# enabled but no GnuPG keyring at /etc/portage/gnupg/, which makes the first
+# binpkg-backed emerge fail with "binpkg signed with at least one unknown key".
+# `getuto` (alias of `PORTAGE_TRUST_HELPER`) imports the Gentoo release keys
+# and is idempotent — it just exits if the keyring is already there.
+- name: Portage - Trust - Import GPG keys for binpkgs
+  become: true
+  ansible.builtin.command:
+    cmd: /usr/bin/getuto
+    creates: /etc/portage/gnupg/pubring.kbx
