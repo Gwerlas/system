@@ -1,4 +1,13 @@
 ---
+- name: Portage - Cleanup old kernels
+  listen:
+    - eclean-kernel
+  become: true
+  ansible.builtin.command:
+    cmd: eclean-kernel -n 2
+  register: result
+  changed_when: result.stdout != 'No outdated kernels found.'
+
 - name: Portage - Prevent circular dependencies and multilib compilation failures
   listen:
     - change profile
@@ -28,6 +37,17 @@
     update: "{{ system_packages_upgrade }}"
     package: '@world'
 
+- name: Portage - Auto merge kernel savedconfig
+  listen:
+    - etc-update savedconfig
+  become: true
+  vars:
+    savedconfig: /etc/portage/savedconfig/sys-kernel/{{ system_portage_kernel }}-{{ system_latest_kernel }}
+  ansible.builtin.command:
+    cmd: etc-update --automode -5 {{ savedconfig }}
+  register: result
+  changed_when: savedconfig in result.stdout
+
 - name: Portage - Repositories sync types
   listen:
     - sync repos
@@ -53,26 +73,31 @@
 - name: Portage - Clean dependencies
   listen:
     - change profile
+    - eclean-kernel
     - emerge --newuse
   become: true
   community.general.portage:
     depclean: true
 
-- name: Portage - Genkernel
-  when: system_portage_kernel is regex('\w+-sources')
-  listen: genkernel
-  become: true
-  ansible.builtin.command:
-    cmd: genkernel all
-  changed_when: true
-
 - name: Portage - Kernel modules rebuild
   listen:
-    - genkernel
     - emerge @module-rebuild
   become: true
   community.general.portage:
     package: '@module-rebuild'
+
+# Rebuild the dracut initramfs for every installed kernel. dracut bundles the
+# CPU microcode it finds at build time, so this keeps the early microcode in
+# sync after linux-firmware changes. Paired with grub-mkconfig, it also drops
+# any stale standalone microcode image (e.g. /boot/amd-uc.img) from the boot
+# entries. Runs before "Update Grub configuration" (handler load order).
+- name: Portage - Regenerate initramfs
+  listen:
+    - regenerate initramfs
+  become: true
+  ansible.builtin.command:
+    cmd: dracut --force --regenerate-all
+  changed_when: true
 
 - name: Portage - Detect root filesystem
   listen:

@@ -8,6 +8,7 @@
     patterns:
       - sys-boot/grub
       - sys-apps/{{ ansible_facts.service_mgr }}
+      - sys-kernel/{{ system_portage_kernel }}
       - sys-libs/glibc
     occurences: |
       {{
@@ -64,4 +65,42 @@
   changed_when: has_changed
   notify:
     - reload init system
+    - "{{ system_reboot_handler }}"
+
+- name: Portage - Kernel
+  vars:
+    has_changed: "{{ ('sys-kernel/' + system_portage_kernel) in installed_this_boot.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Kernel has changed",
+          "Kernel hasn't changed"
+        )
+      }}
+  changed_when: has_changed
+  notify:
+    - eclean-kernel
+    - grub-mkconfig
+    - "{{ system_reboot_handler }}"
+
+# linux-firmware ships the CPU microcode that dracut bundles into the initramfs
+# and that a standalone /boot/*-uc.img may carry. When it changes we rebuild the
+# initramfs and the bootloader config so the boot entries stay consistent (a
+# stale microcode image reference would otherwise break the next boot).
+- name: Portage - Linux firmware
+  vars:
+    has_changed: "{{ 'sys-kernel/linux-firmware' in installed_this_boot.stdout }}"
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        has_changed | ternary(
+          "Linux firmware has changed",
+          "Linux firmware hasn't changed"
+        )
+      }}
+  changed_when: has_changed
+  notify:
+    - regenerate initramfs
+    - grub-mkconfig
     - "{{ system_reboot_handler }}"

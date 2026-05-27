@@ -517,6 +517,12 @@ needs the kernel to support a feature it enables — see for example
 [firewall.md][firewall] which drops `firewalld.config` to keep nftables in
 the kernel.
 
+When `sys-kernel/linux-firmware` is (re)installed, the role rebuilds the dracut
+initramfs for every installed kernel (`dracut --regenerate-all`) and
+regenerates `grub.cfg`, then reboots. This keeps the CPU microcode bundled in
+the initramfs in sync with the new firmware and drops any stale standalone
+microcode image reference (e.g. `/boot/amd-uc.img`) from the boot entries.
+
 [firewall]: firewall.md
 
 Packages upgrade
