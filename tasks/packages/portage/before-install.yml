@@ -1,5 +1,25 @@
 ---
-- name: Portage - Kernel
-  when: not in_container
-  ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/packages/portage/kernel/{{ system_portage_kernel_provider }}.yml"
+- name: Portage - Before install - Get the latest kernel version
+  check_mode: false
+  ansible.builtin.command:
+    cmd: portageq best_visible / sys-kernel/{{ system_portage_kernel }}
+  register: result
+  changed_when: false
+
+- name: Portage - Before install - Latest available kernel fact
+  ansible.builtin.set_fact:
+    system_latest_kernel: "{{ result.stdout | regex_replace('^.*-(\\d[^-]+(?:-r\\d+)?)\\s*$', '\\1') }}"
+
+- name: Portage - Before install - Dist kernel packages
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    package:
+      - app-admin/eclean-kernel
+      - sys-kernel/linux-firmware
+      - sys-kernel/{{ system_portage_kernel }}
+      - virtual/dist-kernel
+  notify:
+    - etc-update savedconfig
+    - emerge @module-rebuild
+    - "{{ system_reboot_handler }}"

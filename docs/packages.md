@@ -509,6 +509,16 @@ on the [sys-kernel category][] web page.
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
 [sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
+Customise the kernel build by dropping fragments in `/etc/kernel/config.d/`:
+dist-kernel merges every `*.config` file in that directory on top of the
+upstream default config, which keeps the resulting kernel bootable even when
+the merged fragments are minimal. The role writes its own fragments when it
+needs the kernel to support a feature it enables — see for example
+[firewall.md][firewall] which drops `firewalld.config` to keep nftables in
+the kernel.
+
+[firewall]: firewall.md
+
 Packages upgrade
 ----------------
 
