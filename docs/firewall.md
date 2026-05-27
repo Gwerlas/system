@@ -33,6 +33,15 @@ For some arguments, we changed the default values as is :
 - `state`: `enabled`
 - `zone`: `{{ system_firewall_default_zone }}`
 
+Gentoo
+------
+
+On Gentoo, the role writes `/etc/kernel/config.d/firewalld.config` to make
+sure nftables and conntrack stay enabled in the next dist-kernel build. The
+fragment is merged on top of the upstream default config by `installkernel`,
+so any later `emerge sys-kernel/gentoo-kernel` produces a kernel that still
+supports firewalld.
+
 Example Playbook
 ----------------
 

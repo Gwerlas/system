@@ -5,6 +5,17 @@
   tags:
     - firewall
   block:
+    # On Gentoo, dist-kernel merges /etc/kernel/config.d/*.config on top of
+    # the default kernel config when rebuilding the kernel. The fragment
+    # ensures nftables + conntrack are enabled (needed by firewalld) so a
+    # later kernel rebuild doesn't drop them.
+    - name: Firewall - Portage kernel config fragment
+      when: ansible_facts.pkg_mgr == 'portage'
+      ansible.builtin.template:
+        src: kernel/config.d/firewalld.config.j2
+        dest: /etc/kernel/config.d/firewalld.config
+        mode: "0644"
+
     - name: Firewall - Service
       ansible.builtin.service:
         name: "{{ lookup('service', 'firewalld') }}"

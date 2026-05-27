@@ -1,0 +1,31 @@
+# Ansible managed, do not edit
+# Kernel config fragment required by firewalld with the nftables backend.
+# Picked up by Gentoo's dist-kernel build (merged on top of the default config)
+# and by systemd's kernel-install when a new kernel is staged.
+
+# Disable legacy iptables interfaces
+# CONFIG_IP_NF_IPTABLES_LEGACY is not set
+# CONFIG_IP_NF_IPTABLES is not set
+# CONFIG_IP6_NF_IPTABLES_LEGACY is not set
+# CONFIG_IP6_NF_IPTABLES is not set
+
+# nftables core
+CONFIG_NF_TABLES=y
+CONFIG_NF_TABLES_INET=y
+CONFIG_NF_TABLES_NETDEV=y
+CONFIG_NFT_CHAIN_ROUTE=y
+CONFIG_NFT_CHAIN_NAT=y
+CONFIG_NFT_MASQ=y
+CONFIG_NFT_REDIR=y
+CONFIG_NFT_REJECT=y
+CONFIG_NFT_REJECT_INET=y
+CONFIG_NFT_CT=y
+CONFIG_NFT_LOG=y
+CONFIG_NFT_LIMIT=y
+
+# Connection tracking
+CONFIG_NF_CONNTRACK=y
+CONFIG_NF_CONNTRACK_EVENTS=y
+CONFIG_NF_CONNTRACK_PROCFS=y
+CONFIG_NF_CONNTRACK_TIMEOUT=y
+CONFIG_NF_CONNTRACK_TIMESTAMP=y
