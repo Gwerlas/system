@@ -4,6 +4,28 @@
   ansible.builtin.fail:
     msg: Ansible facts must be gathered
 
+# ansible-core <2.20 has a bug in `parse_distribution_file_ClearLinux` that
+# claims any /usr/lib/os-release without NAME="Clear Linux ..." (e.g. Gentoo
+# with single-quoted NAME='Gentoo') as ClearLinux. Detect the misidentification
+# and override the facts before flavors are expanded.
+# Fixed upstream in ansible-core 2.20.0:
+# https://github.com/ansible/ansible/commit/distribution-clearlinux-pname-else
+- name: Facts - Workaround ansible-core <2.20 Gentoo misidentified as ClearLinux
+  when: ansible_facts.os_family == 'ClearLinux'
+  block:
+    - name: Facts - Stat /etc/gentoo-release
+      ansible.builtin.stat:
+        path: /etc/gentoo-release
+      register: gentoo_release
+
+    - name: Facts - Override misdetected distribution facts
+      when: gentoo_release.stat.exists
+      ansible.builtin.set_fact:
+        cacheable: true
+        distribution: Gentoo
+        os_family: Gentoo
+        distribution_release: NA
+
 # Detect a configured Portage binhost so that `system_packages_build: auto`
 # can default to "use binhost" when one is present (typical on cloud images
 # and Gentoo's catalyst stages) and to "build from source" otherwise.
