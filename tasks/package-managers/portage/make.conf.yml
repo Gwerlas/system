@@ -1,6 +1,12 @@
 ---
+# Only touches CFLAGS / CPU_FLAGS_X86 / CAMERAS / SANE_BACKENDS / VIDEO_CARDS
+# when the user opts in to build-from-source. With packages_build=false
+# (Gentoo binhost mode and default for other distros), keep these unset so
+# the binhost binpkgs remain USE-flag compatible.
 - name: Hardware support
-  when: not in_container
+  when:
+    - not in_container
+    - packages_build
   block:
     - name: Portage - make.conf - cpuid2cpuflags tool
       become: true
@@ -24,6 +30,7 @@
         insertafter: "{{ line.insertafter | default(omit) }}"
         insertbefore: "{{ line.insertbefore | default(omit) }}"
         firstmatch: "{{ 'insertbefore' in line }}"
+        state: "{{ line.state | default(omit) }}"
       loop:
         - key: COMMON_FLAGS
           value: "{{ system_packages_build_cflags }}"
@@ -44,6 +51,9 @@
           state: "{{ in_container | ternary('absent', 'present') }}"
         - key: CAMERAS
           value: "{{ system_portage_cameras | join(' ') }}"
+          state: "{{ in_container | ternary('absent', 'present') }}"
+        - key: SANE_BACKENDS
+          value: "{{ system_portage_sane_backends | join(' ') }}"
           state: "{{ in_container | ternary('absent', 'present') }}"
         - key: VIDEO_CARDS
           value: "{{ system_portage_video_cards | join(' ') }}"
@@ -114,7 +124,6 @@
         - package.license/kernels
         - package.use/firewalld
         - package.use/kernel
-        - package.use/libreoffice
         - package.use/lvm2
       loop_control:
         loop_var: file

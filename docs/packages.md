@@ -464,6 +464,22 @@ system_packages_build: auto
 system_packages_march: native
 ```
 
+`system_packages_build` accepts `auto` (default), `true` and `false`. In `auto`
+mode, the role detects a configured Portage binhost by looking for any
+`/etc/portage/binrepos.conf/*.conf` entry :
+
+- Gentoo with a binhost configured (typical on catalyst stages and cloud images) → `false`, use the binhost.
+- Gentoo without a binhost → `true`, build from source ("the Gentoo way").
+- Other distributions → `false`, their package managers ship binaries only.
+
+When `packages_build` resolves to `false`, the role keeps `make.conf` minimal:
+`CFLAGS`/`COMMON_FLAGS`, the cpuid-derived `CPU_FLAGS_X86` and the hardware
+USE_EXPAND variables (`CAMERAS`, `SANE_BACKENDS`, `VIDEO_CARDS`) are left
+untouched so the local USE flags stay compatible with the binhost's binpkgs
+(emerge runs with `--binpkg-respect-use=y`). Force `system_packages_build: true`
+to opt back into the hardware-tuned settings on hosts where you want source
+builds anyway.
+
 If You want to compile your nodes with [distcc][], change the `system_packages_march`
 value, You can find help in the [Safe CFLAGS] manual.
 

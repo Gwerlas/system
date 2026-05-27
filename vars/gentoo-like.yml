@@ -1,6 +1,13 @@
 ---
-# Under automatic mode, we build packages from sources
-packages_build: "{{ true if system_packages_build == 'auto' else system_packages_build }}"
+# Under automatic mode, we use the binhost when one is configured (typical
+# on cloud images and catalyst stages) and fall back to source builds on
+# bare installs. See [[facts.yml]] for the `has_binhost` detection.
+packages_build: |-
+  {{
+    (not (has_binhost | default(false)))
+    if system_packages_build == 'auto'
+    else system_packages_build
+  }}
 
 family_packages:
   bridge:

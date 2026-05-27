@@ -4,6 +4,22 @@
   ansible.builtin.fail:
     msg: Ansible facts must be gathered
 
+# Detect a configured Portage binhost so that `system_packages_build: auto`
+# can default to "use binhost" when one is present (typical on cloud images
+# and Gentoo's catalyst stages) and to "build from source" otherwise.
+- name: Facts - Detect Portage binhost
+  when: ansible_facts.pkg_mgr == 'portage'
+  block:
+    - name: Facts - Find binrepos.conf entries
+      ansible.builtin.find:
+        paths: /etc/portage/binrepos.conf/
+        patterns: '*.conf'
+      register: binrepos
+
+    - name: Facts - Set has_binhost
+      ansible.builtin.set_fact:
+        has_binhost: "{{ binrepos.files | length > 0 }}"
+
 - name: Facts - Local variables
   ansible.builtin.include_vars: "{{ file }}"
   vars:
