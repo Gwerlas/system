@@ -2,55 +2,41 @@
 dependency:
   name: galaxy
 driver:
-  name: vagrant
-  provider:
-    name: libvirt
-  provision: true
+  name: default
+# Tests the ntp time backend. RHEL/Fedora families mask `ntp` in their
+# supported_time_backends, and Debian dropped the ntp package in trixie
+# (vars/debian13.yml masks it too), so this scenario only targets distros
+# that ship a usable ntpd.
 platforms:
   - name: archlinux
-    box: archlinux/archlinux
-    provider_raw_config_args: &raw_config
-      - "cpu_mode = 'host-passthrough'"
-      - "disk_bus = 'virtio'"
-      - "nic_model_type = 'virtio'"
-      - "video_type = 'virtio'"
-      - "disk_driver :cache => 'writeback'"
-      - "storage :file, bus: 'virtio', cache: 'writeback'"
-    instance_raw_config_args:
-      - 'vm.provision :shell, inline: "pacman -Sy --noconfirm git net-tools python3 sudo unzip which"'
-  # Very very long build due to old box
-  # - name: gentoo
-  #   box: generic-x64/gentoo
-  #   cpus: 4
-  #   memory: 8192
-  #   provider_raw_config_args:
-  #     - "cpu_mode = 'host-passthrough'"
-  #     - "nic_model_type = 'virtio'"
-  #     - "video_type = 'virtio'"
-  #     - "disk_driver :cache => 'writeback'"
-  #     - "storage :file, bus: 'virtio', cache: 'writeback'"
-
-  # Debian like
-  - name: bullseye  # EOL 2026-08-31
-    box: debian/bullseye64
-    provider_raw_config_args: *raw_config
+    groups:
+      - archlinux
+    memory: 2
   - name: bookworm
-    box: debian/bookworm64
-    provider_raw_config_args: *raw_config
-  - name: trixie
-    box: debian/testing64
-    provider_raw_config_args: *raw_config
+    groups:
+      - debian_like
+      - debian
   - name: jammy
-    box: generic/ubuntu2204
-    memory: 2048
-    provider_raw_config_args: *raw_config
-  # Commented temporarily due to broken box
-  # - name: noble
-  #   box: generic/ubuntu2404
-  #   memory: 2048
-  #   provider_raw_config_args: *raw_config
-lint: ansible-lint
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+  - name: noble
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+  - name: gentoo
+    groups:
+      - gentoo
+    memory: 4
+    vcpus: 4
 provisioner:
   name: ansible
+  playbooks:
+    create: create.yml
+    destroy: destroy.yml
+    converge: converge.yml
+    verify: verify.yml
 verifier:
   name: ansible
