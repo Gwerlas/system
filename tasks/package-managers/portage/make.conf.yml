@@ -69,51 +69,61 @@
   check_mode: false
   register: equery
 
-- name: Portage - make.conf - Common settings
-  become: true
-  when: line.value | length > 0
-  ansible.builtin.lineinfile:
-    dest: /etc/portage/make.conf
-    line: '{{ line.key }}="{{ line.value }}"'
-    regexp: '^{{ line.key }}='
-    insertafter: "{{ line.insertafter | default(omit) }}"
-    insertbefore: "{{ line.insertbefore | default(omit) }}"
-    firstmatch: "{{ 'insertbefore' in line }}"
-  loop:
-    - key: ACCEPT_KEYWORDS
-      value: "{{ system_portage_accept_keywords | join(' ') }}"
-    - key: L10N
-      value: "{{ system_l10n | join(' ') }}"
-    - key: EMERGE_DEFAULT_OPTS
-      value: "{{ portage_opts | join(' ') | trim }}"
-    - key: FEATURES
-      value: "{{ (['${FEATURES}'] + portage_features) | join(' ') | regex_replace('\\s+', ' ') }}"
-    - key: GENTOO_MIRRORS
-      value: "{{ system_portage_gentoo_mirrors | join(' ') }}"
-    - key: PYTHON_TARGETS
-      value: |-
-        {{
-          system_portage_python_targets |
-          default([]) |
-          join(' ')
-        }}
-    - key: PYTHON_SINGLE_TARGET
-      value: "{{ system_portage_python_single_target | default('') }}"
-      insertafter: PYTHON_TARGETS
-    - key: RUBY_TARGETS
-      value: |-
-        {{
-          system_portage_ruby_targets |
-          default([]) |
-          join(' ')
-        }}
-  notify: emerge --newuse
-  loop_control:
-    loop_var: line
-
 - name: Become root
   become: true
   block:
+    - name: Portage - make.conf - Common settings
+      when: line.value | length > 0
+      ansible.builtin.lineinfile:
+        dest: /etc/portage/make.conf
+        line: '{{ line.key }}="{{ line.value }}"'
+        regexp: '^{{ line.key }}='
+        insertafter: "{{ line.insertafter | default(omit) }}"
+        insertbefore: "{{ line.insertbefore | default(omit) }}"
+        firstmatch: "{{ 'insertbefore' in line }}"
+      loop:
+        - key: ACCEPT_KEYWORDS
+          value: "{{ portage_accept_keywords | join(' ') }}"
+        - key: L10N
+          value: "{{ system_l10n | join(' ') }}"
+        - key: EMERGE_DEFAULT_OPTS
+          value: "{{ portage_opts | join(' ') | trim }}"
+        - key: FEATURES
+          value: "{{ (['${FEATURES}'] + portage_features) | join(' ') | regex_replace('\\s+', ' ') }}"
+        - key: PORTAGE_LOGDIR
+          value: "{{ system_portage_logdir }}"
+        - key: GENTOO_MIRRORS
+          value: "{{ system_portage_gentoo_mirrors | join(' ') }}"
+        - key: PYTHON_TARGETS
+          value: |-
+            {{
+              system_portage_python_targets |
+              default([]) |
+              join(' ')
+            }}
+        - key: PYTHON_SINGLE_TARGET
+          value: "{{ system_portage_python_single_target | default('') }}"
+          insertafter: PYTHON_TARGETS
+        - key: RUBY_TARGETS
+          value: |-
+            {{
+              system_portage_ruby_targets |
+              default([]) |
+              join(' ')
+            }}
+      notify: emerge --newuse
+      loop_control:
+        loop_var: line
+
+    - name: Portage - make.conf - Logs directory
+      when: system_portage_logdir | length > 0
+      ansible.builtin.file:
+        path: "{{ system_portage_logdir }}"
+        state: directory
+        owner: portage
+        group: portage
+        mode: "2770"
+
     - name: Portage - make.conf - Configuration files
       ansible.builtin.template:
         src: portage/{{ file }}.j2

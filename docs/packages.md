@@ -25,6 +25,7 @@ Table of content :
     - [System group](#system-group)
     - [Ansible dependencies](#ansible-dependencies)
     - [Compilation settings](#compilation-settings)
+    - [Build logs](#build-logs)
     - [Kernel](#kernel)
 - [Packages upgrade](#packages-upgrade)
 - [Unattended upgrade](#unattended-upgrade)
@@ -485,6 +486,50 @@ value, You can find help in the [Safe CFLAGS] manual.
 
 [distcc]: https://wiki.gentoo.org/wiki/Distcc/fr
 [Safe CFLAGS]: https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
+
+#### Accept keywords
+
+By default Portage only installs packages keyworded for the host's stable
+architecture (e.g. `amd64`). To opt into the [testing branch][~arch] for
+the running architecture without hard-coding it:
+
+```yaml
+system_portage_unstable_arch: true
+```
+
+The role prepends `~<arch>` to `ACCEPT_KEYWORDS` in `/etc/portage/make.conf`,
+using Portage's own arch names — `~amd64` on `x86_64`, `~arm64` on `aarch64`,
+`~x86` on `i686`/`i386`, etc. Per-package keywording
+on top is still done through `system_portage_accept_keywords`, which keeps its
+literal-list semantics:
+
+```yaml
+system_portage_accept_keywords:
+  - ~amd64
+  - "**"  # accept everything, including live ebuilds
+```
+
+The two combine: with `system_portage_unstable_arch: true` plus the example
+above, `ACCEPT_KEYWORDS` ends up as `~amd64 ~amd64 **` — duplicates are
+harmless for Portage. Use one or the other depending on whether you want the
+arch detection or precise control.
+
+[~arch]: https://wiki.gentoo.org/wiki/ACCEPT_KEYWORDS
+
+#### Build logs
+
+```yaml
+system_portage_logdir: ""
+```
+
+Sets `PORTAGE_LOGDIR` in `make.conf`. Portage then keeps a per-merge build log
+in `{{ system_portage_logdir }}/build/<category>/<package>:<timestamp>.log`,
+created in the `portage` group (mode `02770`) so members of that group can read
+build logs without `root`, persisted on both success and failure.
+
+This is independent from the live `/var/tmp/portage/<category>/<package>/temp/build.log`,
+which stays `0700 portage` and only exists while the build directory is around.
+Set `system_portage_logdir` to `""` to disable the feature.
 
 #### Kernel
 
