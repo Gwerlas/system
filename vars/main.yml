@@ -104,7 +104,12 @@ current_network_types: |
 ### SSHd ###
 ############
 
-sshd_config: {}
+# sshd's compile-time default is `UsePAM no`, but all major distros ship
+# their stock sshd_config with `UsePAM yes`. Without it, cloud-init users
+# whose `/etc/shadow` password is `*` (locked) are refused even via pubkey,
+# because sshd falls back to the raw shadow check. Keep PAM on by default.
+sshd_config:
+  UsePAM: true
 
 ################
 ###   Time   ###
