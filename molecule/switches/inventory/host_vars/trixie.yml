@@ -1,0 +1,4 @@
+---
+# Debian 13 dropped the ntp package (vars/debian13.yml masks the backend),
+# so switch to chrony instead.
+switch_to: chrony
