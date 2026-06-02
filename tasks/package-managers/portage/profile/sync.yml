@@ -7,7 +7,15 @@
 - name: Portage - Profile - Sync - Manual emerge --sync
   when: not dir.stat.exists
   become: true
+  # `timeout` wraps emerge so a stuck rsync mirror exits 124 instead of
+  # hanging the whole play (ansible.builtin.command has no native timeout).
   ansible.builtin.command:
-    cmd: emerge --sync
+    cmd: timeout 600 emerge --sync
   register: sync
   changed_when: sync.stdout | regex_search('Number of files. (\\d+)', '\\1') | first | int > 1
+  # Gentoo's rsync mirrors are sometimes briefly inconsistent (e.g. Manifest
+  # size off by a byte until the signature catches up). Retry to ride out
+  # transient sync failures instead of letting the play abort.
+  until: sync is success
+  retries: "{{ system_retries }}"
+  delay: 30
