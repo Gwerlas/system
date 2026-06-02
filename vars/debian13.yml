@@ -1,0 +1,5 @@
+---
+# NTPd no more available since Trixie
+masks:
+  time_backends:
+    - ntp
