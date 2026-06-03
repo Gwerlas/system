@@ -8,6 +8,31 @@
   register: result
   changed_when: result.stdout != 'No outdated kernels found.'
 
+# Sync handlers must run BEFORE any @world emerge so newly declared overlays
+# (e.g. guru via system_portage_repos) are populated before they're queried.
+# Ansible fires handlers in the order they're defined, regardless of notify
+# order.
+- name: Portage - Repositories sync types
+  listen:
+    - sync repos
+  become: true
+  community.general.portage:
+    package: dev-vcs/git
+
+- name: Portage - Sync repositories
+  listen:
+    - sync repos
+  become: true
+  ansible.builtin.command:
+    cmd: emerge --sync {{ repo.name }}
+  loop: "{{ system_portage_repos }}"
+  loop_control:
+    loop_var: repo
+  register: result
+  changed_when: not "You are already up to date" in result.stdout
+  until: result is success
+  retries: "{{ system_retries }}"
+
 - name: Portage - Prevent circular dependencies and multilib compilation failures
   listen:
     - change profile
@@ -47,28 +72,6 @@
     cmd: etc-update --automode -5 {{ savedconfig }}
   register: result
   changed_when: savedconfig in result.stdout
-
-- name: Portage - Repositories sync types
-  listen:
-    - sync repos
-  become: true
-  community.general.portage:
-    package:
-      - 'dev-vcs/git'
-
-- name: Portage - Sync repositories
-  listen:
-    - sync repos
-  become: true
-  ansible.builtin.command:
-    cmd: emerge --sync {{ repo.name }}
-  loop: "{{ system_portage_repos }}"
-  loop_control:
-    loop_var: repo
-  register: result
-  changed_when: not "You are already up to date" in result.stdout
-  until: result.failed == false
-  retries: "{{ system_retries }}"
 
 - name: Portage - Clean dependencies
   listen:
