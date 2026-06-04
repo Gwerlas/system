@@ -139,7 +139,6 @@
       ansible.builtin.package:
         name:
           - openssl
-          - httpie
 
     - name: Check Gwerlas CA
       ansible.builtin.command:
@@ -175,7 +174,7 @@
       failed_when: |
         not '/var/backups' in (ansible_facts.mounts | map(attribute='mount'))
         or
-        not bkpdir.stat.pw_name == 'vagrant'
+        not bkpdir.stat.pw_name == 'molecule'
         or
         not bkpdir.stat.wgrp
 
