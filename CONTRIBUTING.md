@@ -65,6 +65,44 @@ molecule test -s ntp
 molecule test -s systemd-timesyncd
 ```
 
+libvirt connection and storage pool
+-----------------------------------
+
+Scenarios that drive libvirt via its API (e.g. `facts`) honour two environment
+variables, with sensible defaults when unset:
+
+| Variable               | Default          | Purpose                         |
+| ---------------------- | ---------------- | ------------------------------- |
+| `LIBVIRT_DEFAULT_URI`  | `qemu:///system` | libvirt connection URI          |
+| `LIBVIRT_DEFAULT_POOL` | `default`        | name of the storage pool to use |
+
+`LIBVIRT_DEFAULT_URI` is the standard libvirt env var; `LIBVIRT_DEFAULT_POOL`
+is local to this project but follows the same naming convention. Both are
+forwarded into the molecule container by the wrapper (any `LIBVIRT_*` env var
+is passed through).
+
+Recommended setup if the system pool sits on a small partition: create a
+dedicated pool on a larger filesystem and point molecule at it. For example:
+
+```sh
+install -d -m 2775 -g qemu $HOME/.local/share/molecule/images
+virsh -c qemu:///system pool-define-as molecule dir --target $HOME/.local/share/molecule/images
+virsh -c qemu:///system pool-autostart molecule
+virsh -c qemu:///system pool-start molecule
+
+export LIBVIRT_DEFAULT_POOL=molecule
+molecule test -s facts
+```
+
+The directory must be reachable by the `qemu` user (group `qemu` + setgid
+parent works, provided your user is in `qemu`).
+
+`qemu:///session` is currently *not* supported by these scenarios: session
+mode has no built-in `default` network, and `virsh net-dhcp-leases` would not
+find any lease. If you want to view VMs in a GUI without switching to session
+mode, point GNOME Boxes (>=41) at `qemu:///system` or use `virt-manager`,
+which lists both URIs side by side.
+
 Develop / Debug
 ---------------
 
@@ -76,6 +114,27 @@ molecule login -h <instance_name>
 molecule verify
 ```
 
+Adding a new distribution or version
+------------------------------------
+
+The list of officially supported platforms lives in [`molecule/shared/platforms.yml`][platforms].
+It is the single source of truth for both Molecule (cloud image URL per platform)
+and Galaxy (`galaxy_info.platforms` in `meta/main.yml`).
+
+After editing `molecule/shared/platforms.yml`, run the sync script to refresh
+`meta/main.yml`:
+
+```sh
+python3 scripts/sync-meta-platforms.py
+```
+
+Each scenario's `molecule.yml` then picks a subset of those platforms by name
+(plus any `groups` / `memory` override); the cloud image URL is resolved at
+runtime by `create.yml` via a `lookup` on `molecule/shared/platforms.yml`.
+`molecule/shared/` also hosts the `create.yml` / `destroy.yml` playbooks that
+each scenario symlinks; molecule ignores it as a scenario because it doesn't
+carry a `molecule.yml`.
+
 Submit your changes
 -------------------
 
@@ -84,3 +143,4 @@ Merge request in [Gitlab][].
 <!-- Links section -->
 [blog post]: https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
+[platforms]: molecule/shared/platforms.yml
