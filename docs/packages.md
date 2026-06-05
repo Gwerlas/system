@@ -233,6 +233,28 @@ enable / disable it.
 
 [Yay]: https://github.com/Jguer/yay/blob/next/README.md
 
+##### `ansible-yay` controller module
+
+Driving `yay` from Ansible needs the third-party [ansible-yay][] module —
+it's not bundled with Ansible itself. The role looks for it on the
+controller's standard module search path (`~/.ansible/plugins/modules/`,
+`/etc/ansible/plugins/modules/`, `/usr/share/ansible/plugins/modules/`).
+
+- **Found**: the role uses your copy as-is. If you have it pinned to a
+  specific revision via your own packaging or `library/` directory, your
+  choice wins.
+- **Missing**: the role drops a fresh copy into
+  `~/.ansible/plugins/modules/yay` (no `sudo` needed) so things just work
+  the first time `system_pacman_aur: true` kicks in — e.g. when you assign
+  the `desktop` profile to an Arch host.
+
+To keep a specific revision but avoid the surprise of a second copy
+shadowing yours, put your install at exactly
+`~/.ansible/plugins/modules/yay`. The role's existence check sees it and
+skips the download.
+
+[ansible-yay]: https://github.com/mnussbaum/ansible-yay
+
 ### RedHat like package managers
 
 Require the Ansible collection `community.general` v8.2 or above.
