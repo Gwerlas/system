@@ -1,1 +1,106 @@
-../default/molecule.yml
+---
+# Tests the desktop profile (uses the same shared inventory as servers,
+# so the extra disk + private network apply here too).
+dependency:
+  name: galaxy
+driver:
+  name: default
+# The extra disk/network lists are shared via YAML anchors on the first
+# platform (value aliases, not a `<<` merge — merging would redefine
+# name/groups and trigger "duplicate mapping key" warnings).
+platforms:
+  - name: archlinux
+    groups:
+      - archlinux
+    memory: 2
+    extra_disks: &extra_disks
+      - target: vdb
+        size_gb: 1
+    extra_networks: &extra_networks
+      - network: molecule-private
+  - name: bookworm
+    groups:
+      - debian_like
+      - debian
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: trixie
+    groups:
+      - debian_like
+      - debian
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: jammy
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: noble
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: centos9s
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: alma9
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: centos10s
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: alma10
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: fedora43
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  - name: fedora44
+    groups:
+      - redhat_like
+    memory: 2
+    extra_disks: *extra_disks
+    extra_networks: *extra_networks
+  # Gentoo excluded from servers: emerge --sync + Portage handler chain in
+  # this profile makes the play hang and we already cover gentoo elsewhere.
+  # - name: gentoo
+  #   groups:
+  #     - gentoo
+  #   memory: 4
+  #   vcpus: 4
+  #   extra_disks: *extra_disks
+  #   extra_networks: *extra_networks
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      group_vars: inventory/group_vars
+      host_vars: inventory/host_vars
+  playbooks:
+    create: create.yml
+    destroy: destroy.yml
+    converge: converge.yml
+    verify: verify.yml
+verifier:
+  name: ansible
