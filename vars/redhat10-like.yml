@@ -6,6 +6,11 @@ masks:
   time_backends:
     - systemd-timesyncd
     - ntp
+  packages:
+    # Dropped from RHEL/CentOS Stream 10's repos (was in AppStream on 8/9);
+    # the desktop profile would otherwise fail with "No package libreoffice
+    # available".
+    - libreoffice
 
 # Gnome Console is not yet available
 release_packages:
