@@ -1,8 +1,16 @@
 ---
 - name: Portage - Clean dependencies
+  # Bypasses community.general.portage's `depclean: true` path because its
+  # cleanup_packages() calls module.fail_json(cmd=..., rc=..., stdout=..., stderr=...)
+  # without a mandatory `msg=`, crashing the module on any non-zero emerge
+  # before the actual error reaches Ansible. Same effect, cleaner failure.
+  # Fix merged upstream as community.general PR #12168; switch back to the
+  # `community.general.portage` module once the release that ships it is out.
   become: true
-  community.general.portage:
-    depclean: true
+  ansible.builtin.command:
+    cmd: emerge --depclean --quiet
+  register: depclean
+  changed_when: "'Number removed: 0' not in depclean.stdout"
   notify: emerge --newuse
 
 - name: Portage - Clean distfiles
