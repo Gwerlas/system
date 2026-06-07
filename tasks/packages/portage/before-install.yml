@@ -10,6 +10,73 @@
   ansible.builtin.set_fact:
     system_latest_kernel: "{{ result.stdout | regex_replace('^.*-(\\d[^-]+(?:-r\\d+)?)\\s*$', '\\1') }}"
 
+# Seed /etc/portage/savedconfig/sys-kernel/<pkg>-<ver> when missing —
+# see docs/packages.md "Kernel" section for the carry-over → /proc/config.gz
+# → upstream-default chain.
+- name: Portage - Before install - Seed kernel savedconfig
+  when: system_portage_kernel is search('-kernel')
+  vars:
+    savedconfig_dir: /etc/portage/savedconfig/sys-kernel
+    savedconfig_file: "{{ savedconfig_dir }}/{{ system_portage_kernel }}-{{ system_latest_kernel }}"
+  block:
+    - name: Portage - Before install - Existing kernel savedconfigs
+      ansible.builtin.find:
+        paths: "{{ savedconfig_dir }}"
+        patterns: "{{ system_portage_kernel }}-*"
+      register: kernel_savedconfigs
+
+    - name: Portage - Before install - Carry over previous kernel savedconfig
+      when:
+        - kernel_savedconfigs.matched > 0
+        - savedconfig_file not in (kernel_savedconfigs.files | map(attribute='path'))
+      become: true
+      vars:
+        previous_savedconfig: >-
+          {{ savedconfig_dir }}/{{ system_portage_kernel }}-{{
+            kernel_savedconfigs.files | map(attribute='path') | map('basename')
+            | map('regex_replace', '^' ~ system_portage_kernel ~ '-', '')
+            | community.general.version_sort | last
+          }}
+      ansible.builtin.copy:
+        src: "{{ previous_savedconfig }}"
+        dest: "{{ savedconfig_file }}"
+        remote_src: true
+        mode: "0644"
+
+    - name: Portage - Before install - Running kernel config availability
+      when: kernel_savedconfigs.matched == 0
+      ansible.builtin.stat:
+        path: /proc/config.gz
+      register: proc_config
+
+    - name: Portage - Before install - Bootstrap kernel savedconfig from /proc/config.gz
+      when:
+        - kernel_savedconfigs.matched == 0
+        - proc_config.stat.exists | default(false)
+      become: true
+      ansible.builtin.shell:
+        cmd: set -o pipefail && zcat /proc/config.gz > {{ savedconfig_file }}
+        creates: "{{ savedconfig_file }}"
+        executable: /bin/bash
+
+# Emerge the chosen flavour first, oneshot so the version-slotted package never
+# lands in world (see docs/packages.md "Kernel" for why @world is anchored on
+# virtual/dist-kernel instead). Going before virtual/dist-kernel lets the next
+# task resolve against an already-installed dist-kernel — otherwise Portage
+# would pull its own default flavour, not necessarily system_portage_kernel.
+- name: Portage - Before install - Dist kernel
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    oneshot: true
+    package: sys-kernel/{{ system_portage_kernel }}
+  notify:
+    - etc-update savedconfig
+    - emerge @module-rebuild
+    - "{{ system_reboot_handler }}"
+
+# Anchor @world on virtual/dist-kernel (it pulls the matching gentoo-kernel as a
+# dependency — already installed by the task above) along with the companions.
 - name: Portage - Before install - Dist kernel packages
   become: true
   community.general.portage:
@@ -17,9 +84,27 @@
     package:
       - app-admin/eclean-kernel
       - sys-kernel/linux-firmware
-      - sys-kernel/{{ system_portage_kernel }}
       - virtual/dist-kernel
   notify:
     - etc-update savedconfig
     - emerge @module-rebuild
     - "{{ system_reboot_handler }}"
+
+# Dist-kernels (sys-kernel/*-kernel) don't have the 'symlink' USE flag (it only
+# exists on *-sources). Their pkg_postinst only updates /usr/src/linux when the
+# old target is being replaced, so it leaves the symlink on a previously
+# installed kernel. Point it at the latest ourselves so @module-rebuild and
+# out-of-tree modules build against the right tree. system_latest_kernel keeps
+# the _pN suffix (e.g. 7.0.10_p1) while the source directory uses -pN
+# (linux-7.0.10-p1-gentoo-dist).
+- name: Portage - Before install - Dist kernel symlink
+  when: system_portage_kernel is search('-kernel')
+  become: true
+  ansible.builtin.file:
+    src: linux-{{ system_latest_kernel | replace('_p', '-p') }}-gentoo-dist
+    dest: /usr/src/linux
+    state: link
+    follow: false
+    force: true
+  notify:
+    - emerge @module-rebuild

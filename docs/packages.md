@@ -576,19 +576,53 @@ on the [sys-kernel category][] web page.
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
 [sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
-Customise the kernel build by dropping fragments in `/etc/kernel/config.d/`:
-dist-kernel merges every `*.config` file in that directory on top of the
-upstream default config, which keeps the resulting kernel bootable even when
-the merged fragments are minimal. The role writes its own fragments when it
-needs the kernel to support a feature it enables — see for example
-[firewall.md][firewall] which drops `firewalld.config` to keep nftables in
-the kernel.
+The dist-kernel is built with `USE=savedconfig`: its base `.config` is the
+curated config at `/etc/portage/savedconfig/sys-kernel/<package>-<version>`.
+Before each build the role seeds that file when it is missing, in this order:
+
+1. carry over the newest existing kernel savedconfig (so a curated config is
+   preserved across version bumps);
+2. otherwise bootstrap from the running kernel's `/proc/config.gz` — a config
+   that is known to boot the current hardware;
+3. otherwise fall back to the upstream default config (full but bootable
+   everywhere).
+
+On top of that base, dist-kernel merges every `*.config` file dropped in
+`/etc/kernel/config.d/`. The role writes its own fragments when it needs the
+kernel to support a feature it enables — see for example [firewall.md][firewall]
+which drops `firewalld.config` to keep nftables in the kernel. The
+`etc-update savedconfig` handler merges back whatever the build writes, so the
+savedconfig stays in sync.
+
+`USE=debug` is force-disabled on the dist-kernel: the amd64 profile enables it
+by default (>=6.6.53), which keeps full DWARF debuginfo on every module and
+inflates the build by tens of GB in `PORTAGE_TMPDIR`.
 
 When `sys-kernel/linux-firmware` is (re)installed, the role rebuilds the dracut
 initramfs for every installed kernel (`dracut --regenerate-all`) and
 regenerates `grub.cfg`, then reboots. This keeps the CPU microcode bundled in
 the initramfs in sync with the new firmware and drops any stale standalone
 microcode image reference (e.g. `/boot/amd-uc.img`) from the boot entries.
+
+The role keeps `/usr/src/linux` pointing at the latest dist-kernel sources so
+`@module-rebuild` and out-of-tree modules build against the right tree
+(dist-kernels have no `symlink` USE flag, and their own logic leaves the symlink
+on a previously installed kernel).
+
+It also anchors `@world` on `virtual/dist-kernel` only, never on
+`sys-kernel/<kernel>` directly. Dist-kernels are version-slotted (one slot per
+version), so a plain emerge of `sys-kernel/<kernel>` would record a slotted
+world atom for *every* installed version. Those atoms then protect each old
+kernel from `depclean`/`eclean-kernel`, and the slots pile up forever (even
+`emaint --fix world` can't drop them while the packages stay installed).
+`virtual/dist-kernel` instead pulls the matching `sys-kernel/<kernel>` as a
+dependency, so the kernel is still built and updated while only the virtual
+lands in `@world` and old slots stay reclaimable.
+
+The chosen flavour is emerged first with `--oneshot` (so the slotted package
+never reaches `@world`), then `virtual/dist-kernel` is emerged: by the time the
+virtual is resolved a dist-kernel is already installed, so Portage keeps the
+flavour from `system_portage_kernel` instead of pulling its own default.
 
 [firewall]: firewall.md
 

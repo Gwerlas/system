@@ -8,4 +8,11 @@ sys-kernel/*-sources   symlink
 
 {% if system_portage_kernel is search('-kernel') %}
 */* dist-kernel
+
+# savedconfig: build from the role-seeded config in
+# /etc/portage/savedconfig/sys-kernel/ (see docs/packages.md "Kernel").
+# -debug: the amd64 profile enables USE=debug on dist-kernels (>=6.6.53),
+# keeping full DWARF debuginfo on every module — tens of GB in PORTAGE_TMPDIR
+# for debuginfo we don't ship.
+sys-kernel/{{ system_portage_kernel }} savedconfig -debug
 {% endif %}
