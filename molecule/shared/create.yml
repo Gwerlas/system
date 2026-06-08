@@ -317,6 +317,31 @@
             delay: 5
             timeout: 300
 
+        # sshd answering only means it's up — cloud-final and the units it pulls
+        # in (dbus, systemd-hostnamed…) may still be starting. Converging now
+        # races them: tasks that talk to the system bus (the hostname module's
+        # hostnamectl, service restarts…) intermittently hit "Failed to connect
+        # to bus". `cloud-init status --wait` blocks until first boot is done, by
+        # which point the bus is up. Retries ride out the brief window where sshd
+        # accepts connections before it's fully ready.
+        - name: Wait for cloud-init to finish so the system bus is ready
+          ansible.builtin.command:
+            cmd: >-
+              ssh -i {{ ssh_key_path }}
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -o ConnectTimeout=10
+              molecule@{{ vm_ip.stdout }}
+              cloud-init status --wait
+          changed_when: false
+          register: cloudinit_status
+          # 0 = done, 2 = done with a recoverable error; anything else (notably
+          # 255 ssh transport errors) is retried.
+          until: cloudinit_status.rc in [0, 2]
+          failed_when: cloudinit_status.rc not in [0, 2]
+          retries: 30
+          delay: 10
+
         - name: Build instance config entry
           ansible.builtin.set_fact:
             instance_conf_dict:
