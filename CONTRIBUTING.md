@@ -14,12 +14,8 @@ Install and configure :
 * docker
 * libvirt
 * python3-jmespath
-* vagrant
-* vagrant-libvirt plugin
 * molecule
 * molecule-plugins
-
-If You are new with Molecule + Vagrant-libvirt, please read this [blog post][].
 
 Some tests use a web proxy, if you don't have one, install
 Squid locally with at least :
@@ -44,17 +40,12 @@ Test the role with its defaults values in a VM of each supported distro :
 molecule test
 ```
 
-Test the `server` profile with hosts, users and groups settings customized,
-ran in vagrant/libvirt VMs as `vagrant` user :
+Test the `server` and `desktop` profiles with hosts, users and groups settings
+customized, ran in libvirt VMs as the `molecule` user :
 
 ```sh
 molecule test -s servers
-```
-
-Test stream distros in vagrant/libvirt VMs as `vagrant` user :
-
-```sh
-molecule test -s stream
+molecule test -s desktops
 ```
 
 Test each time synchronization service :
@@ -62,7 +53,7 @@ Test each time synchronization service :
 ```sh
 molecule test -s chrony
 molecule test -s ntp
-molecule test -s systemd-timesyncd
+molecule test -s timesync
 ```
 
 libvirt connection and storage pool
@@ -141,6 +132,5 @@ Submit your changes
 Merge request in [Gitlab][].
 
 <!-- Links section -->
-[blog post]: https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [platforms]: molecule/shared/platforms.yml
