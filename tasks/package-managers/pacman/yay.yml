@@ -46,11 +46,33 @@
         state: absent
         remove: true
 
-- name: Pacman - Yay - Ansible module
-  become: true
+- name: Pacman - Yay - Drop the ansible-yay module under ~/.ansible when none is found
+  # The `yay` Ansible module isn't shipped with Ansible itself. If the user
+  # already has it on the controller's standard module search path we use
+  # that version — silently overriding their choice would invite confusing
+  # bugs. Otherwise we drop a copy into the user-local plugins dir, which
+  # doesn't need sudo and works from CI containers too. `first_found` runs
+  # at template time on the controller, so this stays a single task instead
+  # of pairing a stat probe with a conditional download.
+  when: not lookup('ansible.builtin.first_found', yay_module_lookup)
+  vars:
+    yay_module_lookup:
+      skip: true
+      files:
+        - "{{ lookup('env', 'HOME') }}/.ansible/plugins/modules/yay"
+        - /etc/ansible/plugins/modules/yay
+        - /usr/share/ansible/plugins/modules/yay
   run_once: true
   delegate_to: localhost
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
-    dest: /usr/share/ansible/yay
-    mode: "0755"
+  block:
+    - name: Pacman - Yay - User plugins directory
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.ansible/plugins/modules"
+        state: directory
+        mode: "0755"
+
+    - name: Pacman - Yay - Download the module
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
+        dest: "{{ lookup('env', 'HOME') }}/.ansible/plugins/modules/yay"
+        mode: "0755"

@@ -1,7 +1,5 @@
 ---
 - name: Converge with default settings
   hosts: all
-  vars:
-    system_manage_firewall: false
   roles:
     - role: gwerlas.system

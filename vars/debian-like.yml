@@ -1,4 +1,23 @@
 ---
+# Services - upstream Debian/Ubuntu rename
+# - sshd → ssh.service (noble dropped the sshd.service alias)
+# - chronyd → chrony.service
+# - ntpd → ntp.service (where available; ubuntu-jammy keeps this, trixie masks ntp)
+services_map:
+  chronyd: chrony
+  ntpd: ntp
+  sshd: ssh
+
+# Debian/Ubuntu sshd ships with `Include /etc/ssh/sshd_config.d/*.conf` and
+# relies on it for cloud-init's `50-cloud-init.conf` (PasswordAuthentication,
+# etc.) plus distro essentials. Keep the include so the role's `sshd_config`
+# template doesn't wipe these out when it replaces /etc/ssh/sshd_config.
+# UsePAM is repeated from vars/main.yml because this dict assignment fully
+# overrides it (no per-file combine on sshd_config — see tasks/remote-access).
+sshd_config:
+  Include: /etc/ssh/sshd_config.d/*.conf
+  UsePAM: true
+
 # Packages
 packages_add_by_name:
   - dbus-user-session   # To be able to linger system users

@@ -25,6 +25,7 @@ Table of content :
     - [System group](#system-group)
     - [Ansible dependencies](#ansible-dependencies)
     - [Compilation settings](#compilation-settings)
+    - [Build logs](#build-logs)
     - [Kernel](#kernel)
 - [Packages upgrade](#packages-upgrade)
 - [Unattended upgrade](#unattended-upgrade)
@@ -231,6 +232,28 @@ Setting the `system_pacman_aur` to `true` or `false`, You will force
 enable / disable it.
 
 [Yay]: https://github.com/Jguer/yay/blob/next/README.md
+
+##### `ansible-yay` controller module
+
+Driving `yay` from Ansible needs the third-party [ansible-yay][] module —
+it's not bundled with Ansible itself. The role looks for it on the
+controller's standard module search path (`~/.ansible/plugins/modules/`,
+`/etc/ansible/plugins/modules/`, `/usr/share/ansible/plugins/modules/`).
+
+- **Found**: the role uses your copy as-is. If you have it pinned to a
+  specific revision via your own packaging or `library/` directory, your
+  choice wins.
+- **Missing**: the role drops a fresh copy into
+  `~/.ansible/plugins/modules/yay` (no `sudo` needed) so things just work
+  the first time `system_pacman_aur: true` kicks in — e.g. when you assign
+  the `desktop` profile to an Arch host.
+
+To keep a specific revision but avoid the surprise of a second copy
+shadowing yours, put your install at exactly
+`~/.ansible/plugins/modules/yay`. The role's existence check sees it and
+skips the download.
+
+[ansible-yay]: https://github.com/mnussbaum/ansible-yay
 
 ### RedHat like package managers
 
@@ -486,6 +509,50 @@ value, You can find help in the [Safe CFLAGS] manual.
 [distcc]: https://wiki.gentoo.org/wiki/Distcc/fr
 [Safe CFLAGS]: https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
 
+#### Accept keywords
+
+By default Portage only installs packages keyworded for the host's stable
+architecture (e.g. `amd64`). To opt into the [testing branch][~arch] for
+the running architecture without hard-coding it:
+
+```yaml
+system_portage_unstable_arch: true
+```
+
+The role prepends `~<arch>` to `ACCEPT_KEYWORDS` in `/etc/portage/make.conf`,
+using Portage's own arch names — `~amd64` on `x86_64`, `~arm64` on `aarch64`,
+`~x86` on `i686`/`i386`, etc. Per-package keywording
+on top is still done through `system_portage_accept_keywords`, which keeps its
+literal-list semantics:
+
+```yaml
+system_portage_accept_keywords:
+  - ~amd64
+  - "**"  # accept everything, including live ebuilds
+```
+
+The two combine: with `system_portage_unstable_arch: true` plus the example
+above, `ACCEPT_KEYWORDS` ends up as `~amd64 ~amd64 **` — duplicates are
+harmless for Portage. Use one or the other depending on whether you want the
+arch detection or precise control.
+
+[~arch]: https://wiki.gentoo.org/wiki/ACCEPT_KEYWORDS
+
+#### Build logs
+
+```yaml
+system_portage_logdir: ""
+```
+
+Sets `PORTAGE_LOGDIR` in `make.conf`. Portage then keeps a per-merge build log
+in `{{ system_portage_logdir }}/build/<category>/<package>:<timestamp>.log`,
+created in the `portage` group (mode `02770`) so members of that group can read
+build logs without `root`, persisted on both success and failure.
+
+This is independent from the live `/var/tmp/portage/<category>/<package>/temp/build.log`,
+which stays `0700 portage` and only exists while the build directory is around.
+Set `system_portage_logdir` to `""` to disable the feature.
+
 #### Kernel
 
 Wich kernel to install :
@@ -509,19 +576,53 @@ on the [sys-kernel category][] web page.
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
 [sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
-Customise the kernel build by dropping fragments in `/etc/kernel/config.d/`:
-dist-kernel merges every `*.config` file in that directory on top of the
-upstream default config, which keeps the resulting kernel bootable even when
-the merged fragments are minimal. The role writes its own fragments when it
-needs the kernel to support a feature it enables — see for example
-[firewall.md][firewall] which drops `firewalld.config` to keep nftables in
-the kernel.
+The dist-kernel is built with `USE=savedconfig`: its base `.config` is the
+curated config at `/etc/portage/savedconfig/sys-kernel/<package>-<version>`.
+Before each build the role seeds that file when it is missing, in this order:
+
+1. carry over the newest existing kernel savedconfig (so a curated config is
+   preserved across version bumps);
+2. otherwise bootstrap from the running kernel's `/proc/config.gz` — a config
+   that is known to boot the current hardware;
+3. otherwise fall back to the upstream default config (full but bootable
+   everywhere).
+
+On top of that base, dist-kernel merges every `*.config` file dropped in
+`/etc/kernel/config.d/`. The role writes its own fragments when it needs the
+kernel to support a feature it enables — see for example [firewall.md][firewall]
+which drops `firewalld.config` to keep nftables in the kernel. The
+`etc-update savedconfig` handler merges back whatever the build writes, so the
+savedconfig stays in sync.
+
+`USE=debug` is force-disabled on the dist-kernel: the amd64 profile enables it
+by default (>=6.6.53), which keeps full DWARF debuginfo on every module and
+inflates the build by tens of GB in `PORTAGE_TMPDIR`.
 
 When `sys-kernel/linux-firmware` is (re)installed, the role rebuilds the dracut
 initramfs for every installed kernel (`dracut --regenerate-all`) and
 regenerates `grub.cfg`, then reboots. This keeps the CPU microcode bundled in
 the initramfs in sync with the new firmware and drops any stale standalone
 microcode image reference (e.g. `/boot/amd-uc.img`) from the boot entries.
+
+The role keeps `/usr/src/linux` pointing at the latest dist-kernel sources so
+`@module-rebuild` and out-of-tree modules build against the right tree
+(dist-kernels have no `symlink` USE flag, and their own logic leaves the symlink
+on a previously installed kernel).
+
+It also anchors `@world` on `virtual/dist-kernel` only, never on
+`sys-kernel/<kernel>` directly. Dist-kernels are version-slotted (one slot per
+version), so a plain emerge of `sys-kernel/<kernel>` would record a slotted
+world atom for *every* installed version. Those atoms then protect each old
+kernel from `depclean`/`eclean-kernel`, and the slots pile up forever (even
+`emaint --fix world` can't drop them while the packages stay installed).
+`virtual/dist-kernel` instead pulls the matching `sys-kernel/<kernel>` as a
+dependency, so the kernel is still built and updated while only the virtual
+lands in `@world` and old slots stay reclaimable.
+
+The chosen flavour is emerged first with `--oneshot` (so the slotted package
+never reaches `@world`), then `virtual/dist-kernel` is emerged: by the time the
+virtual is resolved a dist-kernel is already installed, so Portage keeps the
+flavour from `system_portage_kernel` instead of pulling its own default.
 
 [firewall]: firewall.md
 

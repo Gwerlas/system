@@ -77,6 +77,10 @@ And for the logical volumes :
 
 The storage You want to be mounted must have the `mount` argument to be filled.
 
+The root filesystem (`mount: /`) is rejected: the role would reformat the root
+device and reset the ownership of `/`, breaking the running system. Manage the
+root filesystem outside of this role.
+
 You can add the optionals arguments `owner`, `group` and `mode` for the mount
 directory, as described in the [Ansible file module][].
 

@@ -1,0 +1,44 @@
+---
+- name: Verify facts gathered by the role
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+  roles:
+    - role: gwerlas.system
+  post_tasks:
+    - name: Required facts are defined
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - system_kernel is defined
+          - system_kernel is match('^[0-9]+\.[0-9]+')
+          - system_mounts is defined
+          - system_mounts is iterable
+          - system_needs_reboot is defined
+          - system_needs_reboot is boolean
+          - system_packages is defined
+          - system_packages is iterable
+          - system_shells is defined
+          - system_shells is iterable
+          - system_services is defined
+          - system_services is iterable
+          - system_services_dict is defined
+          - system_services_dict is mapping
+
+    - name: Bare-metal facts are defined (not in a container)
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - system_uptime is defined
+          - system_uptime | int > 0
+          - system_boot_mode is defined
+          - system_boot_mode in ['efi', 'pc']
+
+    - name: Portage-specific facts are defined
+      when: ansible_facts.pkg_mgr == 'portage'
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - system_portage_kernel is defined
+          - system_portage_kernel != 'auto'

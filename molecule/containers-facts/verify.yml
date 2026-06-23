@@ -1,12 +1,17 @@
 ---
 - name: Verify facts
   hosts: all
-  gather_facts: false
-  tasks:
+  vars:
+    system_sequence:
+      - facts
+  roles:
+    - role: gwerlas.system
+  post_tasks:
     - name: Assertions
       ansible.builtin.assert:
+        quiet: true
         that:
-          - system_mounts | length > 0
+          - system_mounts | length == 0
           - system_needs_reboot is false
           - system_packages | length > 0
           - system_shells | length == 0

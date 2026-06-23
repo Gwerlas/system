@@ -148,10 +148,14 @@
       changed_when: false
 
 - name: Check EPEL
+  # EPEL only ships for RHEL-compatibles, not Fedora itself (Fedora is its
+  # own upstream). The `redhat_like` group pools both; filter out Fedora at
+  # task-time so this stays valid as more EL flavours are added.
   hosts: redhat_like
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Repository file
+      when: ansible_facts.distribution != 'Fedora'
       ansible.builtin.file:
         path: /etc/yum.repos.d/epel.repo
         state: file

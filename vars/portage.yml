@@ -8,6 +8,25 @@ portage_main_repo: "{{ ansible_facts.distribution | lower }}"
 portage_profiles:
   server: no-multilib
 
+# Portage uses its own arch names (amd64, arm64, x86, …) that differ from
+# uname/`ansible_facts.architecture`. Map the common ones so the unstable
+# keyword opt-in below picks the correct value.
+portage_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  i686: x86
+  i386: x86
+  ppc64le: ppc64
+  riscv64: riscv
+
+portage_arch: "{{ portage_arch_map[ansible_facts.architecture] | default(ansible_facts.architecture) }}"
+
+portage_accept_keywords: |-
+  {{
+    (system_portage_unstable_arch | ternary(['~' + portage_arch], []))
+    + system_portage_accept_keywords
+  }}
+
 portage_opts:
   - "{{ packages_build | ternary('', '--binpkg-changed-deps=y') }}"
   - "{{ packages_build | ternary('', '--binpkg-respect-use=y') }}"

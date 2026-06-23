@@ -4,4 +4,4 @@ system_sshd_config:
   X11Forwarding: false
 
 system_sshd_host_keys:
-  sync_from: "files/{{ inventory_hostname }}"
+  sync_from: files/{{ inventory_hostname }}

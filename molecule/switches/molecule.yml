@@ -1,1 +1,73 @@
-../default/molecule.yml
+---
+dependency:
+  name: galaxy
+driver:
+  name: default
+# Tests switching the time backend from chrony (set up in prepare.yml) to
+# the value of switch_to (per host_vars / group_vars under inventory/).
+platforms:
+  - name: archlinux
+    groups:
+      - archlinux
+    memory: 2
+  - name: bookworm
+    groups:
+      - debian_like
+      - debian
+  - name: trixie
+    groups:
+      - debian_like
+      - debian
+  - name: jammy
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+  - name: noble
+    groups:
+      - debian_like
+      - ubuntu
+    memory: 2
+  - name: centos9s
+    groups:
+      - redhat_like
+    memory: 2
+  - name: alma9
+    groups:
+      - redhat_like
+    memory: 2
+  - name: centos10s
+    groups:
+      - redhat_like
+    memory: 2
+  - name: alma10
+    groups:
+      - redhat_like
+    memory: 2
+  - name: fedora43
+    groups:
+      - redhat_like
+    memory: 2
+  - name: fedora44
+    groups:
+      - redhat_like
+    memory: 2
+  - name: gentoo
+    groups:
+      - gentoo
+    memory: 4
+    vcpus: 4
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      group_vars: inventory/group_vars
+      host_vars: inventory/host_vars
+  playbooks:
+    create: create.yml
+    destroy: destroy.yml
+    prepare: prepare.yml
+    converge: converge.yml
+    verify: verify.yml
+verifier:
+  name: ansible

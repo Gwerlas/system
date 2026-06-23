@@ -1,0 +1,8 @@
+---
+# Ubuntu 22.04's `ntp` package installs `ntp.service` only (no `ntpd.service`
+# alias, unlike Debian bookworm or Ubuntu noble). debian-like.yml already
+# maps `ntpd → ntp` in services_map for the runtime lookup; this file mirrors
+# that mapping in release_services so the build-time `services` dict used by
+# Packages - Services resolves to the unit that actually exists.
+release_services:
+  ntpd: ntp

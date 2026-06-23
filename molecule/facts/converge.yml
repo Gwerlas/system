@@ -1,0 +1,8 @@
+---
+- name: Converge - facts only
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+  roles:
+    - role: gwerlas.system

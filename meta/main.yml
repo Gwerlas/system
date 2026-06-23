@@ -28,8 +28,7 @@ galaxy_info:
         - "10"
     - name: Fedora
       versions:
-        - "43"
-        - "44"
+        - all
     - name: Gentoo
       versions:
         - all

@@ -1,4 +1,13 @@
 ---
+# Package-manager specific post-install (e.g. Portage depclean, eclean-dist,
+# etc-update). Runs before the reboot trigger so the system is cleaned up first.
+- name: Packages - After install - Package manager specific
+  vars:
+    task_file: "{{ role_path }}/tasks/packages/{{ ansible_facts.pkg_mgr }}/after-install.yml"
+  when: task_file is file
+  ansible.builtin.include_tasks:
+    file: "{{ task_file }}"
+
 - name: Packages - Services - Show the list
   ansible.builtin.debug:
     var: system_services

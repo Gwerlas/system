@@ -16,6 +16,21 @@
         dest: /etc/kernel/config.d/firewalld.config
         mode: "0644"
 
+    # Ubuntu/Debian ships ufw and (on Ubuntu) leaves it enabled+active. Keeping
+    # it alongside firewalld creates a systemd ordering cycle on
+    # network-pre.target that drops firewalld's start job at boot, so firewalld
+    # stays enabled but inactive after each reboot — breaking idempotence on the
+    # Firewall - Service task. Stop and disable ufw when we're managing
+    # firewalld so a single firewall owns the chains.
+    - name: Firewall - Disable ufw
+      when:
+        - ansible_facts.os_family == 'Debian'
+        - "'ufw' in ansible_facts.packages | default({})"
+      ansible.builtin.service:
+        name: ufw
+        state: stopped
+        enabled: false
+
     - name: Firewall - Service
       ansible.builtin.service:
         name: "{{ lookup('service', 'firewalld') }}"

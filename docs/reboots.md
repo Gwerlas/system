@@ -85,6 +85,53 @@ See the [`timeout` parameter of the Ansible `reboot` module][] documentation for
 
 [`timeout` parameter of the Ansible `reboot` module]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html#parameter-reboot_timeout
 
+Jump hosts (`ProxyJump` / bastion)
+-----------------------------------
+
+If some nodes are reached through a jump host (an SSH bastion declared with
+`ProxyJump` / `ansible_ssh_common_args`), **never reboot that jump host in the
+same batch as the nodes that depend on it**.
+
+When every node reboots at once, the bastion reboots too. The reboot of a node
+behind it works like this : Ansible sends `shutdown -r`, the SSH connection
+drops, and Ansible assumes the reboot started. But if the bastion goes down
+*first* (its own reboot), the connection drops **before** the `shutdown` reaches
+the node : Ansible believes the reboot started while the node never actually
+rebooted. It then waits for the boot time to change until `system_reboot_timeout`
+expires, and the task fails with a timeout.
+
+This is a race on the sub-second ordering between the bastion and each node, so
+it hits a random subset of the nodes on every run — while the bastion itself,
+which reboots over its own direct connection, always succeeds. Raising
+`system_reboot_timeout` does **not** help : the affected nodes simply never
+reboot.
+
+The fix is orchestration : reboot the nodes while the bastion is still up, then
+reboot the bastion on its own (over its direct connection). Put the bastion in a
+dedicated group and split the reboot into two plays :
+
+```yaml
+- name: Reboot every node except the jump host
+  hosts: all:!bastion
+  tasks:
+    - name: Reboot if needed
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: reboot
+
+- name: Reboot the jump host last, on its own
+  hosts: bastion
+  tasks:
+    - name: Reboot if needed
+      ansible.builtin.import_role:
+        name: gwerlas.system
+        tasks_from: reboot
+```
+
+The `serial: 1` pattern shown above also avoids the race (only one host reboots
+at a time, so the bastion is never down while a node reconnects), at the cost of
+rebooting the whole fleet sequentially.
+
 What triggers a reboot
 ----------------------
 

@@ -1,45 +1,38 @@
 ---
+# Exercises the role against the next-release branches of each distro family
+# we support: Debian forky/sid (daily cloud images), Fedora Rawhide, and
+# Gentoo with `~amd64` keywords (testing branch). The intent is to catch
+# breakage before these versions land in the default scenario.
 dependency:
   name: galaxy
 driver:
-  name: vagrant
-  provider:
-    name: libvirt
-  provision: true
+  name: default
 platforms:
-  - name: debian-testing
-    box: debian/testing64
-    provider_raw_config_args: &raw_config
-      - "cpu_mode = 'host-passthrough'"
-      - "disk_bus = 'virtio'"
-      - "nic_model_type = 'virtio'"
-      - "video_type = 'virtio'"
-      - "disk_driver :cache => 'writeback'"
-      - "storage :file, bus: 'virtio', cache: 'writeback'"
-  - name: centos10s
-    box: generic-x64/centos10s
-    memory: 2048
-    provider_raw_config_args: *raw_config
-    instance_raw_config_args:
-      - 'vm.provision :shell, inline: "rm /etc/yum.repos.d/*.repo"'
+  - name: forky
+    groups:
+      - debian_like
+      - debian
+    memory: 2
+  - name: sid
+    groups:
+      - debian_like
+      - debian
+    memory: 2
   - name: fedora-rawhide
-    box: generic-x64/fedora-rawhide
-    memory: 2048
-    provider_raw_config_args: *raw_config
-    instance_raw_config_args:
-      - 'vm.provision :shell, inline: "rm /etc/yum.repos.d/*.repo"'
+    groups:
+      - redhat_like
+    memory: 2
   - name: gentoo
-    box: generic-x64/gentoo
-    cpus: 4
-    memory: 8192
-    provider_raw_config_args:
-      - "cpu_mode = 'host-passthrough'"
-      - "nic_model_type = 'virtio'"
-      - "video_type = 'virtio'"
-      - "disk_driver :cache => 'writeback'"
-      - "storage :file, bus: 'virtio', cache: 'writeback'"
-lint: ansible-lint
+    groups:
+      - gentoo
+    memory: 4
+    vcpus: 4
 provisioner:
   name: ansible
+  playbooks:
+    create: create.yml
+    destroy: destroy.yml
+    converge: converge.yml
+    verify: verify.yml
 verifier:
   name: ansible
