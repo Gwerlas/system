@@ -5,6 +5,24 @@
     - storages
   become: true
   block:
+    # A storage entry with `mount: /` would make the tasks below mkfs the root
+    # device and chown / to its `owner`, which silently breaks the host (a stale
+    # ownership on / makes systemd-tmpfiles refuse to set up /tmp/.X11-unix,
+    # killing graphical logins). Refuse it before any destructive task runs.
+    - name: Storages - Forbid the root filesystem as a mount point
+      ansible.builtin.assert:
+        that:
+          - >-
+            (system_storages_partitions + system_storages_lvol) |
+            selectattr('mount', 'defined') |
+            selectattr('mount', '==', '/') |
+            list | length == 0
+        fail_msg: >-
+          Refusing to manage '/' as a storage mount point: this role would
+          reformat the root device and reset the ownership of '/', breaking
+          the running system. See docs/storages.md.
+        quiet: true
+
     - name: Storages - Load facts
       when: system_mounts is undefined
       ansible.builtin.include_tasks:

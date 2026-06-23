@@ -178,6 +178,32 @@
         or
         not bkpdir.stat.wgrp
 
+    - name: Check the role refuses '/' as a storage mount point
+      vars:
+        system_storages_partitions: []
+        system_storages_vg: []
+        system_storages_lvol:
+          - vg: datastore
+            lv: root
+            mount: /
+            owner: molecule
+      block:
+        - name: Try to manage '/' as a mount point
+          ansible.builtin.include_role:
+            name: gwerlas.system
+            tasks_from: storages
+
+        - name: Fail because the guard let '/' through
+          ansible.builtin.fail:
+            msg: The role accepted '/' as a storage mount point
+
+      rescue:
+        - name: Confirm the guard rejected '/'
+          ansible.builtin.assert:
+            quiet: true
+            that:
+              - "'Refusing to manage' in ansible_failed_result.msg"
+
     # FIXME may fail due to unpredictable network interface name
     # - name: Check private network    # noqa risky-shell-pipe - pipefail is not supported by sh
     #   environment:
