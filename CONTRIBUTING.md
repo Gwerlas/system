@@ -51,9 +51,10 @@ molecule test -s containers-facts
 molecule test -s pkg-mgrs-only
 ```
 
-`pkg-mgrs-only` qualifies because it only imports the `package-managers` task
-file: no service manager, no clock, no reboot, so none of the role's
-`not in_container` guards skip anything it exercises.
+Those three are the ones the CI runs, since they need no VM. `pkg-mgrs-only`
+qualifies because it only imports the `package-managers` task file: no service
+manager, no clock, no reboot, so none of the role's `not in_container` guards
+skip anything it exercises.
 
 They share a single `molecule.yml`, held by `molecule/containers/` and
 symlinked from the two others — add a distribution there and the three
