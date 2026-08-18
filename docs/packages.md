@@ -555,6 +555,14 @@ Set `system_portage_logdir` to `""` to disable the feature.
 
 #### Kernel
 
+By default, kernel management is disabled for containers.
+
+```yaml
+system_manage_kernel: "{{ not in_container }}"
+```
+
+You can force enabling or disabling it defining the `system_manage_kernel` to `true` or `false`.
+
 Wich kernel to install :
 
 ```yaml
