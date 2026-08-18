@@ -4,6 +4,7 @@ system_manage_firewall: "{{ not in_container }}"
 system_manage_networks: "{{ system_networks_interfaces | length > 0 }}"
 system_manage_proxies: "{{ system_http_proxy is defined or system_https_proxy is defined or system_ftp_proxy is defined }}"
 system_manage_time: "{{ not in_container }}"
+system_manage_kernel: "{{ not in_container }}"
 system_manage_storages: |
   {{
     (

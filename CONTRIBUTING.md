@@ -17,6 +17,16 @@ Install and configure :
 * molecule
 * molecule-plugins
 
+The container scenarios boot a real systemd in each guest, and every one of
+them eats a handful of inotify instances *from your own user quota*. With the
+kernel default of 128 and a desktop session already holding ~90, the last
+container of a 12-platform run dies at startup (exit 255, no log). Raise the
+limit before running them :
+
+```sh
+sudo sysctl -w fs.inotify.max_user_instances=1024
+```
+
 Some tests use a web proxy, if you don't have one, install
 Squid locally with at least :
 
@@ -26,11 +36,29 @@ Squid locally with at least :
 Run tests
 ---------
 
-Quick tests of the role without any options, ran in containers as `ansible` user :
+Scenarios come in two flavours: the container ones run on the
+`gwerlas/ansible-guest-*` images (fast, but the role disables hosts, firewall,
+time, sshd, sudo and reboot management when it detects a container), the others
+boot a libvirt VM per platform.
+
+Three scenarios run in containers, as the `ansible` user — the whole role with
+its default values, the gathered facts, and the package managers configuration
+alone :
 
 ```sh
 molecule test -s containers
+molecule test -s containers-facts
+molecule test -s pkg-mgrs-only
 ```
+
+Those three are the ones the CI runs, since they need no VM. `pkg-mgrs-only`
+qualifies because it only imports the `package-managers` task file: no service
+manager, no clock, no reboot, so none of the role's `not in_container` guards
+skip anything it exercises.
+
+They share a single `molecule.yml`, held by `molecule/containers/` and
+symlinked from the two others — add a distribution there and the three
+scenarios pick it up.
 
 The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker` and you can easily switch between the two by setting this variable.
 
@@ -123,8 +151,14 @@ Each scenario's `molecule.yml` then picks a subset of those platforms by name
 (plus any `groups` / `memory` override); the cloud image URL is resolved at
 runtime by `create.yml` via a `lookup` on `molecule/shared/platforms.yml`.
 `molecule/shared/` also hosts the `create.yml` / `destroy.yml` playbooks that
-each scenario symlinks; molecule ignores it as a scenario because it doesn't
+each VM scenario symlinks; molecule ignores it as a scenario because it doesn't
 carry a `molecule.yml`.
+
+Container scenarios don't go through `platforms.yml`: their shared
+`molecule/containers/molecule.yml` names a `gwerlas/ansible-guest-*` image and
+tag directly, and the containers driver brings its own create / destroy
+playbooks. Keep both lists in step when adding a distribution — a platform is
+only really supported once it passes in a VM *and* in a container.
 
 Submit your changes
 -------------------

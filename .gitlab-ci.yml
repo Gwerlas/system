@@ -3,6 +3,9 @@ workflow:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
       changes:
+        # The pipeline definition itself, otherwise a CI-only change never
+        # triggers a run and cannot be iterated on.
+        - .gitlab-ci.yml
         - defaults/*
         - files/**/*
         - handlers/*
@@ -15,6 +18,94 @@ workflow:
 lint:
   image: gwerlas/ansible-lint
   script: ansible-lint
+
+# Only the container-based scenarios can run here: every other one needs
+# libvirt VMs (reboots, extra disks, clock, firewall…), which shared runners
+# can't provide. They all share the same sidecar setup, hence this template.
+.molecule:
+  image: gwerlas/molecule
+  # No runner tag on purpose: tagging these jobs for a larger SaaS machine
+  # would leave them stuck in a contributor's fork, where only the default
+  # shared runner is available. They fit a small runner — 7.6 GB of images
+  # against 25 GB of disk, and Ansible's default `forks: 5` caps the
+  # parallelism anyway. A full run takes ~6 min 30 locally (12 cores, images
+  # cached), well inside GitLab's default 1h job timeout.
+
+  # The molecule containers driver needs a container API to reach. Drive a
+  # sibling Podman over TCP (mirrors the ansible-guests repo's own job);
+  # without it the image entrypoint falls back to tcp://podman:8080 with
+  # nothing listening and every instance creation fails.
+  services:
+    # entrypoint holds only the interpreter: GitLab appends the image CMD when
+    # no `command` is set, which would leak an extra arg into
+    # `podman system service`.
+    - name: quay.io/podman/stable
+      alias: podman
+      entrypoint: ["sh", "-c"]
+      command:
+        - |
+          # Privileged podman-in-podman must own its namespaces, otherwise
+          # molecule cannot set a per-container hostname (exit 125);
+          # firewall_driver=none skips the nftables ruleset netavark cannot
+          # apply in the nested runner — without it the guests fail to start
+          # outright.
+          #
+          # netns=host is the counterpart: on a private netns the guests get
+          # no working resolver, DNS times out on every lookup, `apt update`
+          # crawls (4 min per host) and dnf gives up on its mirrorlists.
+          # Sharing the sidecar's network namespace fixes both, and these
+          # guests bind no port of their own.
+          mkdir -p /etc/containers/containers.conf.d
+          {
+            echo '[containers]'
+            echo 'netns = "host"'
+            echo 'ipcns = "private"'
+            echo 'utsns = "private"'
+            echo 'cgroupns = "private"'
+            echo 'cgroups = "enabled"'
+            echo '[network]'
+            echo 'firewall_driver = "none"'
+          } > /etc/containers/containers.conf.d/99-molecule.conf
+          ln -sf /usr/share/containers/seccomp.json /etc/containers/seccomp.json
+          # GitLab injects the job `variables` into this service too; podman
+          # reads CONTAINER_HOST/DOCKER_HOST and then rejects the positional
+          # endpoint as a second argument ("accepts at most 1 arg"). Drop them
+          # before serving.
+          unset CONTAINER_HOST DOCKER_HOST
+          exec podman system service --time=0 tcp://0.0.0.0:8080
+  variables:
+    MOLECULE_CONTAINERS_BACKEND: podman
+    CONTAINER_HOST: tcp://podman:8080
+    DOCKER_HOST: tcp://podman:8080
+  before_script:
+    - ansible-galaxy install -r requirements.yml
+    # Wait for the Podman API, but bail out rather than hang if it never
+    # comes up.
+    - |
+      for _ in $(seq 1 60); do
+        podman --url "$CONTAINER_HOST" version >/dev/null 2>&1 && break
+        sleep 1
+      done
+      podman --url "$CONTAINER_HOST" version >/dev/null 2>&1 \
+        || { echo 'Podman service did not come up'; exit 1; }
+  script:
+    - molecule test -s $SCENARIO
+
+containers-facts:
+  extends: .molecule
+  variables:
+    SCENARIO: containers-facts
+
+pkg-mgrs-only:
+  extends: .molecule
+  variables:
+    SCENARIO: pkg-mgrs-only
+
+# The whole role with its defaults.
+containers:
+  extends: .molecule
+  variables:
+    SCENARIO: containers
 
 import:
   stage: deploy

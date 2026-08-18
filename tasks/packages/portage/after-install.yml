@@ -10,7 +10,10 @@
   ansible.builtin.command:
     cmd: emerge --depclean --quiet
   register: depclean
-  changed_when: "'Number removed: 0' not in depclean.stdout"
+  # Match the summary line positively: with `--quiet` emerge prints nothing at
+  # all when there is nothing to remove, so testing for the absence of
+  # "Number removed: 0" reports changed on every idempotent run.
+  changed_when: depclean.stdout is search('Number removed:\s+[1-9]')
   notify: emerge --newuse
 
 - name: Portage - Clean distfiles
