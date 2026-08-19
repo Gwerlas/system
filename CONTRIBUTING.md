@@ -160,6 +160,44 @@ tag directly, and the containers driver brings its own create / destroy
 playbooks. Keep both lists in step when adding a distribution — a platform is
 only really supported once it passes in a VM *and* in a container.
 
+Editing templates
+-----------------
+
+No CI job renders the role's templates: the container scenarios skip the tasks
+that use them (`system_manage_sshd` is false in a container, and so on), and
+`ansible-lint` does not read `.j2` files. A template broken at the syntax level
+would otherwise ship through a green pipeline — it already happened once, with
+a duplicated `{% endif %}` in `templates/ssh/sshd_config.j2`.
+
+The `templates` job lints them with [j2lint][], and only runs when a template
+changes. To reproduce it locally:
+
+```sh
+pip install j2lint==1.3.0
+j2lint templates/ --ignore jinja-statements-indentation
+```
+
+`jinja-statements-indentation` is ignored for the whole role: it expects nested
+`{% %}` to be indented, which would reshape every configuration template
+without making any of them clearer.
+
+`single-statement-per-line` is *not* ignored globally. A template that has to
+build one configuration line out of inline conditionals opts out for itself,
+with this comment on its first line:
+
+```jinja
+{# j2lint: disable=single-statement-per-line -#}
+```
+
+The `-#}` matters: without it the comment leaves a blank first line in the
+rendered file. Prefer this per-file opt-out to a new global ignore, so the rule
+keeps applying to the templates that don't need the exception.
+
+Linting only proves a template *compiles*. Whether it renders the right thing
+is covered by the libvirt scenarios (`servers` for sshd), which run on a
+workstation, so review a template change by rendering it rather than by
+trusting the pipeline.
+
 Writing verify playbooks
 ------------------------
 
@@ -176,4 +214,5 @@ Merge request in [Gitlab][].
 
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
+[j2lint]: https://github.com/aristanetworks/j2lint
 [platforms]: molecule/shared/platforms.yml

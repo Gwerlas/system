@@ -4,7 +4,7 @@
 [DEFAULT]
 main-repo = {{ repo.name }}
 
-{% endif%}
+{% endif %}
 [{{ repo.name }}]
 location = {{ repo.location | default([system_portage_repos_directory, repo.name] | join('/')) }}
 sync-type = {{ repo['sync-type'] | default('git') }}
