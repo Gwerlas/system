@@ -178,18 +178,33 @@
         system_boot_mode: "{{ result.stat.exists | ternary('efi', 'pc') }}"
         cacheable: true
 
+    # `auto` takes the flavour from the installed packages, then follows the
+    # binhost policy: sys-kernel/gentoo-kernel gets the `-bin` suffix when
+    # system_portage_use_bin_suffix is set, so a cloud image with a binhost
+    # doesn't spend 45 minutes compiling a kernel while every other package
+    # comes from the binhost. The suffix is only ever added, never removed —
+    # dropping it would trade that compile back in. Only gentoo-kernel is
+    # matched because it is the only sys-kernel package with a `-bin`
+    # counterpart: vanilla-kernel and every `*-sources` flavour have none, and
+    # suffixing them would build an atom Portage cannot resolve.
     - name: Facts - Autodetect installed kernel package
       when:
         - ansible_facts.pkg_mgr == 'portage'
         - system_portage_kernel == 'auto'
       vars:
-        current_kernel: |
+        # Sorted: several sys-kernel packages can be installed side by side
+        # (gentoo-kernel and gentoo-kernel-bin coexist), and package facts
+        # carry no order, so an unsorted pick would be arbitrary.
+        current_kernel: >-
           {{
             ansible_facts.packages.values() |
             flatten |
             json_query("[?category=='sys-kernel' && (name.contains(@, '-kernel') || name.contains(@, '-sources'))]") |
-            last
+            map(attribute='name') |
+            sort |
+            first
           }}
+        bin_suffix: "{{ system_portage_use_bin_suffix and current_kernel == 'gentoo-kernel' }}"
       ansible.builtin.set_fact:
-        system_portage_kernel: "{{ current_kernel.name }}"
+        system_portage_kernel: "{{ current_kernel }}{{ bin_suffix | bool | ternary('-bin', '') }}"
         cacheable: true

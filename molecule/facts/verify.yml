@@ -42,3 +42,8 @@
         that:
           - system_portage_kernel is defined
           - system_portage_kernel != 'auto'
+          # `auto` must not resolve to the source flavour while the rest of
+          # the role pulls binary packages, or the play compiles a kernel for
+          # 45 minutes on a cloud image.
+          - not (system_portage_use_bin_suffix | bool
+                 and system_portage_kernel == 'gentoo-kernel')

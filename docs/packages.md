@@ -576,6 +576,17 @@ Supported values :
 - `gentoo-kernel-bin`
 - `vanilla-kernel`
 
+Under `auto`, the flavour comes from the installed `sys-kernel` packages, then
+follows the same binary-package policy as the rest of the role: when a Portage
+binhost is configured (see `system_packages_build`), a detected `gentoo-kernel`
+resolves to `gentoo-kernel-bin`, so a cloud image installs the kernel from the
+binhost instead of compiling it. The suffix is only ever added, never removed:
+if `gentoo-kernel-bin` is already installed, asking for source builds will not
+force a recompilation. `vanilla-kernel` and the `*-sources` flavours have no
+binary counterpart and are left untouched.
+
+Set `system_portage_kernel` explicitly to opt out of that behaviour.
+
 See [distribution kernels][] for more informations.
 
 You also can view the complete list of available kernels (but not only)
