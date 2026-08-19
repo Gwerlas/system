@@ -4,6 +4,15 @@
 # producing a pipeline in which no job qualifies, which fails as "No jobs to
 # run"; `compare_to` is what makes it work, since `changes:` without a base
 # evaluates to true on a freshly pushed branch and lets everything through.
+# Every job is interruptible, so pushing again to a branch cancels the run it
+# supersedes. The project already enables "auto-cancel redundant pipelines",
+# but that only reaps jobs still pending: a running job is cancelled only when
+# marked here, and a single non-interruptible job keeps the whole obsolete
+# pipeline alive. Three of them were running side by side on this branch
+# before this.
+default:
+  interruptible: true
+
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
@@ -179,6 +188,8 @@ containers:
 import:
   stage: deploy
   image: gwerlas/ansible
+  # Publishing must not be cancelled halfway through.
+  interruptible: false
   script: ansible-galaxy role import --token $GALAXY_TOKEN Gwerlas system
   rules:
     - if: '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_TAG'

@@ -153,6 +153,13 @@ wanted.
 no job qualifies fails with "No jobs to run", so a branch that only touches
 documentation must produce no pipeline at all rather than an empty one.
 
+Every job is `interruptible`, so pushing again to a branch cancels the run it
+supersedes instead of leaving both to compete for runners. The project setting
+that auto-cancels redundant pipelines only reaps jobs that have not started
+yet — a running job needs this flag, and one job without it keeps the whole
+obsolete pipeline alive. The `import` job is the exception: publishing to
+Galaxy must not be cut in half.
+
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
 managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
