@@ -335,6 +335,25 @@ Submit your changes
 
 Merge request in [Gitlab][].
 
+A change comes with its tests and its documentation, in the same commit. A new
+variable, or a change in behaviour, is not finished until:
+
+- a molecule scenario exercises it — an existing one where it fits, `servers`
+  for anything sshd, `default` for the role's own defaults;
+- the user-facing half is written in `README.md` or under `docs/`: what the
+  variable does, its default, an example;
+- the reasoning a future maintainer will need — an upstream constraint, a
+  Portage quirk, why two tasks must run in that order — goes in a code comment
+  or in this file, not in the user documentation.
+
+Keeping the three together is what makes a commit reviewable on its own: a
+change that arrives without its test looks finished when it is not, and one
+that arrives without its reason forces the next reader to guess.
+
+When a change touches something no CI job covers, run the matching scenario
+yourself and say so in the merge request — a green pipeline says nothing about
+those.
+
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [j2lint]: https://github.com/aristanetworks/j2lint
