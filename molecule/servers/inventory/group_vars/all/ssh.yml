@@ -2,6 +2,14 @@
 system_sshd_config:
   PubkeyAuthentication: true
   X11Forwarding: false
+  LoginGraceTime: 120
+  PermitRootLogin: prohibit-password
+  AcceptEnv:
+    - LANG
+    - LC_*
+  CASignatureAlgorithms:
+    - ssh-ed25519
+    - rsa-sha2-512
 
 system_sshd_host_keys:
   sync_from: files/{{ inventory_hostname }}
