@@ -19,7 +19,25 @@ Example :
 system_sshd_config:
   PubkeyAuthentication: true
   X11Forwarding: false
+  ListenAddress: 192.0.2.10
+  MaxAuthTries: 2
+  Ciphers:
+    - aes256-ctr
+    - aes192-ctr
+  Subsystem: sftp /usr/lib/openssh/sftp-server
 ```
+
+Values can be booleans, numbers, strings or lists. Booleans are rendered as
+`yes` / `no`, and lists are rendered in one of two ways depending on the
+option:
+
+- the algorithm options — `AuthenticationMethods`, `CASignatureAlgorithms`,
+  `Ciphers`, `HostbasedAcceptedKeyTypes`, `HostKeyAlgorithms`,
+  `KexAlgorithms`, `MACs` and `PubkeyAcceptedKeyTypes` — are joined with
+  commas on a single line, so the `Ciphers` above renders as
+  `Ciphers aes256-ctr,aes192-ctr`;
+- every other option is repeated once per item, so `AcceptEnv: [LANG, LC_*]`
+  renders as two `AcceptEnv` lines.
 
 If You set `system_manage_sshd` to `true` without any `system_sshd_config`
 instructions, we will filled our defaults.

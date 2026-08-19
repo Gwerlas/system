@@ -249,6 +249,26 @@
         - ed25519
         - rsa
 
+    - name: Read the generated sshd_config
+      become: true
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config
+      register: sshd_config_file
+
+    - name: Check the sshd_config rendering
+      vars:
+        lines: "{{ (sshd_config_file.content | b64decode).splitlines() }}"
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - "'PubkeyAuthentication yes' in lines"
+          - "'LoginGraceTime 120' in lines"
+          - "'PermitRootLogin prohibit-password' in lines"
+          - "'AcceptEnv LANG' in lines"
+          - "'AcceptEnv LC_*' in lines"
+          - "'CASignatureAlgorithms ssh-ed25519,rsa-sha2-512' in lines"
+          - lines | select('match', 'Include ') | length <= 1
+
 - name: Check EPEL
   hosts: el
   gather_facts: false

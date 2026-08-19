@@ -8,15 +8,15 @@
 {{ key }} "{{ value }}"
 
 {% endfor %}
-{% for key, value in config.items() if not (key | lower) == ['include', 'match'] %}
+{% for key, value in config.items() if (key | lower) not in ['include', 'match'] %}
 
 {% if (key | lower) in (list_separated_by_comma | map('lower')) %}
-{% if value is mapping %}
+{% if value is not string and value is iterable %}
 {{ key }} {{ value | join(',') }}
 {% else %}
 {{ key }} {{ value }}
 {% endif %}
-{% elif value is mapping %}
+{% elif value is not string and value is iterable %}
 {% for v in value %}
 {{ key }} {{ v }}
 {% endfor %}
@@ -24,6 +24,7 @@
 {% elif value is boolean %}
 {{ key }} {{ value | ternary('yes', 'no') }}
 {% else %}
+{{ key }} {{ value }}
 {% endif %}
 {% endfor %}
 
