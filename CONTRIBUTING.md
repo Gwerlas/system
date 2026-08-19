@@ -160,6 +160,15 @@ tag directly, and the containers driver brings its own create / destroy
 playbooks. Keep both lists in step when adding a distribution — a platform is
 only really supported once it passes in a VM *and* in a container.
 
+Writing verify playbooks
+------------------------
+
+`with_fileglob` does not sort: it returns whatever order the filesystem gives,
+which differs between a long-lived checkout and a fresh clone or a worktree.
+Never index its results positionally — pick the entry you want by name, the way
+`molecule/servers/verify.yml` matches each SSH host key fixture to its key type.
+Otherwise the scenario passes on your machine and fails on everyone else's.
+
 Submit your changes
 -------------------
 
