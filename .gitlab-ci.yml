@@ -16,6 +16,11 @@ default:
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
+    # The default branch always gets a pipeline: the rule below compares
+    # against main, so on main itself it compares main to main, finds nothing
+    # changed, and no pipeline would be created at all — the jobs' own
+    # `.on-default-branch` rule never gets the chance to run.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_BRANCH
       changes:
         compare_to: refs/heads/main
