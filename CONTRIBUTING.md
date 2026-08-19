@@ -154,7 +154,10 @@ wanted.
 
 `workflow:` keeps a path list of its own, for one reason: a pipeline in which
 no job qualifies fails with "No jobs to run", so a branch that only touches
-documentation must produce no pipeline at all rather than an empty one.
+documentation must produce no pipeline at all rather than an empty one. It
+also matches the default branch unconditionally, before that list — otherwise
+`main` would be compared against itself, nothing would look changed, and no
+pipeline would be created on merges at all.
 
 Every job is `interruptible`, so pushing again to a branch cancels the run it
 supersedes instead of leaving both to compete for runners. The project setting
