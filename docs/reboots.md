@@ -81,7 +81,8 @@ Timeout
 
 Set `system_reboot_timeout` to the maximum seconds to wait for reboot and respond.
 
-See the [`timeout` parameter of the Ansible `reboot` module][] documentation for more informations.
+See the [`timeout` parameter of the Ansible `reboot` module][] documentation
+for more informations.
 
 [`timeout` parameter of the Ansible `reboot` module]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html#parameter-reboot_timeout
 

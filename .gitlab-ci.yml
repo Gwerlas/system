@@ -21,6 +21,8 @@ workflow:
         compare_to: refs/heads/main
         paths:
           - .gitlab-ci.yml
+          - .markdownlint.yaml
+          - "**/*.md"
           - defaults/**/*
           - files/**/*
           - handlers/**/*
@@ -80,6 +82,24 @@ j2lint:
     - pip install --quiet j2lint==1.3.0
   script:
     - j2lint templates/ --ignore jinja-statements-indentation
+
+# Upstream's own image, whose entrypoint is the linter itself — GitLab needs a
+# shell as PID 1, hence the empty entrypoint. The rules the role follows live in
+# .markdownlint.yaml, so `markdownlint-cli2` needs no flag here.
+markdownlint:
+  image:
+    name: davidanson/markdownlint-cli2:v0.23.2
+    entrypoint: [""]
+  rules:
+    - *on-default-branch
+    - changes:
+        compare_to: refs/heads/main
+        paths:
+          - "**/*.md"
+          - .markdownlint.yaml
+          - .gitlab-ci.yml
+  script:
+    - markdownlint-cli2 "**/*.md"
 
 # Only the container-based scenarios can run here: every other one needs
 # libvirt VMs (reboots, extra disks, clock, firewall…), which shared runners

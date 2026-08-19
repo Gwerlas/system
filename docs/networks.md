@@ -1,7 +1,7 @@
 Network interfaces
 ==================
 
-> ** Experimental **
+> **Experimental**
 >
 > Work on EL and Debian based ditros for now.
 
@@ -21,7 +21,7 @@ system_manage_networks: false
 
 To enable network management set `system_manage_networks` to `true`.
 
-### Network interfaces
+### Interfaces
 
 ```yaml
 system_networks_check_mode: files

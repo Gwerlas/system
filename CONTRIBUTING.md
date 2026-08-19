@@ -11,13 +11,14 @@ Requirements
 
 Install and configure :
 
-* docker
-* libvirt
-* python3-jmespath
-* molecule
-* molecule-plugins
-* ansible-lint
-* [j2lint][] 1.3.0 — the Jinja linter the `j2lint` CI job runs
+- docker
+- libvirt
+- python3-jmespath
+- molecule
+- molecule-plugins
+- ansible-lint
+- [j2lint][] 1.3.0 — the Jinja linter the `j2lint` CI job runs
+- [markdownlint-cli2][] — the Markdown linter the `markdownlint` job runs
 
 `.claude/settings.json` ships a Claude Code hook that runs `ansible-lint` on
 every edited YAML file and `j2lint` on every edited template, so a syntax error
@@ -77,7 +78,8 @@ They share a single `molecule.yml`, held by `molecule/containers/` and
 symlinked from the two others — add a distribution there and the three
 scenarios pick it up.
 
-The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker` and you can easily switch between the two by setting this variable.
+The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker`
+and you can easily switch between the two by setting this variable.
 
 Test the role with its defaults values in a VM of each supported distro :
 
@@ -132,6 +134,7 @@ Each job then declares what it depends on:
 | ------------------ | ----------------------------------------------- |
 | `ansible-lint`     | any of the role's YAML changed                  |
 | `j2lint`           | a `templates/**/*.j2` changed                   |
+| `markdownlint`     | a `*.md` or the linter config changed           |
 | the container jobs | the role's code or its scenarios changed        |
 
 Everything is compared against `main` (`compare_to: refs/heads/main`), not
@@ -290,6 +293,34 @@ is covered by the libvirt scenarios (`servers` for sshd), which run on a
 workstation, so review a template change by rendering it rather than by
 trusting the pipeline.
 
+Editing documentation
+---------------------
+
+`markdownlint` checks every `*.md`, with the conventions this role already
+follows recorded in `.markdownlint.yaml`:
+
+- headings underlined for levels 1 and 2, `#` beyond — setext cannot express
+  level 3 and deeper, which the docs use heavily;
+- dashes for list bullets;
+- 80 columns for prose. Tables and code blocks are exempt: aligning a table's
+  cells is worth more than fitting the width, and wrapping a command would
+  break it.
+
+To run it locally:
+
+```sh
+markdownlint-cli2 "**/*.md"
+```
+
+It fixes much of what it finds on its own with `--fix` — bullets, indentation,
+blank lines, bare URLs. What it cannot fix is line length, which is on you.
+
+A line whose overflow contains no space is not reported: a long URL or a
+reference-style link definition has nothing to wrap on. That is also the way
+out when a link makes a sentence overflow — move the URL to a `[name]:`
+definition at the end of the file rather than splitting the link across two
+lines.
+
 Writing verify playbooks
 ------------------------
 
@@ -307,4 +338,5 @@ Merge request in [Gitlab][].
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [j2lint]: https://github.com/aristanetworks/j2lint
+[markdownlint-cli2]: https://github.com/DavidAnson/markdownlint-cli2
 [platforms]: molecule/shared/platforms.yml

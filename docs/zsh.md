@@ -26,7 +26,8 @@ directory at the root of your playbook / role and add them to the list.
 
 ### Raw files
 
-Ensure that your `.zshrc` parse the files of `~/.zsh`, or use that of this role :
+Ensure that your `.zshrc` parse the files of `~/.zsh`, or use that of this role
+:
 
 ```yaml
 system_zsh_files:
@@ -34,7 +35,7 @@ system_zsh_files:
   - .zsh/my-company-customs
 ```
 
->  **Be careful**
+> **Be careful**
 >
 > If you create a `files/.zshrc` in your parent role / playbook and expect that
 > Ansible will use it, you are wrong.

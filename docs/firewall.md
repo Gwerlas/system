@@ -15,7 +15,7 @@ system_firewall_public_interface: "{{ ansible_facts.default_ipv4.interface }}"
 system_firewall_rules: []
 ```
 
-You can use one of [predefined zones](https://firewalld.org/documentation/zone/predefined-zones.html) as values.
+You can use one of [predefined zones][] as values.
 
 The `system_firewall_default_zone` will be applied to the `system_firewall_public_interface`.
 
@@ -58,3 +58,4 @@ Common usage :
             - service: http
 ```
 
+[predefined zones]: https://firewalld.org/documentation/zone/predefined-zones.html

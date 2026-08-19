@@ -37,7 +37,6 @@ Table of content :
 - [CA certificates](#ca-certificates)
 - [Network types](#network-types)
 
-
 Variables
 ---------
 
@@ -78,7 +77,8 @@ Packages managers
 
 For idempotence purpose, we only update package manager cache if missing.
 
-Because there is a big risk of package installation failure if the cache is too old,
+Because there is a big risk of package installation failure if the cache is too
+old,
 we update it if it is older than one week.
 
 You can change the max age throw the `system_packages_cache_max_age` variable.
@@ -149,7 +149,7 @@ system_apt_sources_list:
 
 For Debian bookworm, the generated `/etc/apt/sources.list` will be :
 
-```
+```text
 deb ftp://my-apt-mirror/debian bookworm main contrib
 deb ftp://my-apt-mirror/debian bookworm-security main contrib
 deb http://my-another-mirror/debian bookworm main contrib
@@ -158,7 +158,7 @@ deb http://my-another-mirror/debian bookworm-security main contrib
 
 And the `/etc/apt/apt.conf.d/01proxy` will be :
 
-```
+```text
 Acquire::ftp::Proxy::my-apt-mirror DIRECT;
 Acquire::http::Proxy::my-another-mirror "http://proxy.my-company.tld:3128";
 ```
@@ -192,9 +192,10 @@ The generated file will be `/etc/apt/sources.list.d/my-mirror`.
 The `system_apt_prefer_backports` variable configure APT pinning to prioritize backports.
 
 The possible values are :
-  - `true` : Prefer backports (the repo has to be set in your apt sources.list)
-  - `false` : Do nothing (default)
-  - `auto` : Prefer backports if present in sources.list
+
+- `true` : Prefer backports (the repo has to be set in your apt sources.list)
+- `false` : Do nothing (default)
+- `auto` : Prefer backports if present in sources.list
 
 The entire distribution will be upgraded with backports.
 
@@ -214,8 +215,7 @@ upgrading the system (for example, when a package is no longer found in the
 official repositories). In practice, do not run pacman -Sy package_name
 instead of pacman -Syu package_name, as this could lead to dependency issues.
 
-https://wiki.archlinux.org/title/pacman#Installing_packages
-
+<https://wiki.archlinux.org/title/pacman#Installing_packages>
 
 Because using `-u` can break idempotence, we try to install packages without
 this flag, but if it fails, we fallback to the `pacman -Syu` method.
@@ -344,7 +344,8 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-AlmaLinux-$releasever
 ```
 
-Look at the chapter `[repository] options` in the [yum.conf(5)][] manual page for more
+Look at the chapter `[repository] options` in the [yum.conf(5)][] manual page
+for more
 informations about available options their values and meanings.
 
 [yum.conf(5)]: https://linux.die.net/man/5/yum.conf
@@ -382,7 +383,7 @@ documentation using those defaults values per entry :
 
 - `location`: `system_portage_repos_directory`/`repo.name`
 - `sync-type`: `git`
-- `sync-uri`: https://github.com/gentoo-mirror/`name`.git
+- `sync-uri`: <https://github.com/gentoo-mirror/`name`.git>
 
 Only the `name` is mandatory. For example :
 
@@ -458,7 +459,7 @@ location by a symlink pointing to `system_portage_directory` (if the locations
 are different ofcourse) to be sure to always have an up and ready to use
 package manager.
 
-See the [Default Gentoo ebuild repository location change][] chapter of the 
+See the [Default Gentoo ebuild repository location change][] chapter of the
 Portage documentation for more informations.
 
 [Default Gentoo ebuild repository location change]: https://wiki.gentoo.org/wiki/Portage#Default_Gentoo_ebuild_repository_location_change
@@ -491,7 +492,8 @@ system_packages_march: native
 mode, the role detects a configured Portage binhost by looking for any
 `/etc/portage/binrepos.conf/*.conf` entry :
 
-- Gentoo with a binhost configured (typical on catalyst stages and cloud images) → `false`, use the binhost.
+- Gentoo with a binhost configured (typical on catalyst stages and cloud
+  images) → `false`, use the binhost.
 - Gentoo without a binhost → `true`, build from source ("the Gentoo way").
 - Other distributions → `false`, their package managers ship binaries only.
 
@@ -561,7 +563,8 @@ By default, kernel management is disabled for containers.
 system_manage_kernel: "{{ not in_container }}"
 ```
 
-You can force enabling or disabling it defining the `system_manage_kernel` to `true` or `false`.
+You can force enabling or disabling it defining the `system_manage_kernel` to
+`true` or `false`.
 
 Wich kernel to install :
 
@@ -653,7 +656,8 @@ flavour from `system_portage_kernel` instead of pulling its own default.
 Packages upgrade
 ----------------
 
-The `system_packages_upgrade` set to `true` will upgrade the system packages and reboot
+The `system_packages_upgrade` set to `true` will upgrade the system packages
+and reboot
 the machine if needed.
 
 If you have Waterfall or V-Cycle deployments, You should call it at first
@@ -663,7 +667,8 @@ at the other times to keep control on your infrastructure state.
 For continuous deployments, You would like to set it permanently to `true`.
 
 In case of Ansible role development, set it to `true` at preparation stage
-only to keep idempotence control. Here an exemple of `molecule/default/prepare.yml` :
+only to keep idempotence control. Here an exemple of
+`molecule/default/prepare.yml` :
 
 ```yml
 ---
@@ -703,6 +708,7 @@ distribution we use.
 We based the key names on the commonly usage of package names.
 
 Supported keys :
+
 - `bond` : Packages to manage bonded networks
   (automatically added if at least a bond is found in `system_networks`)
 - `bridge` : Packages to manage bridged networks
@@ -748,7 +754,8 @@ Some packages will be dynamically enabled depending of the given data.
 
 The user shells will be automatically added to the package list.
 
-The example will automatically add `zsh` to the list of packages to install on the node :
+The example will automatically add `zsh` to the list of packages to install on
+the node :
 
 ```yaml
 ---
@@ -766,13 +773,15 @@ The example will automatically add `zsh` to the list of packages to install on t
 
 ```
 
-## CA certificates
+CA certificates
+---------------
 
 The CA package will be automatically added to the package list
 if at least one CA certificate file is given in the
 `system_ca_certificates` variable.
 
-## Network types
+Network types
+-------------
 
 If you manage your networks interfaces with this role, we try to install the
 required packages to the system.
