@@ -17,7 +17,7 @@ Install and configure :
 * molecule
 * molecule-plugins
 * ansible-lint
-* [j2lint][] 1.3.0 — the Jinja linter the `templates` CI job runs
+* [j2lint][] 1.3.0 — the Jinja linter the `j2lint` CI job runs
 
 `.claude/settings.json` ships a Claude Code hook that runs `ansible-lint` on
 every edited YAML file and `j2lint` on every edited template, so a syntax error
@@ -111,8 +111,8 @@ about the rest:
 
 | Area                                            | Covered by CI          | Tested by                       |
 | ----------------------------------------------- | ---------------------- | ------------------------------- |
-| Task syntax and idioms                          | yes, `lint`            | ansible-lint                    |
-| Templates compile                               | yes, `templates`       | j2lint                          |
+| Task syntax and idioms                          | yes, `ansible-lint`    | ansible-lint                    |
+| Templates compile                               | yes, `j2lint`          | j2lint                          |
 | Package managers, packages, users, CA, sudo     | yes, container jobs    | the three container scenarios   |
 | Bare-metal facts (`not in_container` block)     | no                     | `facts`                         |
 | sshd configuration and host keys                | no                     | `servers`                       |
@@ -128,11 +128,11 @@ about the rest:
 `workflow:` only decides whether a pipeline exists — on a branch or a tag.
 Each job then declares what it depends on:
 
-| Job                  | Runs when                                              |
-| -------------------- | ------------------------------------------------------ |
-| `lint`               | always                                                  |
-| `templates`          | a `templates/**/*.j2` changed                           |
-| the container jobs   | the role's code or its scenarios changed                |
+| Job                | Runs when                                       |
+| ------------------ | ----------------------------------------------- |
+| `ansible-lint`     | any of the role's YAML changed                  |
+| `j2lint`           | a `templates/**/*.j2` changed                   |
+| the container jobs | the role's code or its scenarios changed        |
 
 Everything is compared against `main` (`compare_to: refs/heads/main`), not
 against the previous push. That matters: `changes:` with no base evaluates to
@@ -143,15 +143,15 @@ The comparison covers the branch as a whole, not the latest commit. A merge
 request that touches the role's code therefore runs the scenarios on each of
 its pushes, documentation-only commits included — the branch as a whole still
 changes the role. Only a branch that never touches anything but documentation
-comes down to `lint` alone.
+comes down to `ansible-lint` alone.
 
 On `main` itself and on tags every job runs unconditionally — comparing `main`
 to `main` matches nothing, and that is precisely when the full pipeline is
 wanted.
 
-`lint` deliberately carries no condition: a pipeline in which no job qualifies
-fails with "No jobs to run", so one always-on job is needed, and ansible-lint
-reads the whole repository in seconds.
+`workflow:` keeps a path list of its own, for one reason: a pipeline in which
+no job qualifies fails with "No jobs to run", so a branch that only touches
+documentation must produce no pipeline at all rather than an empty one.
 
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
@@ -254,8 +254,8 @@ that use them (`system_manage_sshd` is false in a container, and so on), and
 would otherwise ship through a green pipeline — it already happened once, with
 a duplicated `{% endif %}` in `templates/ssh/sshd_config.j2`.
 
-The `templates` job lints them with [j2lint][], and only runs when a template
-changes. To reproduce it locally:
+The `j2lint` job lints them, and only runs when a template changes. To
+reproduce it locally:
 
 ```sh
 pip install j2lint==1.3.0

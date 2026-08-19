@@ -1,12 +1,25 @@
-# `workflow:` decides whether a pipeline exists at all, nothing more. Which
+# `workflow:` answers one question: is there anything to test at all. Which
 # jobs are worth running is each job's own business, through `rules:changes:`
-# below — a path list here cannot express that, and could not even filter
-# reliably: `changes:` needs a base to compare against, and a newly pushed
-# branch has none, so it evaluates to true and runs everything anyway.
+# below. The path list stays here only to keep a documentation-only branch from
+# producing a pipeline in which no job qualifies, which fails as "No jobs to
+# run"; `compare_to` is what makes it work, since `changes:` without a base
+# evaluates to true on a freshly pushed branch and lets everything through.
 workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: refs/heads/main
+        paths:
+          - .gitlab-ci.yml
+          - defaults/**/*
+          - files/**/*
+          - handlers/**/*
+          - meta/**/*
+          - molecule/**/*
+          - tasks/**/*
+          - templates/**/*
+          - vars/**/*
 
 # `.rules` template: run when the listed paths changed against the default
 # branch, and unconditionally on the default branch itself and on tags — where
@@ -16,11 +29,22 @@ workflow:
 .on-default-branch: &on-default-branch
   if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_TAG
 
-# ansible-lint reads the whole repository and takes seconds, so it carries no
-# `changes:`. It is also what keeps a documentation-only pipeline from failing
-# with "No jobs to run": a pipeline needs at least one job.
-lint:
+# Every YAML the role is made of. `templates/` is absent on purpose:
+# ansible-lint does not read `.j2` files, which is what the j2lint job is for.
+ansible-lint:
   image: gwerlas/ansible-lint
+  rules:
+    - *on-default-branch
+    - changes:
+        compare_to: refs/heads/main
+        paths:
+          - .gitlab-ci.yml
+          - defaults/**/*
+          - handlers/**/*
+          - meta/**/*
+          - molecule/**/*
+          - tasks/**/*
+          - vars/**/*
   script: ansible-lint
 
 # ansible-lint never reads .j2 files, and the container scenarios skip every
@@ -34,7 +58,7 @@ lint:
 # single-statement-per-line is instead opted out per file, with a
 # `{# j2lint: disable=... -#}` comment, so it keeps applying everywhere a
 # config line is not built from inline conditionals.
-templates:
+j2lint:
   image: python:3.13-slim
   rules:
     - *on-default-branch
