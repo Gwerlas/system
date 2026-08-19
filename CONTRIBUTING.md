@@ -11,13 +11,13 @@ Requirements
 
 Install and configure :
 
-* docker
-* libvirt
-* python3-jmespath
-* molecule
-* molecule-plugins
-* ansible-lint
-* [j2lint][] 1.3.0 — the Jinja linter the `j2lint` CI job runs
+- docker
+- libvirt
+- python3-jmespath
+- molecule
+- molecule-plugins
+- ansible-lint
+- [j2lint][] 1.3.0 — the Jinja linter the `j2lint` CI job runs
 
 `.claude/settings.json` ships a Claude Code hook that runs `ansible-lint` on
 every edited YAML file and `j2lint` on every edited template, so a syntax error
@@ -77,7 +77,8 @@ They share a single `molecule.yml`, held by `molecule/containers/` and
 symlinked from the two others — add a distribution there and the three
 scenarios pick it up.
 
-The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker` and you can easily switch between the two by setting this variable.
+The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker`
+and you can easily switch between the two by setting this variable.
 
 Test the role with its defaults values in a VM of each supported distro :
 

@@ -15,7 +15,8 @@ GitLab project: [yoanncolin/ansible/roles/system](https://gitlab.com/yoanncolin/
 Requirements
 ------------
 
-This role as been writen to be run as non root user, so Sudo has to be installed and configured.
+This role as been writen to be run as non root user, so Sudo has to be
+installed and configured.
 
 For network configuration, the [`netaddr` Python package][netaddr] is
 required, You also need the [`ansible.utils`][ansible.utils] Ansible module.
@@ -44,7 +45,8 @@ Look at the [facts][] documentation for more details.
 Tags
 ----
 
-Because some values are dispatched in multiple tasks. You can quickly update some of them with tags :
+Because some values are dispatched in multiple tasks. You can quickly update
+some of them with tags :
 
 - `ca` - SSL certificates authorities
 - `firewall`
@@ -73,20 +75,20 @@ independently.
 
 Of course, all tasks are called in the `main.yml`. See each task documentation :
 
-* [facts][]
-* [proxies][]
-* [hosts][]
-* [packages][]
-* [modules][]
-* [networks][]
-* [storages][]
-* [sudo][]
-* [users][]
-* [zsh][]
-* [ca][]
-* [time][]
-* [firewall][]
-* [remote-access][]
+- [facts][]
+- [proxies][]
+- [hosts][]
+- [packages][]
+- [modules][]
+- [networks][]
+- [storages][]
+- [sudo][]
+- [users][]
+- [zsh][]
+- [ca][]
+- [time][]
+- [firewall][]
+- [remote-access][]
 
 [facts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/facts.md
 [proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
@@ -156,7 +158,8 @@ system_profile: server
 system_retries: 2
 ```
 
-Some tasks of this role need to put scripts. They are stored in `system_bin_path` directory.
+Some tasks of this role need to put scripts. They are stored in
+`system_bin_path` directory.
 
 The `system_profile` can impact the behaviour of some parts of the system,
 for example the packages to install (or not).

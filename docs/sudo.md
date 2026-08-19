@@ -23,7 +23,8 @@ By default, sudo management is disabled for containers.
 system_manage_sudo: "{{ not in_container }}"
 ```
 
-You can force enabling or disabling it defining the `system_manage_sudo` to `true` or `false`.
+You can force enabling or disabling it defining the `system_manage_sudo` to
+`true` or `false`.
 
 ### Facts
 
@@ -37,11 +38,14 @@ system_sudo_group: "{{ 'sudo' if ansible_facts.os_family == 'Debian' else 'wheel
 system_sudo_defaults: []
 ```
 
-By default, `root` and the `system_sudo_group` group be able to sudo all commands without password.
+By default, `root` and the `system_sudo_group` group be able to sudo all
+commands without password.
 
-If You want sudo asks password for `system_sudo_group`, set `system_sudo_nopasswd` to `false`.
+If You want sudo asks password for `system_sudo_group`, set
+`system_sudo_nopasswd` to `false`.
 
-You can set a lot of `Defaults` option (eg. "SUDOERS OPTIONS" section from the sudoers(5) man page).
+You can set a lot of `Defaults` option (eg. "SUDOERS OPTIONS" section from the
+sudoers(5) man page).
 
 For example, to reproduce the Debian default behaviour :
 

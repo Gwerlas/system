@@ -1,0 +1,17 @@
+---
+# Headings: underlined for levels 1-2, ATX beyond — setext cannot express
+# level 3 and deeper, and the docs use those heavily.
+MD003:
+  style: setext_with_atx
+
+# Bullets: dashes, which 118 of the 137 existing list items already use.
+MD004:
+  style: dash
+
+# Line length: 80 for prose. Tables are exempt — aligning their cells is worth
+# more than fitting the width — and so are code blocks, where wrapping would
+# break the commands being shown.
+MD013:
+  line_length: 80
+  tables: false
+  code_blocks: false

@@ -6,7 +6,8 @@ SSHd
 
 ### Configuration
 
-The `system_sshd_config` dictionary accept (almost) all of the [sshd_config(5)][] instructions.
+The `system_sshd_config` dictionary accept (almost) all of the
+[sshd_config(5)][] instructions.
 
 > **Note**
 >
