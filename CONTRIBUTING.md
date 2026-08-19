@@ -84,6 +84,44 @@ molecule test -s ntp
 molecule test -s timesync
 ```
 
+What the pipeline does not cover
+--------------------------------
+
+Shared GitLab runners expose no `/dev/kvm`, and the project has no runner of
+its own, so **no libvirt scenario ever runs in CI**. A green pipeline says the
+role is sound on everything a container can exercise, and says nothing at all
+about the rest:
+
+| Area                                            | Covered by CI          | Tested by                       |
+| ----------------------------------------------- | ---------------------- | ------------------------------- |
+| Task syntax and idioms                          | yes, `lint`            | ansible-lint                    |
+| Templates compile                               | yes, `templates`       | j2lint                          |
+| Package managers, packages, users, CA, sudo     | yes, container jobs    | the three container scenarios   |
+| Bare-metal facts (`not in_container` block)     | no                     | `facts`                         |
+| sshd configuration and host keys                | no                     | `servers`                       |
+| Storage, LVM, extra disks                       | no                     | `servers`, `default`            |
+| Network interfaces and static routes            | no                     | `servers`                       |
+| Reboot handling                                 | no                     | `reboot-only`                   |
+| Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
+| Portage kernel and its handlers                 | no                     | `default` on gentoo             |
+| Desktop profiles                                | no                     | `desktops`, `gnome`             |
+
+That gap is where the bugs come from. Three examples, all shipped through a
+green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
+managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
+instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
+zstd initramfs.
+
+So when a change touches one of the uncovered areas, run the matching scenario
+on a workstation before merging, and say so in the merge request. Reviewing it
+against a green pipeline alone is reviewing nothing.
+
+Running those scenarios in CI was considered and turned down (see the issue
+tracker): it would need either a self-hosted runner — a personal machine that
+has to be up, and that would execute contributor code from forks — or a paid
+cloud runner with nested virtualisation. Neither is worth it for this role
+today.
+
 libvirt connection and storage pool
 -----------------------------------
 
