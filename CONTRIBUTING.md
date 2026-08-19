@@ -16,6 +16,23 @@ Install and configure :
 * python3-jmespath
 * molecule
 * molecule-plugins
+* ansible-lint
+* [j2lint][] 1.3.0 — the Jinja linter the `templates` CI job runs
+
+`.claude/settings.json` ships a Claude Code hook that runs `ansible-lint` on
+every edited YAML file and `j2lint` on every edited template, so a syntax error
+surfaces at edit time rather than in the pipeline. Both are skipped when the
+tool is missing, so the hook never blocks a contributor who has not installed
+them.
+
+Distributions that follow PEP 668 (Gentoo, recent Debian and Fedora) refuse
+`pip install` into the system or user site. Use a dedicated virtualenv — the
+hook looks for `j2lint` in `PATH` first, then falls back to this exact path:
+
+```sh
+python3 -m venv ~/.local/share/j2lint-venv
+~/.local/share/j2lint-venv/bin/pip install j2lint==1.3.0
+```
 
 The container scenarios boot a real systemd in each guest, and every one of
 them eats a handful of inotify instances *from your own user quota*. With the
