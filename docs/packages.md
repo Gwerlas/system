@@ -595,6 +595,11 @@ on the [sys-kernel category][] web page.
 [distribution kernels]: https://wiki.gentoo.org/wiki/Project:Distribution_Kernel
 [sys-kernel category]: https://packages.gentoo.org/categories/sys-kernel
 
+Alongside the kernel itself, the role installs `app-admin/eclean-kernel` to
+prune outdated kernels, `sys-kernel/linux-firmware`, and `dev-python/zstandard`
+— which eclean-kernel needs to read a zstd-compressed initramfs, and which its
+own dependencies do not pull in.
+
 The dist-kernel is built with `USE=savedconfig`: its base `.config` is the
 curated config at `/etc/portage/savedconfig/sys-kernel/<package>-<version>`.
 Before each build the role seeds that file when it is missing, in this order:
