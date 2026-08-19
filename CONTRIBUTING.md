@@ -123,6 +123,36 @@ about the rest:
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
 | Desktop profiles                                | no                     | `desktops`, `gnome`             |
 
+### When each job runs
+
+`workflow:` only decides whether a pipeline exists — on a branch or a tag.
+Each job then declares what it depends on:
+
+| Job                  | Runs when                                              |
+| -------------------- | ------------------------------------------------------ |
+| `lint`               | always                                                  |
+| `templates`          | a `templates/**/*.j2` changed                           |
+| the container jobs   | the role's code or its scenarios changed                |
+
+Everything is compared against `main` (`compare_to: refs/heads/main`), not
+against the previous push. That matters: `changes:` with no base evaluates to
+true, so on a freshly pushed branch a filter written without `compare_to` runs
+everything it meant to skip.
+
+The comparison covers the branch as a whole, not the latest commit. A merge
+request that touches the role's code therefore runs the scenarios on each of
+its pushes, documentation-only commits included — the branch as a whole still
+changes the role. Only a branch that never touches anything but documentation
+comes down to `lint` alone.
+
+On `main` itself and on tags every job runs unconditionally — comparing `main`
+to `main` matches nothing, and that is precisely when the full pipeline is
+wanted.
+
+`lint` deliberately carries no condition: a pipeline in which no job qualifies
+fails with "No jobs to run", so one always-on job is needed, and ansible-lint
+reads the whole repository in seconds.
+
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
 managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
