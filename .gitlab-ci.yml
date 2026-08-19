@@ -19,6 +19,27 @@ lint:
   image: gwerlas/ansible-lint
   script: ansible-lint
 
+# ansible-lint never reads .j2 files, and the container scenarios skip every
+# task that renders one, so a template broken at the syntax level would
+# otherwise ship through a green pipeline. j2lint publishes no image, hence the
+# install here; `changes` keeps that cost on the pipelines that touch a
+# template.
+#
+# jinja-statements-indentation is ignored wholesale: it expects nested `{% %}`
+# to be indented, which reshapes every config template for no gain here.
+# single-statement-per-line is instead opted out per file, with a
+# `{# j2lint: disable=... -#}` comment, so it keeps applying everywhere a
+# config line is not built from inline conditionals.
+templates:
+  image: python:3.13-slim
+  rules:
+    - changes:
+        - templates/**/*.j2
+  before_script:
+    - pip install --quiet j2lint==1.3.0
+  script:
+    - j2lint templates/ --ignore jinja-statements-indentation
+
 # Only the container-based scenarios can run here: every other one needs
 # libvirt VMs (reboots, extra disks, clock, firewall…), which shared runners
 # can't provide. They all share the same sidecar setup, hence this template.

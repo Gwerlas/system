@@ -1,3 +1,4 @@
+{# j2lint: disable=single-statement-per-line -#}
 {% for param in system_sudo_defaults %}
 {% if param is string %}
 Defaults   {{ param }}
@@ -7,7 +8,7 @@ Defaults   {{ param }}
 Defaults   {{ k }} = "{{ v }}"
 {% elif v is sequence %}
 {% for i in v | slice(6) %}
-Defaults   {{ k }} {{ ' =' if loop.index == 1 else '+=' }} "{{ i | join(' ')}}"
+Defaults   {{ k }} {{ ' =' if loop.index == 1 else '+=' }} "{{ i | join(' ') }}"
 {% endfor %}
 {% endif %}
 {% endfor %}
