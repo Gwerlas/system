@@ -77,12 +77,23 @@
 
 # Anchor @world on virtual/dist-kernel (it pulls the matching gentoo-kernel as a
 # dependency — already installed by the task above) along with the companions.
+#
+# dev-python/zstandard is not in app-admin/eclean-kernel's RDEPEND, but
+# eclean-kernel needs it here: its `std` layout probes every versioned file in
+# /boot to recognise kernel images, decompressing anything that starts with a
+# known compression magic, and a dist-kernel initramfs is zstd. The resulting
+# MissingDecompressorError is not caught, so the `eclean-kernel` handler exits 1
+# and takes the play down. It only bites when the initramfs carries no
+# early-CPIO microcode prefix — a prefix keeps the zstd magic away from offset 0
+# and eclean-kernel skips the file — which is why the failure looks intermittent
+# from one host to another.
 - name: Portage - Before install - Dist kernel packages
   become: true
   community.general.portage:
     update: "{{ system_packages_upgrade }}"
     package:
       - app-admin/eclean-kernel
+      - dev-python/zstandard
       - sys-kernel/linux-firmware
       - virtual/dist-kernel
   notify:

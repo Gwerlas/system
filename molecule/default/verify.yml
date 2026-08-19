@@ -41,6 +41,14 @@
       ansible.builtin.package:
         name: vim
 
+    # The eclean-kernel handler reads /boot's zstd initramfs through this
+    # module; without it the whole play fails. See tasks/packages/portage/kernel.yml.
+    - name: Kernel cleanup can read a zstd initramfs
+      when: ansible_facts.pkg_mgr == 'portage'
+      ansible.builtin.command:
+        cmd: python3 -c "import zstandard"
+      changed_when: false
+
     - name: EPEL should be absent
       check_mode: true
       ansible.builtin.file:
