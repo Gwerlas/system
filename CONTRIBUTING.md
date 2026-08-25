@@ -164,7 +164,26 @@ supersedes instead of leaving both to compete for runners. The project setting
 that auto-cancels redundant pipelines only reaps jobs that have not started
 yet — a running job needs this flag, and one job without it keeps the whole
 obsolete pipeline alive. The `import` job is the exception: publishing to
-Galaxy must not be cut in half.
+Galaxy must not be cut in half. Measured on a throwaway branch: a job 64
+seconds into a `sleep 300` cancelled itself as soon as the next push created
+its successor.
+
+### Pipelines on a fork
+
+A merge request from a fork runs its pipeline in the fork, on the fork's own
+repository and runner minutes: `workflow:` matches branches and tags, never
+`merge_request_event`.
+
+`compare_to: refs/heads/main` therefore resolves against the *fork's* `main`,
+from the merge base rather than tip to tip. Branch off your own `main`, however
+far behind, and only your own commits are compared. Sync the branch with this
+project while that `main` stays behind, and the merge base becomes the old fork
+point: every job qualifies. Wasteful, never wrong.
+
+A fork with no `main` at all is the case with no signal. A job's rules report
+the configuration as broken — `rules:changes:compare_to is not a valid ref` —
+and `workflow:` creates no pipeline while saying nothing. `compare_to` expands
+CI/CD variables, so `$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
 
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
