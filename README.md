@@ -6,24 +6,26 @@ Base system
 Linux systems base settings.
 
 Running roles in containers is not common, but this use case is supported for
-Ansible testing with Molecule. In this case, just the package manager cache
-will be configured and updated if needed, the other system component will be
-not managed since it is the reponsibility of the container engine.
+Ansible testing with Molecule. When it detects a container, the role leaves to
+the container engine what belongs to it : host names, firewall, clock, sudo,
+sshd and reboots are not managed. Everything else still applies — package
+managers, packages, users, CA certificates.
 
 GitLab project: [yoanncolin/ansible/roles/system](https://gitlab.com/yoanncolin/ansible/roles/system)
 
 Requirements
 ------------
 
-This role as been writen to be run as non root user, so Sudo has to be
-installed and configured.
+This role has been written to be run as a non root user, so Sudo has to be
+installed and configured. It requires ansible-core 2.19 or above.
 
 For network configuration, the [`netaddr` Python package][netaddr] is
-required, You also need the [`ansible.utils`][ansible.utils] Ansible module.
+required, You also need the [`ansible.utils`][ansible.utils] Ansible
+collection.
 
 For filesystems management, the [`jmespath` Python package][jmespath] is
 required, You also need the [`community.general`][community.general] and
-[`ansible.posix`][ansible.posix] Ansible modules.
+[`ansible.posix`][ansible.posix] Ansible collections.
 
 [jmespath]: https://jmespath.org/
 [netaddr]: https://netaddr.readthedocs.io/en/latest/
@@ -36,17 +38,22 @@ Facts
 
 Defined facts of this role :
 
+- `system_boot_mode`
+- `system_kernel`
+- `system_mounts`
+- `system_needs_reboot`
 - `system_packages`
+- `system_services`
 - `system_shells`
-- `system_sudo_version`
+- `system_uptime`
 
 Look at the [facts][] documentation for more details.
 
 Tags
 ----
 
-Because some values are dispatched in multiple tasks. You can quickly update
-some of them with tags :
+Some values are dispatched in multiple tasks, so You can quickly update them
+with tags :
 
 - `ca` - SSL certificates authorities
 - `firewall`
@@ -70,7 +77,7 @@ ansible-playbook -t tag1[,tag2[,...]] my_play.yml
 Tasks
 -----
 
-System composents are managed through separated tasks that could be called
+System components are managed through separated tasks that could be called
 independently.
 
 Of course, all tasks are called in the `main.yml`. See each task documentation :
@@ -89,7 +96,11 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 - [time][]
 - [firewall][]
 - [remote-access][]
+- [reboots][]
 
+<!-- Absolute links on purpose: this file is also rendered on the Galaxy
+     role page, outside of any repository, where a relative path resolves
+     to nothing. -->
 [facts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/facts.md
 [proxies]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/proxies.md
 [hosts]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/hosts.md
@@ -104,6 +115,7 @@ Of course, all tasks are called in the `main.yml`. See each task documentation :
 [time]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/time.md
 [firewall]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/firewall.md
 [remote-access]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/remote-access.md
+[reboots]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/reboots.md
 
 Role Variables
 --------------
@@ -118,8 +130,8 @@ Enable/disable some features by setting them to `true`/`false`.
 
 ### Tasks sequence
 
-Some tasks may depends of another one. For example, storage and network
-management may require the installation of packages, but they are fetch
+Some tasks may depend on another one. For example, storage and network
+management may require the installation of packages, but packages are fetched
 through the network and stored on disk.
 
 You can change the installation sequence for your specific situation
@@ -158,14 +170,18 @@ system_profile: server
 system_retries: 2
 ```
 
-Some tasks of this role need to put scripts. They are stored in
-`system_bin_path` directory.
+Some tasks of this role need to put scripts. They are stored in the
+`system_scripts_path` directory.
 
 The `system_profile` can impact the behaviour of some parts of the system,
-for example the packages to install (or not).
+for example the packages to install (or not). Available profiles :
 
-If You have many download failures due to networks troubles, you can increase the
-`system_retries` value.
+- `server` (default)
+- `desktop`
+- `desktop/gnome`
+
+If You have many download failures due to network troubles, you can increase
+the `system_retries` value.
 
 Dependencies
 ------------
