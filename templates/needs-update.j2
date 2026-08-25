@@ -31,7 +31,9 @@ test_file {{ file.path }} {{ file.age | default(system_packages_cache_age) }}
 test_dir() {
   test $(ls -1 "$1" | wc -l) -gt 0
 
-  local matches=$(find "$1" -mtime -$(( $2 + 1 )) | wc -l)
+  # -maxdepth 0: the index files keep the mirror's Last-Modified, only the
+  # directory itself is stamped with our last refresh.
+  local matches=$(find "$1" -maxdepth 0 -mtime -$(( $2 + 1 )) | wc -l)
   test $matches -gt 0  
 }
 
