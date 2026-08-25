@@ -78,10 +78,9 @@ Packages managers
 For idempotence purpose, we only update package manager cache if missing.
 
 Because there is a big risk of package installation failure if the cache is too
-old,
-we update it if it is older than one week.
+old, we update it if it is older than one week.
 
-You can change the max age throw the `system_packages_cache_max_age` variable.
+You can change the max age throw the `system_packages_cache_age` variable.
 
 **Be careful** some distributions package managers (RedHat like for example)
 could update their cache automatically or, at the opposit, could ignore some cache
@@ -485,7 +484,7 @@ So, we install it if it's missing.
 # Build from sources when possible
 system_packages_build: auto
 # https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
-system_packages_march: native
+system_packages_build_cflags: -march=native -O2 -pipe
 ```
 
 `system_packages_build` accepts `auto` (default), `true` and `false`. In `auto`
@@ -505,8 +504,9 @@ untouched so the local USE flags stay compatible with the binhost's binpkgs
 to opt back into the hardware-tuned settings on hosts where you want source
 builds anyway.
 
-If You want to compile your nodes with [distcc][], change the `system_packages_march`
-value, You can find help in the [Safe CFLAGS] manual.
+If You want to compile your nodes with [distcc][], change the
+`system_packages_build_cflags` value, You can find help in the
+[Safe CFLAGS] manual.
 
 [distcc]: https://wiki.gentoo.org/wiki/Distcc/fr
 [Safe CFLAGS]: https://wiki.gentoo.org/wiki/Safe_CFLAGS#Manual
@@ -709,10 +709,12 @@ We based the key names on the commonly usage of package names.
 
 Supported keys :
 
-- `bond` : Packages to manage bonded networks
-  (automatically added if at least a bond is found in `system_networks`)
+- `bond` : Packages to manage bonded networks, Debian like distros only
+  (automatically added if at least an interface of `type: bond` is found in
+  `system_networks_interfaces`)
 - `bridge` : Packages to manage bridged networks
-  (automatically added if at least a bridge is found in `system_networks`)
+  (automatically added if at least an interface of `type: bridge` is found in
+  `system_networks_interfaces`)
 - `ca-certificates` : Trusted certificate authorities and the tool to manage
   them (automatically added when `system_ca_certificates` is not empty)
 - `chrony` : Versatile implementation of the Network Time Protocol (NTP)
@@ -727,8 +729,6 @@ Supported keys :
 - `systemd-timesyncd` : Systemd integrated NTP client
   (automatically added if `system_time_backend` is `systemd-timesyncd`)
 - `unattended-upgrades` : Packages to maintain the system up to date
-- `vlan` : Packages to manage vLAN networks
-  (automatically added if at least a vLAN is found in `system_networks`)
 - `zsh`: Packages to install ZSH with completions and syntax highlighting when
   available (automatically added if at least one user use it in `system_users`)
 

@@ -38,10 +38,10 @@ system_ftp_proxy: "{{ system_http_proxy }}"
 system_no_proxy: 127.0.0.1,localhost,.my_domain.tld
 ```
 
-Proxies configuration environment variables will be set in `/etc/environment`,
-because this file is used by pam, and not by the shell, we do embrace values
-by double quotes, and the `system_no_proxy` value must be a comma-separated
-list of domain extensions or IP without spaces.
+Proxies configuration environment variables will be set in `/etc/environment`.
+This file is read by pam, not by a shell : it takes bare `key=value` lines with
+no quoting and no expansion, so the `system_no_proxy` value must be a
+comma-separated list of domain extensions or IP without spaces.
 
 The result is :
 

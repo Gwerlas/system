@@ -12,10 +12,10 @@ system_reboot_timeout: 600
 Scripts for the detection
 -------------------------
 
-Some distributions does not provide command line to easily know if a reboot is
-required, or if the packages cache is outdated. So we put scripts to do the detection.
+Some distributions provide no command line to easily know if the packages cache
+is outdated, so we put a `needs-update` script to do the detection.
 
-You can change those scripts location through the `system_scripts_path`.
+You can change its location through the `system_scripts_path`.
 
 Reboot mode
 -----------
@@ -136,8 +136,22 @@ rebooting the whole fleet sequentially.
 What triggers a reboot
 ----------------------
 
-After a package operation, the role inspects the packages installed during
-the current boot and asks for a reboot when any of these change :
+Detection is delegated to whatever the distribution provides, so what counts as
+"needs a reboot" differs from one family to another :
+
+| Distribution | Detection                                                            |
+| ------------ | -------------------------------------------------------------------- |
+| Debian like  | `/var/run/reboot-required` exists                                    |
+| RedHat like  | `needs-restarting -r` exits 1 (pulls `yum-utils` if missing)         |
+| Arch Linux   | the version of `/boot/vmlinuz-linux` differs from the running kernel |
+| Gentoo       | see below                                                            |
+
+Anything else fails with "This system is not recognized" rather than reporting
+a node as up to date without having looked.
+
+On Gentoo the role has the package list to work with, so it inspects the
+packages installed during the current boot and asks for a reboot when any of
+these change :
 
 - `sys-boot/grub`
 - the active service manager (`sys-apps/systemd` or `sys-apps/openrc`)
