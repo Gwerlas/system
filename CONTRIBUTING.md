@@ -376,6 +376,14 @@ Keeping the three together is what makes a commit reviewable on its own: a
 change that arrives without its test looks finished when it is not, and one
 that arrives without its reason forces the next reader to guess.
 
+The issue is referenced from the commit body, and only from there. `Closes #14`
+if the commit settles the whole ticket; a bare `#14` if it settles one of the
+three things the ticket asks for, so the other two stay visible. Neither
+`README.md` nor `docs/` ever carries an issue number — a user can do nothing
+with it, and it goes stale the day the issue closes. The exception is a
+decision a contributor may want to reopen, linked from this file the way
+[issue #5][] is above.
+
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [issue #5]: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues/5
