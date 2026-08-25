@@ -279,6 +279,40 @@ tag directly, and the containers driver brings its own create / destroy
 playbooks. Keep both lists in step when adding a distribution — a platform is
 only really supported once it passes in a VM *and* in a container.
 
+Target properties: `vars/` files and issue labels
+------------------------------------------------
+
+`tasks/facts.yml` reads a handful of properties off the target — package
+manager, service manager, OS family, distribution, major version, release —
+and loads `vars/<value>.yml` for each one it finds, from the least specific to
+the most. The last file loaded wins.
+
+So a value lives in the file named after the property it is *actually* true
+of, and the narrowest one that still covers every target it applies to.
+Something true of every pacman system belongs in `pacman.yml`, not copied into
+`archlinux-like.yml`; something true of Gentoo's package manager belongs in
+`portage.yml`, and something true of Gentoo hosts whatever their tooling in
+`gentoo-like.yml`. Because the cascade runs from least to most specific,
+refining a value at a narrower level is deliberate — `debian-like.yml` can set
+a default that `ubuntu-jammy.yml` overrides. What to avoid is setting the same
+value at two levels by accident: the wider one is then silently dead.
+
+The axis is always a property of the **target**, never of this repository's
+own layout.
+
+Issue labels follow the same rule. An issue carries the property it is true
+of: `pacman` for something in the pacman layer, `gentoo` for something true of
+Gentoo hosts whatever their tooling. It does not carry the directory it
+touches — there is deliberately no `package-managers` label, because
+`tasks/package-managers/` is a property of this repository and not of the
+hosts the role runs on. On top of that, one label for the kind: `bug`,
+`feature` or `tech-debt`.
+
+Labels are created on demand and never in advance, so the list only ever
+holds what some issue actually needed. Creating one takes project permissions
+a contributor does not have, and no bot does it today: if none of the existing
+labels fits, say so in the issue and a maintainer will add it.
+
 Editing templates
 -----------------
 
