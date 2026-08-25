@@ -43,7 +43,7 @@ Variables
 ```yaml
 system_packages_upgrade: false
 system_packages_upgrade_unattended: false
-system_packages_cache_age: 7
+system_packages_cache_age: auto
 
 system_packages_add_by_key: []
 system_packages_add_by_name: []
@@ -75,12 +75,32 @@ Packages managers
 
 ### Cache
 
-For idempotence purpose, we only update package manager cache if missing.
+We refresh the package manager index when it is missing or older than a maximum
+age. Installing from a stale index fails: the repository has moved on, and the
+mirror answers 404 for a file the index still promises.
 
-Because there is a big risk of package installation failure if the cache is too
-old, we update it if it is older than one week.
+How fast an index goes stale is decided by the repositories, so under `auto`
+the maximum age follows the package manager:
 
-You can change the max age throw the `system_packages_cache_age` variable.
+| Package manager | Maximum age | Why                                                                     |
+| --------------- | ----------- | ----------------------------------------------------------------------- |
+| `pacman`        | every run   | Rolling, the mirrors carry the current version only, and `-Sy` is cheap |
+| `apt`           | 1 day       | The pool is pruned, and a security upload can land any day              |
+| `portage`       | 1 day       | The tree moves continuously, but a sync costs minutes                   |
+| `dnf`, `dnf5`   | 7 days      | The repositories keep several versions, and dnf refreshes on its own    |
+| any other       | 1 day       | Most repositories keep the current version only                         |
+
+Your own value always wins over that choice, because the role cannot know that
+your repositories are frozen on purpose:
+
+```yaml
+# A number of days, 0 meaning a refresh on every run
+system_packages_cache_age: 3
+
+# Never refresh, for an air gapped site or repositories refreshed on their own
+# schedule
+system_packages_cache_age: never
+```
 
 **Be careful** some distributions package managers (RedHat like for example)
 could update their cache automatically or, at the opposit, could ignore some cache

@@ -1,7 +1,8 @@
 ---
 system_packages_upgrade: false
 system_packages_upgrade_unattended: false
-system_packages_cache_age: 7
+# Maximum accepted cache age in days (a number, 'never' or 'auto')
+system_packages_cache_age: auto
 
 system_packages_add_by_key: []
 system_packages_add_by_name: []

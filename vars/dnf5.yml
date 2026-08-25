@@ -3,4 +3,9 @@ pkg_mgr_cache_update_policy:
   directories:
     - path: /var/cache/libdnf5
 
+# The repositories keep several versions of a package, so an index that is a
+# few days old still resolves, and dnf refreshes on its own metadata_expire
+# whatever we decide here.
+default_packages_cache_age: 7
+
 dnf_epel_repo: crb
