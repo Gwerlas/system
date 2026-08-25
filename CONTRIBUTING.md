@@ -125,6 +125,22 @@ about the rest:
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
 | Desktop profiles                                | no                     | `desktops`, `gnome`             |
 
+That gap is where the bugs come from. Three examples, all shipped through a
+green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
+managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
+instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
+zstd initramfs.
+
+So when a change touches one of the uncovered areas, run the matching scenario
+on a workstation before merging, and say so in the merge request. Reviewing it
+against a green pipeline alone is reviewing nothing.
+
+Running those scenarios in CI was considered and turned down (see the issue
+tracker): it would need either a self-hosted runner — a personal machine that
+has to be up, and that would execute contributor code from forks — or a paid
+cloud runner with nested virtualisation. Neither is worth it for this role
+today.
+
 ### When each job runs
 
 `workflow:` only decides whether a pipeline exists — on a branch or a tag.
@@ -184,22 +200,6 @@ A fork with no `main` at all is the case with no signal. A job's rules report
 the configuration as broken — `rules:changes:compare_to is not a valid ref` —
 and `workflow:` creates no pipeline while saying nothing. `compare_to` expands
 CI/CD variables, so `$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
-
-That gap is where the bugs come from. Three examples, all shipped through a
-green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
-managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
-instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
-zstd initramfs.
-
-So when a change touches one of the uncovered areas, run the matching scenario
-on a workstation before merging, and say so in the merge request. Reviewing it
-against a green pipeline alone is reviewing nothing.
-
-Running those scenarios in CI was considered and turned down (see the issue
-tracker): it would need either a self-hosted runner — a personal machine that
-has to be up, and that would execute contributor code from forks — or a paid
-cloud runner with nested virtualisation. Neither is worth it for this role
-today.
 
 libvirt connection and storage pool
 -----------------------------------
