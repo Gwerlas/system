@@ -4,6 +4,18 @@ Remote access
 SSHd
 ----
 
+### Feature flipping
+
+By default, sshd is managed outside of a container as soon as you give at
+least one instruction :
+
+```yaml
+system_manage_sshd: "{{ not in_container and system_sshd_config | length > 0 }}"
+```
+
+You can force enabling or disabling it defining the `system_manage_sshd` to
+`true` or `false`.
+
 ### Configuration
 
 The `system_sshd_config` dictionary accept (almost) all of the
@@ -39,8 +51,18 @@ option:
 - every other option is repeated once per item, so `AcceptEnv: [LANG, LC_*]`
   renders as two `AcceptEnv` lines.
 
-If You set `system_manage_sshd` to `true` without any `system_sshd_config`
-instructions, we will filled our defaults.
+> **Be careful**
+>
+> The whole `/etc/ssh/sshd_config` is rewritten from `system_sshd_config` : it
+> is not merged with the file your distribution shipped. Anything you do not
+> declare is gone.
+>
+> The role adds only two things of its own : `UsePAM yes`, without which a
+> cloud-init user whose `/etc/shadow` password is locked is refused even by
+> public key, and — on Debian like distros — the `Include
+> /etc/ssh/sshd_config.d/*.conf` those distributions rely on. Forcing
+> `system_manage_sshd` to `true` with an empty `system_sshd_config` therefore
+> gives you a nearly empty configuration, not a set of sane defaults.
 
 [sshd_config(5)]: https://linux.die.net/man/5/sshd_config
 
