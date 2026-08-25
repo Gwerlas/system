@@ -103,6 +103,12 @@ molecule test -s ntp
 molecule test -s timesync
 ```
 
+The cache refresh tasks carry `molecule-idempotence-notest`, so the second run
+keeps the index the first one left. A mirror publishing mid-scenario would
+otherwise move the versions the `state: latest` tasks see. That freeze is a
+property of the test, and never a reason to raise `system_packages_cache_age`:
+bending the production default is what let a stale index reach an install.
+
 What the pipeline does not cover
 --------------------------------
 
