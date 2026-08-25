@@ -125,6 +125,22 @@ about the rest:
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
 | Desktop profiles                                | no                     | `desktops`, `gnome`             |
 
+That gap is where the bugs come from. Three examples, all shipped through a
+green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
+managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
+instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
+zstd initramfs.
+
+So when a change touches one of the uncovered areas, run the matching scenario
+on a workstation before merging, and say so in the merge request. Reviewing it
+against a green pipeline alone is reviewing nothing.
+
+Running those scenarios in CI was considered and turned down (see the issue
+tracker): it would need either a self-hosted runner — a personal machine that
+has to be up, and that would execute contributor code from forks — or a paid
+cloud runner with nested virtualisation. Neither is worth it for this role
+today.
+
 ### When each job runs
 
 `workflow:` only decides whether a pipeline exists — on a branch or a tag.
@@ -146,41 +162,46 @@ The comparison covers the branch as a whole, not the latest commit. A merge
 request that touches the role's code therefore runs the scenarios on each of
 its pushes, documentation-only commits included — the branch as a whole still
 changes the role. Only a branch that never touches anything but documentation
-comes down to `ansible-lint` alone.
+comes down to `markdownlint` alone.
 
 On `main` itself and on tags every job runs unconditionally — comparing `main`
 to `main` matches nothing, and that is precisely when the full pipeline is
 wanted.
 
 `workflow:` keeps a path list of its own, for one reason: a pipeline in which
-no job qualifies fails with "No jobs to run", so a branch that only touches
-documentation must produce no pipeline at all rather than an empty one. It
-also matches the default branch unconditionally, before that list — otherwise
-`main` would be compared against itself, nothing would look changed, and no
-pipeline would be created on merges at all.
+no job qualifies fails with "No jobs to run", so a branch that changes nothing
+any job looks at — `.gitignore`, `LICENSE`, an editor setting — must produce no
+pipeline rather than a red one. Documentation used to be such a case; since
+`markdownlint` exists, `**/*.md` sits in that list precisely so a doc-only
+branch does get a pipeline. It also matches the default branch unconditionally,
+before the list — otherwise `main` would be compared against itself, nothing
+would look changed, and no pipeline would be created on merges at all.
 
 Every job is `interruptible`, so pushing again to a branch cancels the run it
 supersedes instead of leaving both to compete for runners. The project setting
 that auto-cancels redundant pipelines only reaps jobs that have not started
 yet — a running job needs this flag, and one job without it keeps the whole
 obsolete pipeline alive. The `import` job is the exception: publishing to
-Galaxy must not be cut in half.
+Galaxy must not be cut in half. Measured on a throwaway branch: a job 64
+seconds into a `sleep 300` cancelled itself as soon as the next push created
+its successor.
 
-That gap is where the bugs come from. Three examples, all shipped through a
-green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
-managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
-instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
-zstd initramfs.
+### Pipelines on a fork
 
-So when a change touches one of the uncovered areas, run the matching scenario
-on a workstation before merging, and say so in the merge request. Reviewing it
-against a green pipeline alone is reviewing nothing.
+A merge request from a fork runs its pipeline in the fork, on the fork's own
+repository and runner minutes: `workflow:` matches branches and tags, never
+`merge_request_event`.
 
-Running those scenarios in CI was considered and turned down (see the issue
-tracker): it would need either a self-hosted runner — a personal machine that
-has to be up, and that would execute contributor code from forks — or a paid
-cloud runner with nested virtualisation. Neither is worth it for this role
-today.
+`compare_to: refs/heads/main` therefore resolves against the *fork's* `main`,
+from the merge base rather than tip to tip. Branch off your own `main`, however
+far behind, and only your own commits are compared. Sync the branch with this
+project while that `main` stays behind, and the merge base becomes the old fork
+point: every job qualifies. Wasteful, never wrong.
+
+A fork with no `main` at all is the case with no signal. A job's rules report
+the configuration as broken — `rules:changes:compare_to is not a valid ref` —
+and `workflow:` creates no pipeline while saying nothing. `compare_to` expands
+CI/CD variables, so `$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
 
 libvirt connection and storage pool
 -----------------------------------
