@@ -297,16 +297,21 @@ refining a value at a narrower level is deliberate — `debian-like.yml` can set
 a default that `ubuntu-jammy.yml` overrides. What to avoid is setting the same
 value at two levels by accident: the wider one is then silently dead.
 
-The axis is always a property of the **target**, never of this repository's
-own layout.
+The axis is a property of the **target**, never of this repository's own
+layout.
 
-Issue labels follow the same rule. An issue carries the property it is true
-of: `pacman` for something in the pacman layer, `gentoo` for something true of
-Gentoo hosts whatever their tooling. It does not carry the directory it
-touches — there is deliberately no `package-managers` label, because
-`tasks/package-managers/` is a property of this repository and not of the
-hosts the role runs on. On top of that, one label for the kind: `bug`,
-`feature` or `tech-debt`.
+Issue labels follow the same rule, one step wider: an issue carries what it is
+true *of*. For the role's behaviour that is a property of the managed host —
+`pacman` for something in the pacman layer, `gentoo` for something true of
+Gentoo hosts whatever their tooling. For the project's own machinery it is the
+thing impacted, which is why `ci` and `molecule` exist. What an issue never
+carries is the directory it happens to touch: there is deliberately no
+`package-managers` label, because `tasks/package-managers/` is a property of
+this repository and not of anything the role acts on. An issue true of every
+target — `tasks/package-managers.yml` carrying no tag, say — carries no
+dimension label at all, and that absence is the correct answer rather than an
+oversight. On top of that, one label for the kind: `bug`, `feature` or
+`tech-debt`.
 
 Labels are created on demand and never in advance, so the list only ever
 holds what some issue actually needed. Creating one takes project permissions
