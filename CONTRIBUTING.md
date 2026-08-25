@@ -135,56 +135,34 @@ So when a change touches one of the uncovered areas, run the matching scenario
 on a workstation before merging, and say so in the merge request. Reviewing it
 against a green pipeline alone is reviewing nothing.
 
-Running those scenarios in CI was considered and turned down (see the issue
-tracker): it would need either a self-hosted runner — a personal machine that
-has to be up, and that would execute contributor code from forks — or a paid
-cloud runner with nested virtualisation. Neither is worth it for this role
-today.
+Running those scenarios in CI was considered and turned down ([issue #5][]):
+it would need either a self-hosted runner — a personal machine that has to be
+up, and that would execute contributor code from forks — or a paid cloud runner
+with nested virtualisation. Neither is worth it for this role today.
 
 ### When each job runs
 
 `workflow:` only decides whether a pipeline exists — on a branch or a tag.
 Each job then declares what it depends on:
 
-| Job                | Runs when                                       |
-| ------------------ | ----------------------------------------------- |
-| `ansible-lint`     | any of the role's YAML changed                  |
-| `j2lint`           | a `templates/**/*.j2` changed                   |
-| `markdownlint`     | a `*.md` or the linter config changed           |
-| the container jobs | the role's code or its scenarios changed        |
+| Job                | Runs when                                |
+| ------------------ | ---------------------------------------- |
+| `ansible-lint`     | any of the role's YAML changed           |
+| `j2lint`           | a `templates/**/*.j2` changed            |
+| `markdownlint`     | a `*.md` or the linter config changed    |
+| the container jobs | the role's code or its scenarios changed |
 
-Everything is compared against `main` (`compare_to: refs/heads/main`), not
-against the previous push. That matters: `changes:` with no base evaluates to
-true, so on a freshly pushed branch a filter written without `compare_to` runs
-everything it meant to skip.
+Two consequences are worth knowing before you read a pipeline:
 
-The comparison covers the branch as a whole, not the latest commit. A merge
-request that touches the role's code therefore runs the scenarios on each of
-its pushes, documentation-only commits included — the branch as a whole still
-changes the role. Only a branch that never touches anything but documentation
-comes down to `markdownlint` alone.
+- everything is compared against `main`, and against the **branch as a whole**,
+  not the latest push. A branch that touches the role's code runs the scenarios
+  on each of its pushes, documentation-only commits included. Only a branch that
+  never touches anything but documentation comes down to `markdownlint` alone;
+- on `main` and on tags, every job runs unconditionally.
 
-On `main` itself and on tags every job runs unconditionally — comparing `main`
-to `main` matches nothing, and that is precisely when the full pipeline is
-wanted.
-
-`workflow:` keeps a path list of its own, for one reason: a pipeline in which
-no job qualifies fails with "No jobs to run", so a branch that changes nothing
-any job looks at — `.gitignore`, `LICENSE`, an editor setting — must produce no
-pipeline rather than a red one. Documentation used to be such a case; since
-`markdownlint` exists, `**/*.md` sits in that list precisely so a doc-only
-branch does get a pipeline. It also matches the default branch unconditionally,
-before the list — otherwise `main` would be compared against itself, nothing
-would look changed, and no pipeline would be created on merges at all.
-
-Every job is `interruptible`, so pushing again to a branch cancels the run it
-supersedes instead of leaving both to compete for runners. The project setting
-that auto-cancels redundant pipelines only reaps jobs that have not started
-yet — a running job needs this flag, and one job without it keeps the whole
-obsolete pipeline alive. The `import` job is the exception: publishing to
-Galaxy must not be cut in half. Measured on a throwaway branch: a job 64
-seconds into a `sleep 300` cancelled itself as soon as the next push created
-its successor.
+Why the rules are written the way they are — why `compare_to` is spelled out,
+why `workflow:` keeps a path list of its own, why every job but `import` is
+`interruptible` — is commented in `.gitlab-ci.yml`, next to the lines concerned.
 
 ### Pipelines on a fork
 
@@ -193,15 +171,14 @@ repository and runner minutes: `workflow:` matches branches and tags, never
 `merge_request_event`.
 
 `compare_to: refs/heads/main` therefore resolves against the *fork's* `main`,
-from the merge base rather than tip to tip. Branch off your own `main`, however
-far behind, and only your own commits are compared. Sync the branch with this
-project while that `main` stays behind, and the merge base becomes the old fork
-point: every job qualifies. Wasteful, never wrong.
+from the merge base. Branch off your own `main`, however far behind, and only
+your own commits are compared; sync the branch with this project while that
+`main` stays behind, and every job qualifies. Wasteful, never wrong.
 
-A fork with no `main` at all is the case with no signal. A job's rules report
-the configuration as broken — `rules:changes:compare_to is not a valid ref` —
-and `workflow:` creates no pipeline while saying nothing. `compare_to` expands
-CI/CD variables, so `$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
+A fork with no `main` at all is the case with no signal: the rules report
+`rules:changes:compare_to is not a valid ref`, and `workflow:` creates no
+pipeline while saying nothing. `compare_to` expands CI/CD variables, so
+`$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
 
 libvirt connection and storage pool
 -----------------------------------
@@ -323,25 +300,18 @@ Editing templates
 
 No CI job renders the role's templates: the container scenarios skip the tasks
 that use them (`system_manage_sshd` is false in a container, and so on), and
-`ansible-lint` does not read `.j2` files. A template broken at the syntax level
-would otherwise ship through a green pipeline — it already happened once, with
-a duplicated `{% endif %}` in `templates/ssh/sshd_config.j2`.
-
-The `j2lint` job lints them, and only runs when a template changes. To
-reproduce it locally:
+`ansible-lint` does not read `.j2` files. The `j2lint` job lints them, and only
+runs when a template changes. To reproduce it locally:
 
 ```sh
 pip install j2lint==1.3.0
 j2lint templates/ --ignore jinja-statements-indentation
 ```
 
-`jinja-statements-indentation` is ignored for the whole role: it expects nested
-`{% %}` to be indented, which would reshape every configuration template
-without making any of them clearer.
-
-`single-statement-per-line` is *not* ignored globally. A template that has to
-build one configuration line out of inline conditionals opts out for itself,
-with this comment on its first line:
+`jinja-statements-indentation` is ignored for the whole role.
+`single-statement-per-line` is *not*: a template that has to build one
+configuration line out of inline conditionals opts out for itself, with this
+comment on its first line:
 
 ```jinja
 {# j2lint: disable=single-statement-per-line -#}
@@ -359,17 +329,10 @@ trusting the pipeline.
 Editing documentation
 ---------------------
 
-`markdownlint` checks every `*.md`, with the conventions this role already
-follows recorded in `.markdownlint.yaml`:
-
-- headings underlined for levels 1 and 2, `#` beyond — setext cannot express
-  level 3 and deeper, which the docs use heavily;
-- dashes for list bullets;
-- 80 columns for prose. Tables and code blocks are exempt: aligning a table's
-  cells is worth more than fitting the width, and wrapping a command would
-  break it.
-
-To run it locally:
+`markdownlint` checks every `*.md`. The conventions this role follows — setext
+headings for levels 1 and 2, dashes for bullets, 80 columns for prose with
+tables and code blocks exempt — are recorded, with their rationale, in
+`.markdownlint.yaml`. To run it locally:
 
 ```sh
 markdownlint-cli2 "**/*.md"
@@ -413,12 +376,9 @@ Keeping the three together is what makes a commit reviewable on its own: a
 change that arrives without its test looks finished when it is not, and one
 that arrives without its reason forces the next reader to guess.
 
-When a change touches something no CI job covers, run the matching scenario
-yourself and say so in the merge request — a green pipeline says nothing about
-those.
-
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
+[issue #5]: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues/5
 [j2lint]: https://github.com/aristanetworks/j2lint
 [markdownlint-cli2]: https://github.com/DavidAnson/markdownlint-cli2
 [platforms]: molecule/shared/platforms.yml
