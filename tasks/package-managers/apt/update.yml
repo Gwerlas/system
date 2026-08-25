@@ -1,7 +1,14 @@
 ---
+- name: APT - Needs update
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/package-managers/needs-update.yml"
+
+# `cache_valid_time` is left at its default so that `needs-update` is the only
+# gate, the same one every other package manager goes through.
 - name: APT - Cache update
+  when: system_cache_needs_update
+  tags:
+    - molecule-idempotence-notest
   become: true
   ansible.builtin.apt:
-    autoclean: true
-    cache_valid_time: "{{ system_packages_cache_age * 3500 }}"
     update_cache: true

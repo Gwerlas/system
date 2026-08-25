@@ -6,6 +6,12 @@ pkg_mgr_cache_update_policy:
   directories:
     - path: /var/lib/pacman/sync
 
+# Arch is rolling and its mirrors carry the current version of a package and
+# nothing else, so an index a couple of days old already points at files that
+# answer 404 — the signature disappears first, the payload can linger in the
+# CDN. `pacman -Sy` costs a couple of seconds, so pay it every run.
+default_packages_cache_age: 0
+
 family_packages:
   libreoffice:
     - libreoffice-still

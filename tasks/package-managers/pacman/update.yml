@@ -5,6 +5,8 @@
 
 - name: Pacman - Cache update
   when: system_cache_needs_update
+  tags:
+    - molecule-idempotence-notest
   become: true
   community.general.pacman:
     update_cache: true

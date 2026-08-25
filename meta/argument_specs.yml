@@ -80,9 +80,12 @@ argument_specs:
         default: "[]"
         description: List of raw packages names to install on the node.
       system_packages_cache_age:
-        type: int
-        default: 7
-        description: The maximum accepted cache age (in days)
+        type: raw
+        default: auto
+        description: >-
+          The maximum accepted cache age, in days, 0 meaning a refresh on every
+          run and never (or false) no refresh at all. Defaults to auto, which
+          follows the package manager.
       system_packages_upgrade:
         type: bool
         default: false

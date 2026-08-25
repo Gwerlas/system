@@ -1,0 +1,20 @@
+---
+- name: Fixtures
+  hosts: all
+  tasks:
+    # The scenario has to assert that the role refreshes the index, not that
+    # the guest image happens to be old enough to need it: a freshly built
+    # image installs fine whether anything was refreshed or not, so without
+    # this the test measures the age of the image.
+    #
+    # Two hours sits inside every window the role can pick, so a manager that
+    # keeps its index for a day or a week is expected to leave it alone, and
+    # pacman, whose mirrors keep no older version, is expected to refresh it.
+    - name: Backdate the pacman index
+      when: ansible_facts.pkg_mgr == 'pacman'
+      become: true
+      ansible.builtin.file:
+        path: /var/lib/pacman/sync
+        state: directory
+        mode: "0755"
+        modification_time: "{{ '%Y%m%d%H%M.%S' | strftime((ansible_facts.date_time.epoch | int) - 7200) }}"

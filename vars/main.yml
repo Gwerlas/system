@@ -11,6 +11,25 @@ use_lvm: "{{ system_manage_storages and (system_storages_vg | length) > 0 }}"
 # Under automatic mode, we use binaries
 packages_build: "{{ false if system_packages_build == 'auto' else system_packages_build }}"
 
+# Maximum accepted age of the package manager index, in days, `never` being
+# a deliberate freeze. Under automatic mode we follow the package manager,
+# whose repositories decide how fast an index goes stale; an explicit user
+# value always wins, because a site running its own repositories may hold
+# them still on purpose and the role cannot know it.
+packages_cache_age: |-
+  {{
+    default_packages_cache_age if system_packages_cache_age == 'auto'
+    else 'never' if (system_packages_cache_age is boolean and not system_packages_cache_age)
+    else system_packages_cache_age
+  }}
+
+# The rule behind the automatic mode: most repositories keep the current
+# version of a package and nothing else, so an index older than a day already
+# risks pointing at files the mirror has dropped. A vars/<pkg_mgr>.yml only
+# restates this when its manager departs from it — pacman because a refresh is
+# cheaper than the rule, dnf because its repositories can afford more.
+default_packages_cache_age: 1
+
 # Profiles
 profiles:
   all:
