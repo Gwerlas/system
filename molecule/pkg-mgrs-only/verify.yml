@@ -2,6 +2,26 @@
 - name: Verify the package manager
   hosts: all
   tasks:
+    - name: Pacman index refresh
+      when: ansible_facts.pkg_mgr == 'pacman'
+      block:
+        - name: Stat the pacman index
+          ansible.builtin.stat:
+            path: /var/lib/pacman/sync
+          register: pacman_sync
+
+        # The .db files keep the mirror's own Last-Modified, so the directory
+        # is the only entry stamped with the time we synced.
+        - name: The index has been refreshed
+          vars:
+            age: "{{ (ansible_facts.date_time.epoch | int) - (pacman_sync.stat.mtime | int) }}"
+          ansible.builtin.assert:
+            that: age | int < 3600
+            fail_msg: >-
+              prepare.yml backdated /var/lib/pacman/sync by two hours and it is
+              still {{ age }} seconds old: the role did not refresh the index.
+            success_msg: The role refreshed the pacman index
+
     - name: Package installation
       become: true
       ansible.builtin.package:
