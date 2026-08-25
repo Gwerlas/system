@@ -162,18 +162,20 @@ The comparison covers the branch as a whole, not the latest commit. A merge
 request that touches the role's code therefore runs the scenarios on each of
 its pushes, documentation-only commits included — the branch as a whole still
 changes the role. Only a branch that never touches anything but documentation
-comes down to `ansible-lint` alone.
+comes down to `markdownlint` alone.
 
 On `main` itself and on tags every job runs unconditionally — comparing `main`
 to `main` matches nothing, and that is precisely when the full pipeline is
 wanted.
 
 `workflow:` keeps a path list of its own, for one reason: a pipeline in which
-no job qualifies fails with "No jobs to run", so a branch that only touches
-documentation must produce no pipeline at all rather than an empty one. It
-also matches the default branch unconditionally, before that list — otherwise
-`main` would be compared against itself, nothing would look changed, and no
-pipeline would be created on merges at all.
+no job qualifies fails with "No jobs to run", so a branch that changes nothing
+any job looks at — `.gitignore`, `LICENSE`, an editor setting — must produce no
+pipeline rather than a red one. Documentation used to be such a case; since
+`markdownlint` exists, `**/*.md` sits in that list precisely so a doc-only
+branch does get a pipeline. It also matches the default branch unconditionally,
+before the list — otherwise `main` would be compared against itself, nothing
+would look changed, and no pipeline would be created on merges at all.
 
 Every job is `interruptible`, so pushing again to a branch cancels the run it
 supersedes instead of leaving both to compete for runners. The project setting
