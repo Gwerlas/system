@@ -1,6 +1,8 @@
 ---
 - name: SSHd
-  when: system_manage_sshd
+  # `manage_sshd`, not `system_manage_sshd`: the user-facing default is the
+  # string `auto`, which is truthy.
+  when: manage_sshd
   tags:
     - remote-access
     - ssh

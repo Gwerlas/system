@@ -242,10 +242,11 @@ this flag, but if it fails, we fallback to the `pacman -Syu` method.
 #### AUR (Archlinux User Repository)
 
 ```yaml
-system_pacman_aur: "{{ system_profile != 'server' }}"
+system_pacman_aur: "{{ is_desktop }}"
 ```
 
-We add the [Yay][] AUR helper for desktop nodes.
+We add the [Yay][] AUR helper for desktop nodes, that is whenever
+`system_profile` contains the `desktop` segment.
 
 Setting the `system_pacman_aur` to `true` or `false`, You will force
 enable / disable it.

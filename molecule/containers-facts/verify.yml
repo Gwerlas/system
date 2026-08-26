@@ -15,3 +15,57 @@
           - system_needs_reboot is false
           - system_packages | length > 0
           - system_shells | length == 0
+          # `server`, the default, is a profile like any other: it must not
+          # report itself as unknown.
+          - unknown_profiles | length == 0
+
+# Profile resolution needs no VM, so it lives here rather than in the desktop
+# scenarios — see CONTRIBUTING's coverage table.
+- name: Verify an unknown system_profile segment is reported and ignored
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+    system_profile: desktop/gnom
+  roles:
+    - role: gwerlas.system
+  post_tasks:
+    - name: Assertions
+      vars:
+        profile_packages: |
+          {{
+            current_profiles_values |
+            selectattr('packages', 'defined') |
+            map(attribute='packages') |
+            flatten
+          }}
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          # Reaching this play at all is half the assertion: an unknown
+          # segment reports and carries on, it does not stop the run.
+          - unknown_profiles == ['gnom']
+          # …and the segments the role does know still resolve, `all` and
+          # `desktop` here.
+          - current_profiles_values | length == 2
+          - "'libreoffice' in profile_packages"
+
+- name: Verify a profile overrides what the distribution set
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+    system_profile: server/hardened
+  roles:
+    - role: gwerlas.system
+  post_tasks:
+    - name: Assertions
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - unknown_profiles | length == 0
+          # Guards the load order tasks/facts.yml sets. Flavors last,
+          # vars/debian-like.yml replaces this whole dict — the hardening and
+          # the repeated `UsePAM` with it — on the four Debian like containers.
+          - sshd_config.PermitRootLogin == 'prohibit-password'
+          - sshd_config.UsePAM is true

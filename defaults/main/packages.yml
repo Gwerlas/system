@@ -22,7 +22,7 @@ system_apt_prefer_backports: false
 ######################
 # Pacman (ArchLinux) #
 ######################
-system_pacman_aur: "{{ system_profile != 'server' }}"
+system_pacman_aur: "{{ is_desktop }}"
 
 ###############
 # RedHat Like #

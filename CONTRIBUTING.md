@@ -129,7 +129,8 @@ about the rest:
 | Reboot handling                                 | no                     | `reboot-only`                   |
 | Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
-| Desktop profiles                                | no                     | `desktops`, `gnome`             |
+| `system_profile` resolution                     | yes, container jobs    | `containers-facts`              |
+| Desktop profiles, once installed                | no                     | `desktops`, `gnome`             |
 
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
@@ -305,7 +306,7 @@ Editing templates
 -----------------
 
 No CI job renders the role's templates: the container scenarios skip the tasks
-that use them (`system_manage_sshd` is false in a container, and so on), and
+that use them (`manage_sshd` resolves to false in a container, and so on), and
 `ansible-lint` does not read `.j2` files. The `j2lint` job lints them, and only
 runs when a template changes. To reproduce it locally:
 

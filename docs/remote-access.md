@@ -6,15 +6,15 @@ SSHd
 
 ### Feature flipping
 
-By default, sshd is managed outside of a container as soon as you give at
-least one instruction :
+`system_manage_sshd` accepts `auto` (default), `true` and `false`.
 
 ```yaml
-system_manage_sshd: "{{ not in_container and system_sshd_config | length > 0 }}"
+system_manage_sshd: auto
 ```
 
-You can force enabling or disabling it defining the `system_manage_sshd` to
-`true` or `false`.
+In `auto` mode, sshd is managed outside of a container as soon as you give the
+role one instruction : an entry in `system_sshd_config`, or the `hardened`
+profile. `true` and `false` force it either way, container included.
 
 ### Configuration
 
@@ -65,6 +65,29 @@ option:
 > gives you a nearly empty configuration, not a set of sane defaults.
 
 [sshd_config(5)]: https://linux.die.net/man/5/sshd_config
+
+### The hardened profile
+
+Adding the `hardened` segment to `system_profile` — `server/hardened`,
+`desktop/gnome/hardened` — asks the role for a hardened sshd instead of the
+configuration it would otherwise build for your distribution : public key
+authentication only, no password and no empty password, no X11 nor agent
+forwarding, `PermitRootLogin prohibit-password`, ed25519 keys only and
+`MaxAuthTries 2`. The full list is [`vars/hardened.yml`][hardened].
+
+`system_sshd_config` still has the last word : it is combined over the
+profile, so anything you declare yourself wins.
+
+> **Be careful**
+>
+> On Debian and Ubuntu, the profile also drops the `Include
+> /etc/ssh/sshd_config.d/*.conf` line those distributions rely on —
+> cloud-init's `50-cloud-init.conf` included. That is deliberate : a hardened
+> configuration any drop-in file can undo is not hardened. It does mean
+> whatever cloud-init put there stops applying, so declare what you need in
+> `system_sshd_config`.
+
+[hardened]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/vars/hardened.yml
 
 ### Backup your hosts keys
 

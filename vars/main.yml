@@ -30,7 +30,15 @@ packages_cache_age: |-
 # cheaper than the rule, dnf because its repositories can afford more.
 default_packages_cache_age: 1
 
-# Profiles
+# Every profile the role knows about. A `system_profile` is a `/` separated
+# path, each segment naming one of these keys; `all` is added to every path,
+# so there is no point naming it. An entry holds what its profile adds —
+# packages, services — and stays empty when the profile brings nothing beyond
+# the `vars/<profile>.yml` file `tasks/facts.yml` loads for it.
+#
+# This is also the list an unknown segment is reported against, so a profile
+# missing from here does not exist as far as the role is concerned, whatever
+# else it may have in `vars/`.
 profiles:
   all:
     packages:
@@ -61,8 +69,20 @@ profiles:
       - seahorse
     services:
       - gdm
+  # A hardened sshd, from vars/hardened.yml.
+  hardened: {}
+  # The default; `all` already carries what every machine gets.
+  server: {}
 
 current_profiles: "{{ system_profile | split('/') }}"
+
+# Segments of `system_profile` matching no profile. `current_profiles_values`
+# resolves through `intersect`, which drops whatever it does not recognise
+# without a word, so `desktop/gnom` would install the generic desktop packages
+# and report success. tasks/facts.yml reports these instead of losing them.
+# `difference` goes through a set, whose order varies from run to run, hence
+# the sort: the report has to read the same twice in a row.
+unknown_profiles: "{{ current_profiles | difference(profiles.keys()) | sort }}"
 
 # FIXME use the vars/<profile>.yml file
 current_profiles_values: |
@@ -122,6 +142,21 @@ current_network_types: |
 ############
 ### SSHd ###
 ############
+
+# An explicit true or false deliberately skips the container test: forcing it
+# is how a user says their container is the exception.
+#
+# `hardened` counts as an instruction because it carries its configuration in
+# vars/hardened.yml, never in system_sshd_config: the length test alone would
+# leave sshd unmanaged for the one profile that exists to configure it.
+manage_sshd: |-
+  {{
+    (
+      not in_container and
+      (system_sshd_config | length > 0 or 'hardened' in current_profiles)
+    )
+    if system_manage_sshd == 'auto' else system_manage_sshd
+  }}
 
 # sshd's compile-time default is `UsePAM no`, but all major distros ship
 # their stock sshd_config with `UsePAM yes`. Without it, cloud-init users
