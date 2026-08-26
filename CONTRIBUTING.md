@@ -391,6 +391,40 @@ with it, and it goes stale the day the issue closes. The exception is a
 decision a contributor may want to reopen, linked from this file the way
 [issue #5][] is above.
 
+Tagging a release
+-----------------
+
+A tag publishes. The `import` job pushes the role to Ansible Galaxy and runs
+on a protected tag and nowhere else, so the number you pick is the only thing
+telling users what upgrading will cost them.
+
+What that number answers is not what the work *was*, it is what the contract
+*does*. Intuition reaches for "we only fixed things, so it is a patch", and
+that is the wrong test. The right one:
+
+> Does someone who upgrades without editing a single variable get the same
+> result as before?
+
+**Yes** — a defect stops happening and nothing a user can name changed shape:
+patch. **No** — a default's value or its type changed, a variable means
+something new, a documented variable or profile appeared, output someone might
+read moved: minor. A branch answers "no" as a whole, so it is a minor even
+when every commit in it is a fix.
+
+`system_manage_sshd` moving to `auto` in `0.21.0` is the case worth
+remembering: no new feature, and it still turned a boolean into a truthy
+string for anyone testing that variable from their own playbook.
+
+The history already works this way, it was just never written down. Each patch
+so far carries exactly one commit — `0.18.1` changed a default, `parted`'s
+resize to `false`, and stayed a patch because it changed one thing nobody else
+could reference. Minors carry batches, 48 commits in `0.19.0` and 19 in
+`0.20.0`, and a batch nearly always holds a contract change.
+
+While the role is at `0.x` there is no major: a breaking change rides in a
+minor, and every contract change gets its line in the release notes. That line
+is what a user has instead of a version number that would have warned them.
+
 <!-- Links section -->
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [issue #5]: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues/5
