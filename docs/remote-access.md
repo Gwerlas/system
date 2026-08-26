@@ -6,15 +6,15 @@ SSHd
 
 ### Feature flipping
 
-By default, sshd is managed outside of a container as soon as you give at
-least one instruction :
+`system_manage_sshd` accepts `auto` (default), `true` and `false`.
 
 ```yaml
-system_manage_sshd: "{{ not in_container and system_sshd_config | length > 0 }}"
+system_manage_sshd: auto
 ```
 
-You can force enabling or disabling it defining the `system_manage_sshd` to
-`true` or `false`.
+In `auto` mode, sshd is managed outside of a container as soon as you give the
+role one instruction : an entry in `system_sshd_config`. `true` and `false`
+force it either way, container included.
 
 ### Configuration
 

@@ -16,5 +16,6 @@ system_manage_storages: |
 system_manage_lvm: "{{ system_manage_storages and system_storages_vg | length > 0 }}"
 
 # Access
-system_manage_sshd: "{{ not in_container and system_sshd_config | length > 0 }}"
+# Manage sshd (true, false or 'auto')
+system_manage_sshd: auto
 system_manage_sudo: "{{ not in_container }}"

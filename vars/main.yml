@@ -141,6 +141,14 @@ current_network_types: |
 ### SSHd ###
 ############
 
+# An explicit true or false deliberately skips the container test: forcing it
+# is how a user says their container is the exception.
+manage_sshd: |-
+  {{
+    (not in_container and system_sshd_config | length > 0)
+    if system_manage_sshd == 'auto' else system_manage_sshd
+  }}
+
 # sshd's compile-time default is `UsePAM no`, but all major distros ship
 # their stock sshd_config with `UsePAM yes`. Without it, cloud-init users
 # whose `/etc/shadow` password is `*` (locked) are refused even via pubkey,

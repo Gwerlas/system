@@ -306,7 +306,7 @@ Editing templates
 -----------------
 
 No CI job renders the role's templates: the container scenarios skip the tasks
-that use them (`system_manage_sshd` is false in a container, and so on), and
+that use them (`manage_sshd` resolves to false in a container, and so on), and
 `ansible-lint` does not read `.j2` files. The `j2lint` job lints them, and only
 runs when a template changes. To reproduce it locally:
 
