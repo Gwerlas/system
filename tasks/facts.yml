@@ -71,10 +71,14 @@
       - "{{ ansible_facts.distribution | lower }}-{{ ansible_facts.distribution_release | lower }}" # ubuntu-bionic, ubuntu-focal
     ext:
       - .yml
+  # Profiles come after the flavors: each file assigns a variable outright,
+  # the last one loaded wins, and a profile has to be able to override what
+  # the distribution set — `hardened` replacing `vars/debian-like.yml`'s
+  # `sshd_config` is the whole point of asking for it.
   with_fileglob: |
     {{
       dir |
-      product(current_profiles + flavors) |
+      product(flavors + current_profiles) |
       map('join') |
       product(ext) |
       map('join')

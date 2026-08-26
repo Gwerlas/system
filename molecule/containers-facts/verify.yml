@@ -50,3 +50,22 @@
           - current_profiles_values | length == 2
           - "'libreoffice' in profile_packages"
 
+- name: Verify a profile overrides what the distribution set
+  hosts: all
+  vars:
+    system_sequence:
+      - facts
+    system_profile: server/hardened
+  roles:
+    - role: gwerlas.system
+  post_tasks:
+    - name: Assertions
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - unknown_profiles | length == 0
+          # Guards the load order tasks/facts.yml sets. Flavors last,
+          # vars/debian-like.yml replaces this whole dict — the hardening and
+          # the repeated `UsePAM` with it — on the four Debian like containers.
+          - sshd_config.PermitRootLogin == 'prohibit-password'
+          - sshd_config.UsePAM is true

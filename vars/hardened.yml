@@ -1,5 +1,10 @@
 ---
+# Loaded after the distribution's files, so this dict replaces
+# `vars/debian-like.yml`'s instead of merging with it. Hence `UsePAM`,
+# repeated here for the reason vars/main.yml gives, and hence no `Include`:
+# dropping it is deliberate, docs/remote-access.md says what it costs.
 sshd_config:
+  UsePAM: true
   PubkeyAuthentication: true
   AllowAgentForwarding: false
   PermitRootLogin: prohibit-password

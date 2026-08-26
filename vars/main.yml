@@ -69,6 +69,8 @@ profiles:
       - seahorse
     services:
       - gdm
+  # A hardened sshd, from vars/hardened.yml.
+  hardened: {}
   # The default; `all` already carries what every machine gets.
   server: {}
 
@@ -143,9 +145,16 @@ current_network_types: |
 
 # An explicit true or false deliberately skips the container test: forcing it
 # is how a user says their container is the exception.
+#
+# `hardened` counts as an instruction because it carries its configuration in
+# vars/hardened.yml, never in system_sshd_config: the length test alone would
+# leave sshd unmanaged for the one profile that exists to configure it.
 manage_sshd: |-
   {{
-    (not in_container and system_sshd_config | length > 0)
+    (
+      not in_container and
+      (system_sshd_config | length > 0 or 'hardened' in current_profiles)
+    )
     if system_manage_sshd == 'auto' else system_manage_sshd
   }}
 

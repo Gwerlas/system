@@ -177,19 +177,22 @@ The `system_profile` can impact the behaviour of some parts of the system,
 for example the packages to install (or not). It is a `/` separated path,
 each segment adding to the ones before it :
 
-| Segment   | What it adds                                                              |
-| --------- | ------------------------------------------------------------------------- |
-| `server`  | nothing of its own — the default                                          |
-| `desktop` | LibreOffice, Firefox and `usbutils`, plus the Yay AUR helper on ArchLinux |
-| `gnome`   | the GNOME session, its utilities and the `gdm` service                    |
+| Segment    | What it adds                                                              |
+| ---------- | ------------------------------------------------------------------------- |
+| `server`   | nothing of its own — the default                                          |
+| `desktop`  | LibreOffice, Firefox and `usbutils`, plus the Yay AUR helper on ArchLinux |
+| `gnome`    | the GNOME session, its utilities and the `gdm` service                    |
+| `hardened` | a [hardened sshd configuration][hardened], replacing the distribution one |
 
 Whatever the profile, every node gets `acl`, `sudo` and `rsync`. The usual
 combinations :
 
 ```yaml
-system_profile: server          # the default
+system_profile: server                  # the default
+system_profile: server/hardened
 system_profile: desktop
 system_profile: desktop/gnome
+system_profile: desktop/gnome/hardened
 ```
 
 A segment naming none of the profiles above brings nothing. It is ignored,
@@ -198,9 +201,11 @@ and said so in the play output rather than dropped silently :
 ```text
 TASK [gwerlas.system : Facts - Report unknown system_profile segments] *****
 [WARNING]: [node] system_profile segment(s) gnom match no known profile and
-are ignored (available: desktop, gnome, server)
+are ignored (available: desktop, gnome, hardened, server)
 ok: [node]
 ```
+
+[hardened]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/remote-access.md#the-hardened-profile
 
 If You have many download failures due to network troubles, you can increase
 the `system_retries` value.
