@@ -129,7 +129,8 @@ about the rest:
 | Reboot handling                                 | no                     | `reboot-only`                   |
 | Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
-| Desktop profiles                                | no                     | `desktops`, `gnome`             |
+| `system_profile` resolution                     | yes, container jobs    | `containers-facts`              |
+| Desktop profiles, once installed                | no                     | `desktops`, `gnome`             |
 
 That gap is where the bugs come from. Three examples, all shipped through a
 green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every

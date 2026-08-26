@@ -42,6 +42,20 @@
       ansible.builtin.set_fact:
         has_binhost: "{{ binrepos.files | length > 0 }}"
 
+# Report and carry on: failing outright would turn a typo into a stopped run.
+# What the silence costs is next to `unknown_profiles`, in vars/main.yml.
+#
+# `warn` rather than `debug` so a typo stands out from the run it converges
+# into — see action_plugins/warn.py. It names the host because one line would
+# not say which of an inventory is misconfigured.
+- name: Facts - Report unknown system_profile segments
+  when: unknown_profiles | length > 0
+  warn:
+    msg: >-
+      [{{ inventory_hostname }}] system_profile segment(s)
+      {{ unknown_profiles | join(', ') }} match no known profile and are
+      ignored (available: {{ profiles.keys() | reject('eq', 'all') | join(', ') }})
+
 - name: Facts - Local variables
   ansible.builtin.include_vars: "{{ file }}"
   vars:

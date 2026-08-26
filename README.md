@@ -174,11 +174,33 @@ Some tasks of this role need to put scripts. They are stored in the
 `system_scripts_path` directory.
 
 The `system_profile` can impact the behaviour of some parts of the system,
-for example the packages to install (or not). Available profiles :
+for example the packages to install (or not). It is a `/` separated path,
+each segment adding to the ones before it :
 
-- `server` (default)
-- `desktop`
-- `desktop/gnome`
+| Segment   | What it adds                                                              |
+| --------- | ------------------------------------------------------------------------- |
+| `server`  | nothing of its own — the default                                          |
+| `desktop` | LibreOffice, Firefox and `usbutils`, plus the Yay AUR helper on ArchLinux |
+| `gnome`   | the GNOME session, its utilities and the `gdm` service                    |
+
+Whatever the profile, every node gets `acl`, `sudo` and `rsync`. The usual
+combinations :
+
+```yaml
+system_profile: server          # the default
+system_profile: desktop
+system_profile: desktop/gnome
+```
+
+A segment naming none of the profiles above brings nothing. It is ignored,
+and said so in the play output rather than dropped silently :
+
+```text
+TASK [gwerlas.system : Facts - Report unknown system_profile segments] *****
+[WARNING]: [node] system_profile segment(s) gnom match no known profile and
+are ignored (available: desktop, gnome, server)
+ok: [node]
+```
 
 If You have many download failures due to network troubles, you can increase
 the `system_retries` value.
