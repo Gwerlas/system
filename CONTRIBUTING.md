@@ -337,6 +337,8 @@ trusting the pipeline.
 Editing documentation
 ---------------------
 
+### Markdown conventions
+
 `markdownlint` checks every `*.md`. The conventions this role follows — setext
 headings for levels 1 and 2, dashes for bullets, 80 columns for prose with
 tables and code blocks exempt — are recorded, with their rationale, in
@@ -354,6 +356,38 @@ reference-style link definition has nothing to wrap on. That is also the way
 out when a link makes a sentence overflow — move the URL to a `[name]:`
 definition at the end of the file rather than splitting the link across two
 lines.
+
+### Where a rationale lives
+
+A reason is written in exactly one place. From the narrowest home to the
+widest:
+
+| Home                     | What it holds                                          |
+| ------------------------ | ------------------------------------------------------ |
+| Code comment             | what this line does, and under which rule              |
+| `CONTRIBUTING` / `docs/` | what the reader has to be able to predict or do        |
+| Commit message           | what changes, and why now                              |
+| Issue / merge request    | the derivation, the measurements, the paths not taken  |
+| Upstream documentation   | the rule itself, whenever the rule is not ours         |
+
+Two of those are easy to get wrong, and both make comments longer than they
+need to be.
+
+**Cite upstream, never re-derive it.** When the reason is a third-party tool's
+behaviour — Portage, apt, systemd, dracut, sshd, Jinja — the rule already has a
+home, and it is not this repository. Quote one sentence, give the URL, stop.
+A reconstruction of your own goes stale without warning the day upstream
+changes its mind, and it reads as an opinion of this role when it is in fact an
+external constraint. Look the source up *before* writing the comment: done the
+other way round, you produce a careful demonstration of something that fits in
+one quotable line, and you miss whatever else that page says.
+
+**A comment summarises, it does not narrate.** It says what the line does and
+under which rule. The investigation that led there — when it was observed, what
+was measured, which false trail was followed — belongs to the issue and the
+commit message, where someone doing archaeology will go looking for it.
+The test is mechanical: remove everything written in the past tense. What falls
+out did not belong in a comment; what is left is the rule.
 
 Writing verify playbooks
 ------------------------
