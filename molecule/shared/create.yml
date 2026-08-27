@@ -116,7 +116,7 @@
             xml: |
               <volume type='file'>
                 <name>{{ volume_disk }}</name>
-                <capacity unit='G'>20</capacity>
+                <capacity unit='G'>{{ platform.disk_gb | default(20) }}</capacity>
                 <target>
                   <format type='qcow2'/>
                 </target>
