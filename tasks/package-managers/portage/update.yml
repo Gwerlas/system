@@ -13,3 +13,12 @@
   register: result
   until: result.failed == false
   retries: "{{ system_retries }}"
+
+# Update portage as the official recommendation:
+# https://wiki.gentoo.org/wiki/Portage#Updating_Portage
+- name: Portage - Upgrade Portage itself
+  become: true
+  community.general.portage:
+    update: "{{ system_packages_upgrade }}"
+    oneshot: true
+    package: sys-apps/portage
