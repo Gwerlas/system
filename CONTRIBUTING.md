@@ -129,6 +129,7 @@ about the rest:
 | Reboot handling                                 | no                     | `reboot-only`                   |
 | Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
+| System upgrade (`system_packages_upgrade`)      | no                     | `future`                        |
 | `system_profile` resolution                     | yes, container jobs    | `containers-facts`              |
 | Desktop profiles, once installed                | no                     | `desktops`, `gnome`             |
 
