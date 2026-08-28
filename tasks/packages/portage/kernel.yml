@@ -75,6 +75,16 @@
     - emerge @module-rebuild
     - "{{ system_reboot_handler }}"
 
+# linux-firmware's postinst sweeps every installed kernel, and that sweep is
+# "only supported on systems where the kernel image is installed in
+# /usr/lib/modules/KERNEL-VERSION/vmlinuz" — man 8 kernel-install. See #30.
+- name: Portage - Before install - Drop dangling kernel image symlinks
+  become: true
+  ansible.builtin.command:
+    cmd: find /usr/lib/modules -mindepth 2 -maxdepth 2 -name vmlinuz -xtype l -print -delete
+  register: dangling_images
+  changed_when: dangling_images.stdout | length > 0
+
 # Anchor @world on virtual/dist-kernel (it pulls the matching gentoo-kernel as a
 # dependency — already installed by the task above) along with the companions.
 #
