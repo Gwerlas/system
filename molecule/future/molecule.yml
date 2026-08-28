@@ -25,10 +25,11 @@ platforms:
   - name: gentoo
     groups:
       - gentoo
-    memory: 4
-    vcpus: 4
-    # ~amd64 means most of @world has no binpkg: the binhost cache and the
-    # build trees together overrun the 20 G default.
+    # ~amd64 means most of @world has no binpkg, so this platform is the only
+    # one that compiles: it gets the cores, the memory, and a disk the binhost
+    # cache and the build trees do not overrun.
+    memory: 12
+    vcpus: 8
     disk_gb: 60
 provisioner:
   name: ansible
