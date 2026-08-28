@@ -191,18 +191,30 @@ pipeline while saying nothing. `compare_to` expands CI/CD variables, so
 libvirt connection and storage pool
 -----------------------------------
 
-Scenarios that drive libvirt via its API (e.g. `facts`) honour two environment
+Scenarios that drive libvirt via its API (e.g. `facts`) honour four environment
 variables, with sensible defaults when unset:
 
-| Variable               | Default          | Purpose                         |
-| ---------------------- | ---------------- | ------------------------------- |
-| `LIBVIRT_DEFAULT_URI`  | `qemu:///system` | libvirt connection URI          |
-| `LIBVIRT_DEFAULT_POOL` | `default`        | name of the storage pool to use |
+| Variable               | Default              | Purpose                         |
+| ---------------------- | -------------------- | ------------------------------- |
+| `LIBVIRT_DEFAULT_URI`  | `qemu:///system`     | libvirt connection URI          |
+| `LIBVIRT_DEFAULT_POOL` | `default`            | name of the storage pool to use |
+| `MOLECULE_MEMORY`      | the platform's value | GB of RAM per VM                |
+| `MOLECULE_VCPUS`       | the platform's value | vCPUs per VM                    |
 
 `LIBVIRT_DEFAULT_URI` is the standard libvirt env var; `LIBVIRT_DEFAULT_POOL`
 is local to this project but follows the same naming convention. Both are
 forwarded into the molecule container by the wrapper (any `LIBVIRT_*` env var
 is passed through).
+
+`MOLECULE_MEMORY` and `MOLECULE_VCPUS` override what the scenario asks for,
+which is what you want when a run compiles rather than installs. They apply to
+every platform of the run, so pair them with `-p`: a scenario like `default`
+creates twelve VMs, and twelve times twelve gigabytes is not a number your
+workstation has.
+
+```sh
+MOLECULE_MEMORY=16 MOLECULE_VCPUS=8 molecule test -s future -p gentoo
+```
 
 Recommended setup if the system pool sits on a small partition: create a
 dedicated pool on a larger filesystem and point molecule at it. For example:
