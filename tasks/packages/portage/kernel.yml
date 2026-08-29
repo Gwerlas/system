@@ -59,6 +59,47 @@
         creates: "{{ savedconfig_file }}"
         executable: /bin/bash
 
+# Two dist-kernel flavours cannot share a version: they both install
+# /usr/src/linux-<ver>, Portage declares no blocker between them, and `@world`
+# slot-upgrades each installed flavour on its own, so they meet at the next
+# version bump and the merge dies on the collision (#34).
+#
+# Before the emerge below, not after it: when the flavour being replaced sits
+# at the version we are about to install, the collision hits that emerge itself
+# and there is no "after". What that costs the operator is in docs/packages.md.
+- name: Portage - Before install - Keep a single dist kernel flavour
+  when: system_portage_kernel is search('-kernel')
+  block:
+    - name: Portage - Before install - Installed sys-kernel packages
+      check_mode: false
+      ansible.builtin.command:
+        cmd: qlist -IC sys-kernel/
+      register: installed_sys_kernel
+      changed_when: false
+
+    # `-kernel` in the package name is the dist-kernel naming (gentoo-kernel,
+    # gentoo-kernel-bin, vanilla-kernel, gentoo-kernel-modprep) and the test
+    # the role already uses for the flavour; `*-sources` fall outside it.
+    - name: Portage - Before install - Remove the other dist kernel flavours
+      when: other_flavours | length > 0
+      become: true
+      vars:
+        other_flavours: >-
+          {{
+            installed_sys_kernel.stdout_lines
+            | map('basename')
+            | select('search', '-kernel')
+            | reject('eq', system_portage_kernel)
+            | map('regex_replace', '^', 'sys-kernel/')
+          }}
+      community.general.portage:
+        package: "{{ other_flavours }}"
+        state: absent
+      # An unmerged dist-kernel leaves its /boot entry and its modules behind,
+      # unowned and still listed by the bootloader; eclean-kernel is what
+      # prunes them.
+      notify: eclean-kernel
+
 # Emerge the chosen flavour first, oneshot so the version-slotted package never
 # lands in world (see docs/packages.md "Kernel" for why @world is anchored on
 # virtual/dist-kernel instead). Going before virtual/dist-kernel lets the next
