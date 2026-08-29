@@ -668,9 +668,26 @@ dependency, so the kernel is still built and updated while only the virtual
 lands in `@world` and old slots stay reclaimable.
 
 The chosen flavour is emerged first with `--oneshot` (so the slotted package
-never reaches `@world`), then `virtual/dist-kernel` is emerged: by the time the
-virtual is resolved a dist-kernel is already installed, so Portage keeps the
-flavour from `system_portage_kernel` instead of pulling its own default.
+never reaches `@world`), then `virtual/dist-kernel` is emerged, which resolves
+against the dist-kernel already installed rather than pulling its own default
+provider.
+
+That is not enough on a host that already carries another flavour: two of them
+cannot share a version, and they collide on `/usr/src/linux-<version>` at the
+next version bump, leaving the host unable to complete a distribution upgrade.
+
+So the role **removes every other dist-kernel flavour** it finds before
+installing the one you asked for. `*-sources` packages are left alone. The
+`/boot` entry and the modules an unmerged kernel leaves behind are pruned by
+`eclean-kernel` in the same run.
+
+Changing `system_portage_kernel` on a running host is therefore a switch, not
+an addition — including the `gentoo-kernel` → `gentoo-kernel-bin` move `auto`
+makes when a binhost is configured. The old flavour goes before the replacement
+is installed, so if it owns the *running* kernel the host runs without its
+modules until it reboots. The kernel change notifies the reboot handler for
+that reason: leave `system_reboot_handler` alone on a run that switches
+flavour, or reboot the host yourself right after it.
 
 [firewall]: firewall.md
 

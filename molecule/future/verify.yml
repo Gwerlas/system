@@ -29,3 +29,26 @@
         path: /data/guru
       register: result
       failed_when: not result.stat.exists
+
+# The scenario asks for vanilla-kernel on an image that ships gentoo-kernel, so
+# it converges the flavour switch. Two flavours left installed would collide on
+# /usr/src/linux-<version> at the next version bump (#34).
+- name: Check a single dist-kernel flavour is left
+  hosts: gentoo
+  tasks:
+    - name: List the installed sys-kernel packages
+      ansible.builtin.command:
+        cmd: qlist -IC sys-kernel/
+      changed_when: false
+      register: sys_kernel
+
+    - name: Only the requested flavour is installed
+      vars:
+        flavours: >-
+          {{
+            sys_kernel.stdout_lines | map('basename')
+            | select('search', '-kernel')
+          }}
+      ansible.builtin.assert:
+        that: flavours == ['vanilla-kernel']
+        fail_msg: "dist-kernel flavours installed: {{ flavours }}"
