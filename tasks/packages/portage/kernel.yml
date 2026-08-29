@@ -156,17 +156,45 @@
 # exists on *-sources). Their pkg_postinst only updates /usr/src/linux when the
 # old target is being replaced, so it leaves the symlink on a previously
 # installed kernel. Point it at the latest ourselves so @module-rebuild and
-# out-of-tree modules build against the right tree. system_latest_kernel keeps
-# the _pN suffix (e.g. 7.0.10_p1) while the source directory uses -pN
-# (linux-7.0.10-p1-gentoo-dist).
-- name: Portage - Before install - Dist kernel symlink
+# out-of-tree modules build against the right tree.
+#
+# The directory name carries the flavour's KV_LOCALVERSION, which the role has
+# no way to know: gentoo-kernel installs linux-<ver>-gentoo-dist,
+# gentoo-kernel-bin linux-<ver>-gentoo-dist-bin, vanilla-kernel plain
+# linux-<ver>. Look the directory up instead of spelling it, and fail here on a
+# miss rather than leave a dangling symlink that only breaks later, in whatever
+# needs the sources (#36). One flavour is installed at a time, so one version
+# means one directory. system_latest_kernel keeps the _pN suffix (e.g.
+# 7.0.10_p1) while the directory uses -pN (linux-7.0.10-p1-gentoo-dist).
+- name: Portage - Before install - Kernel sources
   when: system_portage_kernel is search('-kernel')
-  become: true
-  ansible.builtin.file:
-    src: linux-{{ system_latest_kernel | replace('_p', '-p') }}-gentoo-dist
-    dest: /usr/src/linux
-    state: link
-    follow: false
-    force: true
-  notify:
-    - emerge @module-rebuild
+  vars:
+    source_version: "{{ system_latest_kernel | replace('_p', '-p') }}"
+  block:
+    - name: Portage - Before install - Find the installed source tree
+      ansible.builtin.find:
+        paths: /usr/src
+        file_type: directory
+        patterns:
+          - linux-{{ source_version }}
+          - linux-{{ source_version }}-*
+      register: kernel_sources
+
+    - name: Portage - Before install - Exactly one source tree
+      ansible.builtin.assert:
+        that: kernel_sources.matched == 1
+        fail_msg: >-
+          /usr/src holds {{ kernel_sources.matched }} source trees for kernel
+          {{ source_version }}, expected exactly one
+        quiet: true
+
+    - name: Portage - Before install - Dist kernel symlink
+      become: true
+      ansible.builtin.file:
+        src: "{{ kernel_sources.files[0].path | basename }}"
+        dest: /usr/src/linux
+        state: link
+        follow: false
+        force: true
+      notify:
+        - emerge @module-rebuild
