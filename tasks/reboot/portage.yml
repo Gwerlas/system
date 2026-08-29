@@ -3,104 +3,89 @@
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/packages/portage/installed-this-boot.yml"
 
-- name: Portage - Set fact system_needs_reboot
+# The atoms live here once: `system_needs_reboot` is their union, and every
+# trigger reads its own by key. A trigger the fact does not cover is then
+# impossible to write — a key absent from this mapping fails the task instead
+# of quietly reporting a reboot-free host (#21).
+#
+# One task per trigger rather than a loop: a looped task notifies the handlers
+# of every item as soon as one item is changed, so `grub-install` would fire
+# on a glibc-only upgrade.
+- name: Portage - Reboot triggers
   vars:
-    patterns:
-      - sys-boot/grub
-      - sys-apps/{{ ansible_facts.service_mgr }}
-      - sys-kernel/{{ system_portage_kernel }}
-      - sys-libs/glibc
-    occurences: |
-      {{
-        installed_this_boot.stdout_lines |
-        select(
-          'search',
-          patterns | join('|')
-        )
-      }}
-  ansible.builtin.set_fact:
-    system_needs_reboot: "{{ (occurences | length) > 0 }}"
+    triggers:
+      grub: sys-boot/grub
+      service_mgr: sys-apps/{{ ansible_facts.service_mgr }}
+      glibc: sys-libs/glibc
+      kernel: sys-kernel/{{ system_portage_kernel }}
+      firmware: sys-kernel/linux-firmware
+  block:
+    # Computed here rather than left to the `Reboot is needed` handler, which
+    # runs at the next flush — too late for a caller reading the fact in the
+    # same play.
+    - name: Portage - Set fact system_needs_reboot
+      vars:
+        moved: >-
+          {{ triggers.values() | select('in', installed_this_boot.stdout) }}
+      ansible.builtin.set_fact:
+        system_needs_reboot: "{{ (moved | length) > 0 }}"
 
-- name: Portage - Grub
-  vars:
-    has_changed: "{{ 'sys-boot/grub' in installed_this_boot.stdout }}"
-  ansible.builtin.debug:
-    msg: |-
-      {{
-        has_changed | ternary(
-          "Grub has changed",
-          "Grub hasn't changed"
-        )
-      }}
-  changed_when: has_changed
-  notify:
-    - grub-install
-    - "{{ system_reboot_handler }}"
+    - name: Portage - Grub
+      vars:
+        atom: "{{ triggers.grub }}"
+        has_changed: "{{ atom in installed_this_boot.stdout }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ atom }} {{ has_changed | ternary('has', "hasn't") }} changed
+      changed_when: has_changed
+      notify:
+        - grub-install
+        - "{{ system_reboot_handler }}"
 
-- name: Portage - Service manager
-  vars:
-    has_changed: "{{ ('sys-apps/' + ansible_facts.service_mgr) in installed_this_boot.stdout }}"
-  ansible.builtin.debug:
-    msg: |-
-      {{
-        has_changed | ternary(
-          ansible_facts.service_mgr + " has changed",
-          ansible_facts.service_mgr + " hasn't changed"
-        )
-      }}
-  changed_when: has_changed
-  notify: "{{ system_reboot_handler }}"
+    - name: Portage - Service manager
+      vars:
+        atom: "{{ triggers.service_mgr }}"
+        has_changed: "{{ atom in installed_this_boot.stdout }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ atom }} {{ has_changed | ternary('has', "hasn't") }} changed
+      changed_when: has_changed
+      notify: "{{ system_reboot_handler }}"
 
-- name: Portage - Glibc
-  vars:
-    has_changed: "{{ 'sys-libs/glibc' in installed_this_boot.stdout }}"
-  ansible.builtin.debug:
-    msg: |-
-      {{
-        has_changed | ternary(
-          "Glibc has changed",
-          "Glibc hasn't changed"
-        )
-      }}
-  changed_when: has_changed
-  notify:
-    - reload init system
-    - "{{ system_reboot_handler }}"
+    - name: Portage - Glibc
+      vars:
+        atom: "{{ triggers.glibc }}"
+        has_changed: "{{ atom in installed_this_boot.stdout }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ atom }} {{ has_changed | ternary('has', "hasn't") }} changed
+      changed_when: has_changed
+      notify:
+        - reload init system
+        - "{{ system_reboot_handler }}"
 
-- name: Portage - Kernel
-  vars:
-    has_changed: "{{ ('sys-kernel/' + system_portage_kernel) in installed_this_boot.stdout }}"
-  ansible.builtin.debug:
-    msg: |-
-      {{
-        has_changed | ternary(
-          "Kernel has changed",
-          "Kernel hasn't changed"
-        )
-      }}
-  changed_when: has_changed
-  notify:
-    - eclean-kernel
-    - grub-mkconfig
-    - "{{ system_reboot_handler }}"
+    - name: Portage - Kernel
+      vars:
+        atom: "{{ triggers.kernel }}"
+        has_changed: "{{ atom in installed_this_boot.stdout }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ atom }} {{ has_changed | ternary('has', "hasn't") }} changed
+      changed_when: has_changed
+      notify:
+        - eclean-kernel
+        - grub-mkconfig
+        - "{{ system_reboot_handler }}"
 
-# linux-firmware ships the CPU microcode that dracut bundles into the initramfs
-# and that a standalone /boot/*-uc.img may carry. When it changes we rebuild the
-# initramfs and the bootloader config so the boot entries stay consistent (a
-# stale microcode image reference would otherwise break the next boot).
-- name: Portage - Linux firmware
-  vars:
-    has_changed: "{{ 'sys-kernel/linux-firmware' in installed_this_boot.stdout }}"
-  ansible.builtin.debug:
-    msg: |-
-      {{
-        has_changed | ternary(
-          "Linux firmware has changed",
-          "Linux firmware hasn't changed"
-        )
-      }}
-  changed_when: has_changed
-  notify:
-    - regenerate initramfs
-    - grub-mkconfig
-    - "{{ system_reboot_handler }}"
+    - name: Portage - Linux firmware
+      vars:
+        atom: "{{ triggers.firmware }}"
+        has_changed: "{{ atom in installed_this_boot.stdout }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ atom }} {{ has_changed | ternary('has', "hasn't") }} changed
+      changed_when: has_changed
+      notify:
+        - regenerate initramfs
+        - grub-mkconfig
+        - "{{ system_reboot_handler }}"
