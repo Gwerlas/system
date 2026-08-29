@@ -1,0 +1,19 @@
+---
+# linux-firmware's postinst sweeps every installed kernel, and that sweep is
+# "only supported on systems where the kernel image is installed in
+# /usr/lib/modules/KERNEL-VERSION/vmlinuz" — man 8 kernel-install. The official
+# cloud image ships that symlink pointing into kernel sources it strips, so the
+# sweep follows a broken link and takes the whole emerge down. See #30.
+#
+# It belongs here rather than next to the kernel tasks: package-managers.yml
+# flushes handlers right after this sequence, and on a first converge the
+# make.conf and profile changes fire an `emerge --newuse @world` that re-merges
+# linux-firmware. That emerge is the first one able to reach a kernel postinst,
+# so the sweep has to come before it — the kernel tasks run several steps later.
+- name: Portage - Kernel images - Drop dangling symlinks
+  when: system_manage_kernel
+  become: true
+  ansible.builtin.command:
+    cmd: find /usr/lib/modules -mindepth 2 -maxdepth 2 -name vmlinuz -xtype l -print -delete
+  register: dangling_images
+  changed_when: dangling_images.stdout | length > 0
