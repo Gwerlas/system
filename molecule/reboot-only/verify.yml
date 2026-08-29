@@ -15,3 +15,43 @@
     - name: Reboot isn't required
       ansible.builtin.assert:
         that: system_needs_reboot is false
+
+# Pins the coverage the fact owes every trigger: linux-firmware had a trigger
+# and no entry in the fact (#21). Asserted before any flush, the way a caller
+# reading the fact straight after the role gets it.
+- name: Verify a Portage trigger sets the fact without a flush
+  hosts: gentoo
+  vars:
+    system_reboot_handler: skip
+    # /var/log/emerge.log is the role's only input here, so a `completed
+    # emerge` line stamped after boot is what an upgrade during this boot
+    # looks like — without the minutes a real emerge would cost.
+    fixture_line: >-
+      {{ ansible_facts.date_time.epoch }}:  ::: completed emerge
+      (1 of 1) sys-kernel/linux-firmware-99999999 to /
+  tasks:
+    - name: Pretend linux-firmware was emerged during this boot
+      become: true
+      ansible.builtin.lineinfile:
+        path: /var/log/emerge.log
+        line: "{{ fixture_line }}"
+        state: present
+
+    - name: Read the fact back
+      block:
+        - name: Get the fact
+          ansible.builtin.import_role:
+            name: gwerlas.system
+            tasks_from: reboot
+
+        - name: Reboot is required, before any handler had a chance to run
+          ansible.builtin.assert:
+            that: system_needs_reboot is true
+
+      always:
+        - name: Drop the fixture line
+          become: true
+          ansible.builtin.lineinfile:
+            path: /var/log/emerge.log
+            line: "{{ fixture_line }}"
+            state: absent
