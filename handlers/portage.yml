@@ -94,6 +94,11 @@
 # sync after linux-firmware changes. Paired with grub-mkconfig, it also drops
 # any stale standalone microcode image (e.g. /boot/amd-uc.img) from the boot
 # entries. Runs before "Update Grub configuration" (handler load order).
+#
+# On a dist-kernel host linux-firmware's own postinst has just done this
+# through installkernel's plugins, so the two overlap — 13 s of it, measured
+# in #32. It stays: that sweep skips any kernel whose image is missing, with a
+# warning and a zero exit, and this is what covers those.
 - name: Portage - Regenerate initramfs
   listen:
     - regenerate initramfs
