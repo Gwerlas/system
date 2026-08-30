@@ -26,9 +26,15 @@ platforms:
     groups:
       - gentoo
     # ~amd64 means most of @world has no binpkg, so this platform is the only
-    # one that compiles: it gets the cores, the memory, and a disk the binhost
-    # cache and the build trees do not overrun.
-    memory: 12
+    # one that compiles: it gets the cores, and a disk the binhost cache and
+    # the build trees do not overrun.
+    #
+    # Its memory is sized on llvm-core/llvm rather than on the average package:
+    # a single cc1plus reached 10 G of anonymous RSS there, and the OOM killer
+    # took the build down at 12 G with no swap (#33). Lowering the parallelism
+    # would not have helped — MAKEOPTS is unset, so Portage already builds
+    # serially here, and one translation unit is what exceeds the box.
+    memory: 20
     vcpus: 8
     disk_gb: 60
 provisioner:
