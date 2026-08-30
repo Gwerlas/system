@@ -41,22 +41,15 @@ Table of content :
 Tags
 ----
 
-Two tags share this documentation, and they do different things:
+Two tags share this documentation, and neither implies the other:
 
-- `packages` installs, upgrades and refreshes the package index;
+- `packages` installs and upgrades the packages;
 - `package-managers` configures the package managers themselves, everything
-  under the [Packages managers](#packages-managers) section: repositories,
-  their proxies, Portage profile and `make.conf`, unattended upgrades.
+  under [Packages managers](#packages-managers).
 
 ```sh
 ansible-playbook -t package-managers my_play.yml
 ```
-
-Managing the package manager is not managing packages, so neither tag implies
-the other. The [proxies][] tag also reaches the repositories proxy settings,
-so a proxy change lands everywhere in a single run.
-
-[proxies]: proxies.md
 
 Variables
 ---------

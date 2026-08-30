@@ -8,12 +8,11 @@
       ansible.builtin.include_tasks:
         file: "{{ role_path }}/tasks/facts.yml"
 
-    # Also tagged `proxies` so that changing a proxy reaches the repositories.
-    # A dynamic include is filtered like any other task, and skipping it hides
-    # everything it would have included; the tag is what opens the descent. It
-    # does not propagate — an `include_tasks` tag applies to the include alone
-    # — so a `-t proxies` run reaches only the tasks tagged `proxies` below and
-    # leaves the rest of the package manager configuration untouched.
+    # Tagged `proxies` too, so that changing a proxy reaches the repositories.
+    # The tag is what opens the descent, and it opens nothing more: "If you add
+    # tags to an include, they apply only to the include itself, not to any
+    # tasks in the included file or role."
+    # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tags.html#tag-inheritance-for-includes-blocks-and-the-apply-keyword
     - name: Package managers - Configuration
       tags:
         - proxies

@@ -59,7 +59,7 @@ with tags :
 - `firewall`
 - `hosts` - Update `/etc/hosts` file
 - `networks`
-- `package-managers` - Repositories, proxies and package managers settings
+- `package-managers`
 - `packages`
 - `proxies`
 - `remote-access`
