@@ -5,6 +5,7 @@ Install system tools. Also for Gentoo configure the compilation profile.
 
 Table of content :
 
+- [Tags](#tags)
 - [Variables](#variables)
 - [Facts](#facts)
 - [Profile](#profile)
@@ -36,6 +37,26 @@ Table of content :
   - [User shells](#user-shells)
 - [CA certificates](#ca-certificates)
 - [Network types](#network-types)
+
+Tags
+----
+
+Two tags share this documentation, and they do different things:
+
+- `packages` installs, upgrades and refreshes the package index;
+- `package-managers` configures the package managers themselves, everything
+  under the [Packages managers](#packages-managers) section: repositories,
+  their proxies, Portage profile and `make.conf`, unattended upgrades.
+
+```sh
+ansible-playbook -t package-managers my_play.yml
+```
+
+Managing the package manager is not managing packages, so neither tag implies
+the other. The [proxies][] tag also reaches the repositories proxy settings,
+so a proxy change lands everywhere in a single run.
+
+[proxies]: proxies.md
 
 Variables
 ---------
