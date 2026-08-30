@@ -29,7 +29,7 @@
 
     - name: APT - Configure - Repositories proxy
       tags:
-        - proxy
+        - proxies
       vars:
         scheme: "{{ item.uri | urlsplit('scheme') }}"
         hostname: "{{ item.uri | urlsplit('hostname') }}"

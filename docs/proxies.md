@@ -12,6 +12,12 @@ You can quickly update the proxies settings with the Ansible tag `proxies` :
 ansible-playbook -t proxies my_play.yml
 ```
 
+It covers every place a proxy is written: `/etc/environment`, the sudoers
+`env_keep` list, and the repositories proxy of the package manager (see
+[packages][]).
+
+[packages]: packages.md
+
 Variables
 ---------
 
