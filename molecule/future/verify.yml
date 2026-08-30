@@ -52,3 +52,22 @@
       ansible.builtin.assert:
         that: flavours == ['vanilla-kernel']
         fail_msg: "dist-kernel flavours installed: {{ flavours }}"
+
+# The scenario runs vanilla-kernel, whose source tree is plain linux-<version>
+# — the flavour the hardcoded -gentoo-dist suffix used to miss, leaving a
+# dangling symlink that only surfaced in whatever needed the sources (#36).
+- name: Check the kernel sources symlink
+  hosts: gentoo
+  tasks:
+    - name: Follow /usr/src/linux
+      ansible.builtin.stat:
+        path: /usr/src/linux
+        follow: true
+      register: kernel_sources_link
+
+    - name: It resolves to a source tree
+      ansible.builtin.assert:
+        that:
+          - kernel_sources_link.stat.exists
+          - kernel_sources_link.stat.isdir
+        fail_msg: /usr/src/linux does not resolve to a directory
