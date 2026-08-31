@@ -125,7 +125,7 @@ about the rest:
 | Bare-metal facts (`not in_container` block)     | no                     | `facts`                         |
 | sshd configuration and host keys                | no                     | `servers`                       |
 | Storage, LVM, extra disks                       | no                     | `servers`, `default`            |
-| Network interfaces and static routes            | no                     | `servers`                       |
+| Network interface configuration                 | no                     | `servers`, `facts`              |
 | Reboot handling                                 | no                     | `reboot-only`                   |
 | Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
