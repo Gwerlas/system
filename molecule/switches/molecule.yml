@@ -4,7 +4,7 @@ dependency:
 driver:
   name: default
 # Tests switching the time backend from chrony (set up in prepare.yml) to
-# the value of switch_to (per host_vars / group_vars under inventory/).
+# the value of switch_ntp_to (per host_vars / group_vars under inventory/).
 platforms:
   - name: archlinux
     groups:

@@ -4,4 +4,4 @@
   roles:
     - role: gwerlas.system
       vars:
-        system_time_backend: "{{ switch_to }}"
+        system_time_backend: "{{ switch_ntp_to }}"

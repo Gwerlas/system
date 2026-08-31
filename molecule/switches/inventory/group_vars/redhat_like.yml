@@ -1,2 +1,2 @@
 ---
-switch_to: chrony
+switch_ntp_to: chrony
