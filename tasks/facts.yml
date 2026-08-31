@@ -194,16 +194,20 @@
     path: /etc/sysconfig/network-scripts
   register: sysconfig_network_scripts
 
-# The name of the format the host is already configured through. Resolved even
-# when `system_network_backend` names one, so a mismatch can name both halves.
+# The format the role will write through: what `system_network_backend` names,
+# or what the host is already configured with when it says `auto`.
 #
-# Read off installed packages, already gathered above, rather than off running
-# services, which would cost a second fact pass. A host running something other
-# than what it has installed names its backend rather than relying on this.
-- name: Facts - Detect the network backend
-  ansible.builtin.set_fact:
-    cacheable: true
-    detected_network_backend: |-
+# Detection reads installed packages, already gathered above, rather than
+# running services, which would cost a second fact pass. A host running
+# something other than what it has installed names its backend instead.
+#
+# Not cacheable: a cached answer is one that stops following the host, and a
+# machine moving from one backend to another would keep being configured as the
+# old one. Within a play a plain set_fact already persists, which is all the
+# `system_facts.network_backend is undefined` sentinels need.
+- name: Facts - Resolve the network backend
+  vars:
+    detected: |-
       {{
         'netifrc' if 'netifrc' in ansible_facts.packages
         else 'netplan' if 'netplan.io' in ansible_facts.packages
@@ -212,6 +216,14 @@
         ) if network_manager_packages | select('in', ansible_facts.packages) | length > 0
         else 'eni' if 'ifupdown' in ansible_facts.packages
         else 'networkd'
+      }}
+  ansible.builtin.set_fact:
+    system_facts: |-
+      {{
+        system_facts | default({}) | combine({
+          'network_backend': detected if system_network_backend == 'auto'
+                             else system_network_backend
+        })
       }}
 
 - name: Unconfined facts

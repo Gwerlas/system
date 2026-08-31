@@ -1,5 +1,4 @@
 ---
-# The backend configuring the interfaces, or `auto` to follow the host.
 system_network_backend: auto
 system_networks_check_mode: files
 system_networks_restart_handler: reboot

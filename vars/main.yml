@@ -102,16 +102,10 @@ ca_certificates:
 ## Networking ##
 ################
 
-# Under automatic mode we follow the host: a machine already configured keeps
-# the tooling it runs, so an upgrade touching no variable changes nothing.
-# Naming a backend explicitly installs it.
-network_backend_name: |-
-  {{
-    detected_network_backend if system_network_backend == 'auto'
-    else system_network_backend
-  }}
-
-network_backend: "{{ network_backends[network_backend_name] }}"
+# What the backend in use is made of. Which one that is gets resolved in
+# tasks/facts.yml and published as `system_facts.network_backend`, so a caller
+# can read back what `auto` decided.
+network_backend: "{{ network_backends[system_facts.network_backend] }}"
 
 # One piece of software reads several of these formats, and one format is
 # written by several: `sysconfig` and `keyfile` are both NetworkManager,

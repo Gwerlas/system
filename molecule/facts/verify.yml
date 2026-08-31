@@ -28,9 +28,9 @@
       ansible.builtin.assert:
         quiet: true
         that:
-          - detected_network_backend == expected[inventory_hostname]
+          - system_facts.network_backend == expected[inventory_hostname]
         fail_msg: >-
-          {{ inventory_hostname }} resolves to '{{ detected_network_backend }}',
+          {{ inventory_hostname }} resolves to '{{ system_facts.network_backend }}',
           the table expects '{{ expected[inventory_hostname] }}'
 
     - name: Required facts are defined
