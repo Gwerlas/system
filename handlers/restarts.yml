@@ -11,7 +11,8 @@
     - restart network service
   become: true
   ansible.builtin.service:
-    name: "{{ default_networks.service_name }}"
+    name: "{{ network_backend.service }}"
+    state: restarted
 
 - name: Skip restart
   listen:
