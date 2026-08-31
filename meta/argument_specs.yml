@@ -44,6 +44,7 @@ argument_specs:
         choices:
           - auto
           - eni
+          - keyfile
           - netifrc
           - networkd
           - sysconfig

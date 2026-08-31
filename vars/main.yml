@@ -124,7 +124,7 @@ network_backend: "{{ network_backends[network_backend_name] }}"
 # `packages` is what naming the backend installs, resolved through the same
 # family translation as any other package key. `template` is optional — a
 # backend configuring every interface through a single file writes it from its
-# own tasks/networks/<name>.yml.
+# own tasks/networks/<name>.yml — and its `mode` defaults to 0644.
 network_backends:
   eni:
     packages:
@@ -133,6 +133,16 @@ network_backends:
     template:
       src: network/interfaces.d/netiface.j2
       dest: /etc/network/interfaces.d/%s
+  keyfile:
+    packages:
+      - NetworkManager
+    service: NetworkManager.service
+    template:
+      src: NetworkManager/system-connections/nmconnection.j2
+      dest: /etc/NetworkManager/system-connections/%s.nmconnection
+      # NetworkManager refuses to load a connection file others can read, and
+      # a keyfile is where a wifi passphrase or an 802.1x secret would sit.
+      mode: "0600"
   netifrc:
     packages:
       - netifrc
