@@ -19,22 +19,24 @@
           deletes interface configuration it did not write. Drop the variable;
           docs/networks.md says what changes instead.
 
-    # Every name the detection can return has an entry today, so this guards
-    # the interval between teaching the detection a format and writing its
-    # backend. It sits inside the block rather than above it because a host
-    # managing no interface and rebooting to apply changes never resolves a
-    # backend at all, and has to keep converging.
-    - name: Networks - Check the backend is implemented
+    # Reached two ways: the detection recognised nothing, or a format was named
+    # that has no backend yet. It sits inside the block rather than above it
+    # because a host managing no interface and rebooting to apply changes never
+    # resolves a backend at all, and has to keep converging.
+    - name: Networks - Check the backend is usable
       when:
         - system_manage_networks or
           system_networks_restart_handler == 'restart network service'
         - system_facts.network_backend not in network_backends
       ansible.builtin.fail:
         msg: >-
-          This role has no '{{ system_facts.network_backend }}' network backend
-          {{ 'detected on this host' if system_network_backend == 'auto'
-             else 'asked for through system_network_backend' }}.
-          Implemented: {{ network_backends.keys() | sort | join(', ') }}.
+          {{
+            'This host is configured through no format this role recognises'
+            if system_facts.network_backend == 'unknown'
+            else "This role has no '" ~ system_facts.network_backend ~ "' backend"
+          }}.
+          Name one with system_network_backend, among:
+          {{ network_backends.keys() | sort | join(', ') }}.
 
     - name: Networks - IPv6 support
       become: true

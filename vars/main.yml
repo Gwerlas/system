@@ -170,13 +170,6 @@ network_backends:
       src: sysconfig/network-scripts/ifcfg.j2
       dest: /etc/sysconfig/network-scripts/ifcfg-%s
 
-# NetworkManager's package name by family, for the detection in
-# tasks/facts.yml — which runs before the package translation is usable.
-network_manager_packages:
-  - NetworkManager
-  - network-manager
-  - networkmanager
-
 # Network types
 networks_types:
   bridge:

@@ -194,28 +194,43 @@
     path: /etc/sysconfig/network-scripts
   register: sysconfig_network_scripts
 
-# The format the role will write through: what `system_network_backend` names,
-# or what the host is already configured with when it says `auto`.
+- name: Facts - Running services
+  ansible.builtin.service_facts:
+
+# What runs decides; what is installed only disambiguates. A package says what
+# is available, not what drives the host — `ifupdown` left behind as a
+# dependency, or a NetworkManager pulled in and never started, would each name
+# a backend that configures nothing.
 #
-# Detection reads installed packages, already gathered above, rather than
-# running services, which would cost a second fact pass. A host running
-# something other than what it has installed names its backend instead.
+# netifrc is the exception, recognised by its package: OpenRC gives it one unit
+# per interface and no umbrella service to test, the same reason its entry's
+# `service` carries a `%s`.
 #
-# Not cacheable: a cached answer is one that stops following the host, and a
-# machine moving from one backend to another would keep being configured as the
-# old one. Within a play a plain set_fact already persists, which is all the
-# `system_facts.network_backend is undefined` sentinels need.
+# Matching nothing resolves to `unknown`, which tasks/networks.yml reports
+# instead of guessing. Not cacheable: a cached answer stops following the host.
 - name: Facts - Resolve the network backend
   vars:
+    # `service_facts` leaves `ansible_facts.services` unset where it finds no
+    # service manager it knows — a container, typically — so the absence has to
+    # read as "nothing is running", not as an error.
+    running: |-
+      {{
+        ansible_facts.services | default({}) | dict2items
+        | selectattr('value.state', 'defined')
+        | selectattr('value.state', '==', 'running')
+        | map(attribute='key') | list
+      }}
     detected: |-
       {{
-        'netifrc' if 'netifrc' in ansible_facts.packages
-        else 'netplan' if 'netplan.io' in ansible_facts.packages
-        else (
+        (
           'sysconfig' if sysconfig_network_scripts.stat.exists else 'keyfile'
-        ) if network_manager_packages | select('in', ansible_facts.packages) | length > 0
-        else 'eni' if 'ifupdown' in ansible_facts.packages
-        else 'networkd'
+        ) if 'NetworkManager.service' in running
+        else (
+          'netplan' if 'netplan.io' in ansible_facts.packages else 'networkd'
+        ) if 'systemd-networkd.service' in running
+        else 'eni' if 'networking.service' in running
+        else 'netifrc' if 'netifrc' in ansible_facts.packages
+        else 'unknown'
       }}
   ansible.builtin.set_fact:
     system_facts: |-
