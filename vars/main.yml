@@ -105,6 +105,9 @@ ca_certificates:
 network_backend_name: "{{ system_network_backend | default(default_network_backend_name) }}"
 network_backend: "{{ network_backends[network_backend_name] }}"
 
+# `service` is mandatory: it is what the `restart network service` handler
+# restarts. `template` is optional — a backend configuring every interface
+# through a single file writes it from its own tasks/networks/<name>.yml.
 network_backends:
   ifupdown:
     service: networking

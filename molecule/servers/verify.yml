@@ -277,3 +277,16 @@
       ansible.builtin.file:
         path: /etc/yum.repos.d/epel.repo
         state: file
+
+- name: Check the network restart handler
+  hosts: redhat_like
+  gather_facts: false
+  tasks:
+    - name: Services state
+      ansible.builtin.service_facts:
+
+    - name: Check the restarted network service
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - ansible_facts.services['NetworkManager.service'].state == 'running'

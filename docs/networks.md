@@ -54,11 +54,14 @@ This mode is faster than `files`, but configuration changes won't be applied.
 system_networks_restart_handler: reboot
 ```
 
-Possible choice :
+What applies an interface change once the configuration files are written:
 
-- `restart network service`
-- `skip`
-- `reboot`
+- `reboot`, the default, and the only value that also applies whatever else
+  the run changed;
+- `restart network service` restarts the backend's service alone, for a host
+  you would rather not reboot. Connectivity drops while it restarts;
+- `skip` leaves the running configuration as it is, for you to apply the files
+  when you choose.
 
 Examples
 --------
