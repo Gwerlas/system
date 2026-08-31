@@ -279,14 +279,22 @@
         state: file
 
 - name: Check the network restart handler
-  hosts: redhat_like
-  gather_facts: false
+  hosts: all
   tasks:
     - name: Services state
       ansible.builtin.service_facts:
 
-    - name: Check the restarted network service
+    # Whichever branch of the handler ran, the renderer has to be up afterwards
+    # — and the addresses asserted above have to have survived it.
+    - name: Check the renderer is running
+      vars:
+        renderer: |-
+          {{
+            'NetworkManager.service' if ansible_facts.os_family == 'RedHat'
+            else 'systemd-networkd.service'
+          }}
       ansible.builtin.assert:
         quiet: true
         that:
-          - ansible_facts.services['NetworkManager.service'].state == 'running'
+          - ansible_facts.services[renderer].state == 'running'
+        fail_msg: "{{ renderer }} is not running after the restart handler"

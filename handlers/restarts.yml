@@ -6,9 +6,19 @@
   ansible.builtin.set_fact:
     system_needs_reboot: true
 
+- name: Apply the network configuration
+  listen:
+    - restart network service
+  when: network_backend.apply is defined
+  become: true
+  ansible.builtin.command:
+    cmd: "{{ network_backend.apply }}"
+  changed_when: true
+
 - name: Restart network
   listen:
     - restart network service
+  when: network_backend.apply is undefined
   become: true
   ansible.builtin.service:
     name: "{{ item }}"

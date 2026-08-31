@@ -121,6 +121,9 @@ network_backend: "{{ network_backends[network_backend_name] }}"
 # restarts. A `%s` in it stands for an interface name, for a backend carrying
 # one unit per interface rather than one for all of them.
 #
+# `apply` replaces that restart wherever restarting is not what applies the
+# configuration.
+#
 # `packages` is what naming the backend installs, resolved through the same
 # family translation as any other package key. `template` is optional — a
 # backend configuring every interface through a single file writes it from its
@@ -147,6 +150,18 @@ network_backends:
     packages:
       - netifrc
     service: net.%s
+  netplan:
+    packages:
+      - netplan.io
+    service: systemd-networkd.service
+    apply: netplan apply
+    template:
+      src: netplan/netiface.yaml.j2
+      # Numbered so the role's files win over the distribution's own, which
+      # ship as 50-cloud-init.yaml and friends.
+      dest: /etc/netplan/90-%s.yaml
+      # netplan refuses to read a file others can read, since 0.106.
+      mode: "0600"
   networkd:
     service: systemd-networkd.service
     template:

@@ -1,0 +1,8 @@
+---
+# Set for every platform rather than per group: the handler takes three shapes
+# and each family exercises a different one — `netplan apply` on Debian, a
+# NetworkManager restart on EL, a systemd-networkd restart on Arch, which is
+# the only platform resolving `networkd` and so the only one covering it.
+#
+# The default `reboot` keeps its own scenario, `reboot-only`.
+system_networks_restart_handler: restart network service

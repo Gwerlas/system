@@ -7,12 +7,13 @@ Network interfaces
 > follows the one the host already runs. Implemented so far: `eni`
 > (`/etc/network/interfaces.d`), `keyfile`
 > (`/etc/NetworkManager/system-connections`), `sysconfig`
-> (`/etc/sysconfig/network-scripts`), `networkd` (`/etc/systemd/network`) and
-> `netifrc` (`/etc/conf.d/net`, which has its own task file rather than a
-> template).
+> (`/etc/sysconfig/network-scripts`), `netplan` (`/etc/netplan`), `networkd`
+> (`/etc/systemd/network`) and `netifrc` (`/etc/conf.d/net`, which has its own
+> task file rather than a template).
 >
-> A host running a format that is not in that list is reported and left alone
-> rather than configured wrongly.
+> A host configured through none of them is reported and left alone, rather
+> than guessed at. Name the backend with `system_network_backend` to manage it
+> anyway.
 
 Configure network interfaces.
 
