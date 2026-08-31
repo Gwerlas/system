@@ -26,12 +26,11 @@ packages_add_by_name:
 family_packages:
   gdm:
     - gdm3
+  NetworkManager:
+    - network-manager
   unattended-upgrades:
     - apt-listchanges
     - unattended-upgrades
-
-# Networks
-default_network_backend_name: ifupdown
 
 networks_types:
   bond:

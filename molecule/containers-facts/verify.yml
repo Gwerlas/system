@@ -18,6 +18,12 @@
           # `server`, the default, is a profile like any other: it must not
           # report itself as unknown.
           - unknown_profiles | length == 0
+          # A container carries no networking stack, so only the shape is
+          # assertable here; which backend each platform resolves to is
+          # measured on VMs, in the `facts` scenario.
+          - detected_network_backend is defined
+          - detected_network_backend is in
+            ['eni', 'keyfile', 'netifrc', 'netplan', 'networkd', 'sysconfig']
 
 # Profile resolution needs no VM, so it lives here rather than in the desktop
 # scenarios — see CONTRIBUTING's coverage table.

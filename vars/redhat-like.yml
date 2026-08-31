@@ -4,8 +4,6 @@ ca_certificates:
   path: /etc/pki/ca-trust/source/anchors
   command: update-ca-trust
 
-default_network_backend_name: redhat
-
 # Packages
 packages_add_by_name:
   - yum-utils

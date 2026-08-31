@@ -10,6 +10,8 @@ packages_build: |-
   }}
 
 family_packages:
+  netifrc:
+    - net-misc/netifrc
   bridge:
     - net-misc/bridge-utils
   firefox:

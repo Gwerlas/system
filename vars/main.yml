@@ -102,28 +102,60 @@ ca_certificates:
 ## Networking ##
 ################
 
-network_backend_name: "{{ system_network_backend | default(default_network_backend_name) }}"
+# Under automatic mode we follow the host: a machine already configured keeps
+# the tooling it runs, so an upgrade touching no variable changes nothing.
+# Naming a backend explicitly installs it.
+network_backend_name: |-
+  {{
+    detected_network_backend if system_network_backend == 'auto'
+    else system_network_backend
+  }}
+
 network_backend: "{{ network_backends[network_backend_name] }}"
 
+# Backends are named after the format they write, never after the software
+# reading it: NetworkManager reads two of these, and `networkd` is written by
+# netplan as well as by hand.
+#
 # `service` is mandatory: it is what the `restart network service` handler
-# restarts. `template` is optional — a backend configuring every interface
-# through a single file writes it from its own tasks/networks/<name>.yml.
+# restarts. A `%s` in it stands for an interface name, for a backend carrying
+# one unit per interface rather than one for all of them.
+#
+# `packages` is what naming the backend installs, resolved through the same
+# family translation as any other package key. `template` is optional — a
+# backend configuring every interface through a single file writes it from its
+# own tasks/networks/<name>.yml.
 network_backends:
-  ifupdown:
+  eni:
+    packages:
+      - ifupdown
     service: networking
     template:
       src: network/interfaces.d/netiface.j2
       dest: /etc/network/interfaces.d/%s
-  redhat:
-    service: NetworkManager.service
-    template:
-      src: sysconfig/network-scripts/ifcfg.j2
-      dest: /etc/sysconfig/network-scripts/ifcfg-%s
-  systemd:
+  netifrc:
+    packages:
+      - netifrc
+    service: net.%s
+  networkd:
     service: systemd-networkd.service
     template:
       src: systemd/network/netiface.network.j2
       dest: /etc/systemd/network/%s.network
+  sysconfig:
+    packages:
+      - NetworkManager
+    service: NetworkManager.service
+    template:
+      src: sysconfig/network-scripts/ifcfg.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-%s
+
+# NetworkManager's package name by family, for the detection in
+# tasks/facts.yml — which runs before the package translation is usable.
+network_manager_packages:
+  - NetworkManager
+  - network-manager
+  - networkmanager
 
 # Network types
 networks_types:

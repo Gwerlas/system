@@ -11,8 +11,16 @@
     - restart network service
   become: true
   ansible.builtin.service:
-    name: "{{ network_backend.service }}"
+    name: "{{ item }}"
     state: restarted
+  loop: |-
+    {{
+      system_networks_interfaces |
+      map(attribute='name') |
+      map('regex_replace', '^(.*)$', network_backend.service | replace('%s', '\\1'))
+      if '%s' in network_backend.service
+      else [network_backend.service]
+    }}
 
 - name: Skip restart
   listen:

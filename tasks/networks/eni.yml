@@ -1,5 +1,5 @@
 ---
-- name: Networks - IfUpDown - Reset interfaces
+- name: Networks - ENI - Reset interfaces
   when: system_networks_interfaces_prune
   become: true
   ansible.builtin.copy:

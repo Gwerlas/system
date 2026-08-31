@@ -4,8 +4,24 @@
     - networks
   block:
     - name: Networks - Load variables
-      when: default_network_backend_name is undefined
+      when: detected_network_backend is undefined
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
+
+    # The backend is read by the interface tasks and by the
+    # `restart network service` handler, and by nothing else. A host managing
+    # no interface and rebooting to apply changes never resolves one, which is
+    # how the role keeps converging where it cannot write the format in use.
+    - name: Networks - Check the backend is implemented
+      when:
+        - system_manage_networks or
+          system_networks_restart_handler == 'restart network service'
+        - network_backend_name not in network_backends
+      ansible.builtin.fail:
+        msg: >-
+          This role has no '{{ network_backend_name }}' network backend
+          {{ 'detected on this host' if system_network_backend == 'auto'
+             else 'asked for through system_network_backend' }}.
+          Implemented: {{ network_backends.keys() | sort | join(', ') }}.
 
     - name: Networks - IPv6 support
       become: true
@@ -24,12 +40,12 @@
           when: system_networks_interfaces_prune
           ansible.builtin.include_tasks: "{{ role_path }}/tasks/networks/prune.yml"
 
-        - name: Networks - Distribution rules
+        - name: Networks - Backend rules
           ansible.builtin.include_tasks:
             file: "{{ file }}"
           with_first_found:
             - files:
-                - "{{ default_network_backend_name }}.yml"
+                - "{{ network_backend_name }}.yml"
               paths:
                 - "{{ role_path }}/tasks/networks"
               skip: true

@@ -3,10 +3,15 @@ Network interfaces
 
 > **Experimental**
 >
-> Interface configuration is written through a per-backend template. Backends
-> with one are `ifupdown` (Debian like), `redhat` (EL like) and `systemd`
-> (systemd-networkd). Gentoo goes through `netifrc`, which has its own task
-> file.
+> A backend is named after the configuration format it writes, and the role
+> follows the one the host already runs. Implemented so far: `eni`
+> (`/etc/network/interfaces.d`), `sysconfig` (`/etc/sysconfig/network-scripts`),
+> `networkd` (`/etc/systemd/network`) and `netifrc` (`/etc/conf.d/net`, which
+> has its own task file rather than a template).
+>
+> A host running a format that is not in that list — netplan, or
+> NetworkManager keyfiles — is reported and left alone rather than configured
+> wrongly.
 
 Configure network interfaces.
 

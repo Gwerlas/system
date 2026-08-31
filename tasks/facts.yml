@@ -93,6 +93,10 @@
         ( system_packages_add_by_key + users_shells
         + (current_profiles_values | selectattr('packages', 'defined') | map(attribute='packages'))
         + (current_network_types | selectattr('packages', 'defined') | map(attribute='packages'))
+        + (
+            (system_manage_networks and system_network_backend != 'auto') |
+            ternary(network_backends[system_network_backend].packages | default([]), [])
+          )
         + (system_manage_time | ternary([time_backend_name], []))
         + (system_packages_upgrade_unattended | ternary(['unattended-upgrades'], []))
         + (system_ca_certificates | length > 0) | ternary(['ca-certificates'], [])
@@ -181,6 +185,37 @@
 
 - name: Facts - Installed packages
   ansible.builtin.package_facts:
+
+# NetworkManager reads two formats, and the directory is what separates them:
+# EL10 and Fedora dropped /etc/sysconfig/network-scripts, so NetworkManager
+# without it is on keyfiles — which this role does not write yet, and reports.
+- name: Facts - Stat the sysconfig network scripts directory
+  ansible.builtin.stat:
+    path: /etc/sysconfig/network-scripts
+  register: sysconfig_network_scripts
+
+# The name of the format the host is already configured through. Resolved even
+# when `system_network_backend` names one, so a mismatch can be reported with
+# both halves. It may name a format the role does not implement — that is the
+# point: the host is told what it runs instead of being silently skipped.
+#
+# Read off installed packages, which package_facts has already gathered, rather
+# than off running services, which would cost a second fact pass. A host
+# running something other than what it has installed names its backend rather
+# than relying on this.
+- name: Facts - Detect the network backend
+  ansible.builtin.set_fact:
+    cacheable: true
+    detected_network_backend: |-
+      {{
+        'netifrc' if 'netifrc' in ansible_facts.packages
+        else 'netplan' if 'netplan.io' in ansible_facts.packages
+        else (
+          'sysconfig' if sysconfig_network_scripts.stat.exists else 'keyfile'
+        ) if network_manager_packages | select('in', ansible_facts.packages) | length > 0
+        else 'eni' if 'ifupdown' in ansible_facts.packages
+        else 'networkd'
+      }}
 
 - name: Unconfined facts
   when: not in_container
