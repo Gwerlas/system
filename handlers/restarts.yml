@@ -18,19 +18,31 @@
 - name: Restart network
   listen:
     - restart network service
-  when: network_backend.apply is undefined
+  when:
+    - network_backend.apply is undefined
+    - "'%s' not in network_backend.service"
   become: true
   ansible.builtin.service:
-    name: "{{ item }}"
+    name: "{{ network_backend.service }}"
     state: restarted
-  loop: |-
-    {{
-      system_networks_interfaces |
-      map(attribute='name') |
-      map('regex_replace', '^(.*)$', network_backend.service | replace('%s', '\\1'))
-      if '%s' in network_backend.service
-      else [network_backend.service]
-    }}
+
+# A `%s` in the service name stands for an interface, and `network_backends` in
+# vars/main.yml says why one backend needs that. The substitution is the one
+# tasks/networks/template.yml already uses for `template.dest`.
+- name: Restart network interfaces
+  listen:
+    - restart network service
+  when:
+    - network_backend.apply is undefined
+    - "'%s' in network_backend.service"
+  become: true
+  ansible.builtin.service:
+    name: "{{ network_backend.service | format(netiface.name) }}"
+    state: restarted
+  loop: "{{ system_networks_interfaces }}"
+  loop_control:
+    loop_var: netiface
+    label: "{{ netiface.name }}"
 
 - name: Skip restart
   listen:
