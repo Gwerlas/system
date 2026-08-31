@@ -1,8 +1,25 @@
 ---
-- name: Networks - ENI - Reset interfaces
-  when: system_networks_interfaces_prune
+# ifupdown reads /etc/network/interfaces.d only if the main file includes it,
+# and Debian has spelled that two ways. Matching both is what stops the older
+# one from earning a second include, which would hand every stanza in twice.
+#
+# The loopback lines are there for the file that has to be created from
+# nothing; anywhere else they already exist and the task is a no-op.
+- name: Networks - ENI - Declare what ifupdown needs
   become: true
-  ansible.builtin.copy:
-    src: network/interfaces
-    dest: /etc/network/interfaces
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: true
     mode: "0644"
+  loop:
+    - regexp: ^\s*source(-directory)?\s+/etc/network/interfaces\.d
+      line: source /etc/network/interfaces.d/*
+    - regexp: ^\s*auto\s+lo\s*$
+      line: auto lo
+    - regexp: ^\s*iface\s+lo\s+inet\s+loopback\s*$
+      line: iface lo inet loopback
+  loop_control:
+    label: "{{ item.line }}"
+  notify: "{{ system_networks_restart_handler }}"

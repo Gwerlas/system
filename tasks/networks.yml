@@ -7,10 +7,23 @@
       when: detected_network_backend is undefined
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
 
-    # The backend is read by the interface tasks and by the
-    # `restart network service` handler, and by nothing else. A host managing
-    # no interface and rebooting to apply changes never resolves one, which is
-    # how the role keeps converging where it cannot write the format in use.
+    # Silence would leave an inventory believing the role still sweeps the
+    # directory, which it did until this variable went away.
+    - name: Networks - Refuse a removed variable
+      when:
+        - system_networks_interfaces_prune is defined
+        - system_networks_interfaces_prune is truthy
+      ansible.builtin.fail:
+        msg: >-
+          system_networks_interfaces_prune has been removed: the role no longer
+          deletes interface configuration it did not write. Drop the variable;
+          docs/networks.md says what changes instead.
+
+    # Every name the detection can return has an entry today, so this guards
+    # the interval between teaching the detection a format and writing its
+    # backend. It sits inside the block rather than above it because a host
+    # managing no interface and rebooting to apply changes never resolves a
+    # backend at all, and has to keep converging.
     - name: Networks - Check the backend is implemented
       when:
         - system_manage_networks or
@@ -36,10 +49,6 @@
         - system_manage_networks
         - system_networks_interfaces | length > 0
       block:
-        - name: Networks - Prune unmanaged interfaces
-          when: system_networks_interfaces_prune
-          ansible.builtin.include_tasks: "{{ role_path }}/tasks/networks/prune.yml"
-
         - name: Networks - Backend rules
           ansible.builtin.include_tasks:
             file: "{{ file }}"

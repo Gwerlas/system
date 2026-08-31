@@ -113,9 +113,10 @@ network_backend_name: |-
 
 network_backend: "{{ network_backends[network_backend_name] }}"
 
-# Backends are named after the format they write, never after the software
-# reading it: NetworkManager reads two of these, and `networkd` is written by
-# netplan as well as by hand.
+# One piece of software reads several of these formats, and one format is
+# written by several: `sysconfig` and `keyfile` are both NetworkManager,
+# `netplan` compiles into `networkd`. Hence a key naming the format, and a
+# service belonging to the entry rather than following from its name.
 #
 # `service` is mandatory: it is what the `restart network service` handler
 # restarts. A `%s` in it stands for an interface name, for a backend carrying
