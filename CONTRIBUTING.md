@@ -232,6 +232,15 @@ molecule test -s facts
 The directory must be reachable by the `qemu` user (group `qemu` + setgid
 parent works, provided your user is in `qemu`).
 
+The pool also caches the cloud images the VMs are cloned from, one per
+platform, as `molecule-image-<platform>-<id>.qcow2`. `<id>` fingerprints the
+`Last-Modified` and `Content-Length` the publisher serves for the image URL,
+read with a `HEAD` before every create. Most platforms track a rolling
+`latest/` or `current/` URL whose file name never changes, so the name alone
+cannot say whether the cache is still the published image; those two headers
+can. A republished image gets a new fingerprint, hence a new volume, and the
+one it supersedes is deleted on the same run.
+
 `qemu:///session` is currently *not* supported by these scenarios: session
 mode has no built-in `default` network, and `virsh net-dhcp-leases` would not
 find any lease. If you want to view VMs in a GUI without switching to session
