@@ -82,6 +82,10 @@
                 path: "/tmp/{{ image_name }}"
               register: image_stat
 
+            # virt_volume resizes the volume it just created down to the
+            # declared capacity, and libvirt rounds a qcow2 virtual size up to
+            # the next 1024 bytes — a shrink it then refuses. Declaring KiB
+            # makes the two agree.
             - name: Create empty volume for the base image
               community.libvirt.virt_volume:
                 pool: "{{ libvirt_pool }}"
@@ -89,7 +93,7 @@
                 xml: |
                   <volume type='file'>
                     <name>{{ image_name }}</name>
-                    <capacity unit='bytes'>{{ image_stat.stat.size }}</capacity>
+                    <capacity unit='KiB'>{{ (image_stat.stat.size / 1024) | round(0, 'ceil') | int }}</capacity>
                     <target>
                       <format type='qcow2'/>
                     </target>
