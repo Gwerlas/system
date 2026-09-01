@@ -4,8 +4,39 @@
     - networks
   block:
     - name: Networks - Load variables
-      when: default_network_backend_name is undefined
+      when: system_facts.network_backend is undefined
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/facts.yml"
+
+    # Silence would leave an inventory believing the role still sweeps the
+    # directory, which it did until this variable went away.
+    - name: Networks - Refuse a removed variable
+      when:
+        - system_networks_interfaces_prune is defined
+        - system_networks_interfaces_prune is truthy
+      ansible.builtin.fail:
+        msg: >-
+          system_networks_interfaces_prune has been removed: the role no longer
+          deletes interface configuration it did not write. Drop the variable;
+          docs/networks.md says what changes instead.
+
+    # Reached two ways: the detection recognised nothing, or a format was named
+    # that has no backend yet. It sits inside the block rather than above it
+    # because a host managing no interface and rebooting to apply changes never
+    # resolves a backend at all, and has to keep converging.
+    - name: Networks - Check the backend is usable
+      when:
+        - system_manage_networks or
+          system_networks_restart_handler == 'restart network service'
+        - system_facts.network_backend not in network_backends
+      ansible.builtin.fail:
+        msg: >-
+          {{
+            'This host is configured through no format this role recognises'
+            if system_facts.network_backend == 'unknown'
+            else "This role has no '" ~ system_facts.network_backend ~ "' backend"
+          }}.
+          Name one with system_network_backend, among:
+          {{ network_backends.keys() | sort | join(', ') }}.
 
     - name: Networks - IPv6 support
       become: true
@@ -20,16 +51,12 @@
         - system_manage_networks
         - system_networks_interfaces | length > 0
       block:
-        - name: Networks - Prune unmanaged interfaces
-          when: system_networks_interfaces_prune
-          ansible.builtin.include_tasks: "{{ role_path }}/tasks/networks/prune.yml"
-
-        - name: Networks - Distribution rules
+        - name: Networks - Backend rules
           ansible.builtin.include_tasks:
             file: "{{ file }}"
           with_first_found:
             - files:
-                - "{{ default_network_backend_name }}.yml"
+                - "{{ system_facts.network_backend }}.yml"
               paths:
                 - "{{ role_path }}/tasks/networks"
               skip: true

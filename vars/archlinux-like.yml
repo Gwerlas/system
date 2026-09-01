@@ -6,6 +6,8 @@ ca_certificates:
 
 # Packages
 family_packages:
+  NetworkManager:
+    - networkmanager
   gnome:
     - gnome
     - gnome-control-center

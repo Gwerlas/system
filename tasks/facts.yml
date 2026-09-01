@@ -93,6 +93,10 @@
         ( system_packages_add_by_key + users_shells
         + (current_profiles_values | selectattr('packages', 'defined') | map(attribute='packages'))
         + (current_network_types | selectattr('packages', 'defined') | map(attribute='packages'))
+        + (
+            (system_manage_networks and system_network_backend != 'auto') |
+            ternary(network_backends[system_network_backend].packages | default([]), [])
+          )
         + (system_manage_time | ternary([time_backend_name], []))
         + (system_packages_upgrade_unattended | ternary(['unattended-upgrades'], []))
         + (system_ca_certificates | length > 0) | ternary(['ca-certificates'], [])
@@ -181,6 +185,61 @@
 
 - name: Facts - Installed packages
   ansible.builtin.package_facts:
+
+# NetworkManager reads two of the formats below, and the directory is what
+# separates them: EL10 and Fedora dropped /etc/sysconfig/network-scripts, so
+# NetworkManager without it stores its connections as keyfiles.
+- name: Facts - Stat the sysconfig network scripts directory
+  ansible.builtin.stat:
+    path: /etc/sysconfig/network-scripts
+  register: sysconfig_network_scripts
+
+- name: Facts - Running services
+  ansible.builtin.service_facts:
+
+# What runs decides; what is installed only disambiguates. A package says what
+# is available, not what drives the host — `ifupdown` left behind as a
+# dependency, or a NetworkManager pulled in and never started, would each name
+# a backend that configures nothing.
+#
+# netifrc is the exception, recognised by its package: OpenRC gives it one unit
+# per interface and no umbrella service to test, the same reason its entry's
+# `service` carries a `%s`.
+#
+# Matching nothing resolves to `unknown`, which tasks/networks.yml reports
+# instead of guessing. Not cacheable: a cached answer stops following the host.
+- name: Facts - Resolve the network backend
+  vars:
+    # `service_facts` leaves `ansible_facts.services` unset where it finds no
+    # service manager it knows — a container, typically — so the absence has to
+    # read as "nothing is running", not as an error.
+    running: |-
+      {{
+        ansible_facts.services | default({}) | dict2items
+        | selectattr('value.state', 'defined')
+        | selectattr('value.state', '==', 'running')
+        | map(attribute='key') | list
+      }}
+    detected: |-
+      {{
+        (
+          'sysconfig' if sysconfig_network_scripts.stat.exists else 'keyfile'
+        ) if 'NetworkManager.service' in running
+        else (
+          'netplan' if 'netplan.io' in ansible_facts.packages else 'networkd'
+        ) if 'systemd-networkd.service' in running
+        else 'eni' if 'networking.service' in running
+        else 'netifrc' if 'netifrc' in ansible_facts.packages
+        else 'unknown'
+      }}
+  ansible.builtin.set_fact:
+    system_facts: |-
+      {{
+        system_facts | default({}) | combine({
+          'network_backend': detected if system_network_backend == 'auto'
+                             else system_network_backend
+        })
+      }}
 
 - name: Unconfined facts
   when: not in_container

@@ -15,9 +15,11 @@
           - system_needs_reboot is false
           - system_packages | length > 0
           - system_shells | length == 0
-          # `server`, the default, is a profile like any other: it must not
-          # report itself as unknown.
           - unknown_profiles | length == 0
+          # A container runs no network stack at all, so detecting anything is
+          # the failure worth seeing. Which backend each image resolves to is
+          # measured on VMs, in the `facts` scenario.
+          - system_facts.network_backend == 'unknown'
 
 # Profile resolution needs no VM, so it lives here rather than in the desktop
 # scenarios — see CONTRIBUTING's coverage table.

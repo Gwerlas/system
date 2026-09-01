@@ -1,8 +1,0 @@
----
-- name: Networks - IfUpDown - Reset interfaces
-  when: system_networks_interfaces_prune
-  become: true
-  ansible.builtin.copy:
-    src: network/interfaces
-    dest: /etc/network/interfaces
-    mode: "0644"

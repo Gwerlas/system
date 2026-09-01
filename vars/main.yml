@@ -102,28 +102,73 @@ ca_certificates:
 ## Networking ##
 ################
 
-network_backend_name: "{{ system_network_backend | default(default_network_backend_name) }}"
-network_backend: "{{ network_backends[network_backend_name] }}"
+# What the backend in use is made of. Which one that is gets resolved in
+# tasks/facts.yml and published as `system_facts.network_backend`, so a caller
+# can read back what `auto` decided.
+network_backend: "{{ network_backends[system_facts.network_backend] }}"
 
+# One piece of software reads several of these formats, and one format is
+# written by several: `sysconfig` and `keyfile` are both NetworkManager,
+# `netplan` compiles into `networkd`. Hence a key naming the format, and a
+# service belonging to the entry rather than following from its name.
+#
 # `service` is mandatory: it is what the `restart network service` handler
-# restarts. `template` is optional — a backend configuring every interface
-# through a single file writes it from its own tasks/networks/<name>.yml.
+# restarts. A `%s` in it stands for an interface name, for a backend carrying
+# one unit per interface rather than one for all of them.
+#
+# `apply` replaces that restart wherever restarting is not what applies the
+# configuration.
+#
+# `packages` is what naming the backend installs, resolved through the same
+# family translation as any other package key. `template` is optional — a
+# backend configuring every interface through a single file writes it from its
+# own tasks/networks/<name>.yml — and its `mode` defaults to 0644.
 network_backends:
-  ifupdown:
+  eni:
+    packages:
+      - ifupdown
     service: networking
     template:
       src: network/interfaces.d/netiface.j2
       dest: /etc/network/interfaces.d/%s
-  redhat:
+  keyfile:
+    packages:
+      - NetworkManager
     service: NetworkManager.service
     template:
-      src: sysconfig/network-scripts/ifcfg.j2
-      dest: /etc/sysconfig/network-scripts/ifcfg-%s
-  systemd:
+      src: NetworkManager/system-connections/nmconnection.j2
+      dest: /etc/NetworkManager/system-connections/%s.nmconnection
+      # NetworkManager refuses to load a connection file others can read, and
+      # a keyfile is where a wifi passphrase or an 802.1x secret would sit.
+      mode: "0600"
+  netifrc:
+    packages:
+      - netifrc
+    service: net.%s
+  netplan:
+    packages:
+      - netplan.io
+    service: systemd-networkd.service
+    apply: netplan apply
+    template:
+      src: netplan/netiface.yaml.j2
+      # Numbered so the role's files win over the distribution's own, which
+      # ship as 50-cloud-init.yaml and friends.
+      dest: /etc/netplan/90-%s.yaml
+      # netplan refuses to read a file others can read, since 0.106.
+      mode: "0600"
+  networkd:
     service: systemd-networkd.service
     template:
       src: systemd/network/netiface.network.j2
       dest: /etc/systemd/network/%s.network
+  sysconfig:
+    packages:
+      - NetworkManager
+    service: NetworkManager.service
+    template:
+      src: sysconfig/network-scripts/ifcfg.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-%s
 
 # Network types
 networks_types:

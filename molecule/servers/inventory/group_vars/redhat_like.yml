@@ -1,4 +1,0 @@
----
-# The one family whose backend name, `network_backends` entry and installed
-# service line up, so the handler is exercised for real here.
-system_networks_restart_handler: restart network service

@@ -1,0 +1,40 @@
+---
+# Ansible managed, do not edit
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+{% set sections = {'bridge': 'bridges', 'bond': 'bonds', 'vlan': 'vlans'} %}
+{% set section = sections[netiface.type | default('ethernet') | lower] | default('ethernets') %}
+{# No `renderer:`: netplan hands the interface to whatever the host already
+   renders with, which is the whole point of following the host. #}
+network:
+  version: 2
+  {{ section }}:
+    {{ netiface.name }}:
+      dhcp4: {{ 'true' if bootproto == 'dhcp' else 'false' }}
+{% if netiface.onboot is defined and not netiface.onboot %}
+      activation-mode: manual
+{% endif %}
+{% if netiface.mtu is defined %}
+      mtu: {{ netiface.mtu }}
+{% endif %}
+{% if bootproto != 'dhcp' and netiface.ip is defined %}
+      addresses:
+        - {{ netiface.ip | ansible.utils.ipaddr }}
+{% endif %}
+{% if netiface.gateway is defined or netiface.routes is defined %}
+      routes:
+{% if netiface.gateway is defined %}
+{# `gateway4` was deprecated in netplan 0.103; a default route is a route. #}
+        - to: default
+          via: {{ netiface.gateway | ansible.utils.ipaddr('address') }}
+{% endif %}
+{% for route in netiface.routes | default([]) %}
+        - to: {{ route.network }}
+{% if route.gateway is defined %}
+          via: {{ route.gateway | ansible.utils.ipaddr('address') }}
+{% else %}
+{# netplan wants a next hop or an explicit scope, and a route declared without
+   a gateway is by definition reachable on the link. #}
+          scope: link
+{% endif %}
+{% endfor %}
+{% endif %}

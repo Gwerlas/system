@@ -16,7 +16,7 @@
       ansible.builtin.template:
         src: "{{ network_backend.template.src }}"
         dest: "{{ network_backend.template.dest | format(netiface.name) }}"
-        mode: "0644"
+        mode: "{{ network_backend.template.mode | default('0644') }}"
       loop: "{{ system_networks_interfaces }}"
       loop_control:
         loop_var: netiface

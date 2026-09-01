@@ -1,0 +1,41 @@
+{# j2lint: disable=single-statement-per-line -#}
+# Ansible managed, do not edit
+{% set bootproto = netiface.bootproto | default('dhcp') %}
+
+[connection]
+id={{ netiface.name }}
+{% if netiface.description is defined %}
+# {{ netiface.description }}
+{% endif %}
+type={{ netiface.type | default('ethernet') | lower }}
+interface-name={{ netiface.name }}
+autoconnect={{ 'true' if (netiface.onboot | default(true)) else 'false' }}
+{% if netiface.master is defined %}
+master={{ netiface.master }}
+slave-type={{ netiface.slave_type | default('bond') }}
+{% endif %}
+
+{% if netiface.mtu is defined %}
+[ethernet]
+mtu={{ netiface.mtu }}
+
+{% endif %}
+[ipv4]
+{% if bootproto == 'static' and netiface.ip is defined %}
+method=manual
+{# The gateway is the second field of the address: NetworkManager has no
+   per-connection gateway key of its own. #}
+address1={{ netiface.ip | ansible.utils.ipaddr }}{% if netiface.gateway is defined %},{{ netiface.gateway | ansible.utils.ipaddr('address') }}{% endif %}
+
+{% if netiface.routes is defined %}
+{% for route in netiface.routes %}
+route{{ loop.index }}={{ route.network }}{% if route.gateway is defined %},{{ route.gateway | ansible.utils.ipaddr('address') }}{% endif %}
+
+{% endfor %}
+{% endif %}
+{% else %}
+method=auto
+{% endif %}
+
+[ipv6]
+method=auto

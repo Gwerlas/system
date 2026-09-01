@@ -204,19 +204,20 @@
             that:
               - "'Refusing to manage' in ansible_failed_result.msg"
 
-    # FIXME may fail due to unpredictable network interface name
-    # - name: Check private network    # noqa risky-shell-pipe - pipefail is not supported by sh
-    #   environment:
-    #     PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-    #   ansible.builtin.shell:
-    #     cmd: |
-    #       ip -o -f inet addr show | tail -n 1
-    #   register: result
-    #   changed_when: false
-    #   failed_when: |
-    #     result.rc > 0
-    #     or
-    #     not 'brd 192.168.250.255' in result.stdout
+    # The only assertion proving a backend applied anything: without it a run
+    # is green while the role writes files nothing reads.
+    - name: Check the declared static addresses are up
+      environment:
+        PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+      ansible.builtin.command:
+        cmd: ip -o -4 addr show dev {{ netiface.name }}
+      register: result
+      changed_when: false
+      failed_when: netiface.ip not in result.stdout
+      loop: "{{ system_networks_interfaces | selectattr('ip', 'defined') }}"
+      loop_control:
+        loop_var: netiface
+        label: "{{ netiface.name }} {{ netiface.ip }}"
 
     - name: Read SSH public host keys fixtures
       delegate_to: localhost
@@ -279,14 +280,22 @@
         state: file
 
 - name: Check the network restart handler
-  hosts: redhat_like
-  gather_facts: false
+  hosts: all
   tasks:
     - name: Services state
       ansible.builtin.service_facts:
 
-    - name: Check the restarted network service
+    # Whichever branch of the handler ran, the renderer has to be up afterwards
+    # — and the addresses asserted above have to have survived it.
+    - name: Check the renderer is running
+      vars:
+        renderer: |-
+          {{
+            'NetworkManager.service' if ansible_facts.os_family == 'RedHat'
+            else 'systemd-networkd.service'
+          }}
       ansible.builtin.assert:
         quiet: true
         that:
-          - ansible_facts.services['NetworkManager.service'].state == 'running'
+          - ansible_facts.services[renderer].state == 'running'
+        fail_msg: "{{ renderer }} is not running after the restart handler"

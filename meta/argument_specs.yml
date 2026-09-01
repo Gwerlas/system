@@ -38,6 +38,18 @@ argument_specs:
   networks:
     short_description: Configure network interfaces.
     options:
+      system_network_backend:
+        type: str
+        default: auto
+        choices:
+          - auto
+          - eni
+          - keyfile
+          - netifrc
+          - netplan
+          - networkd
+          - sysconfig
+        description: Configuration format to write the interfaces through, `auto` following the host
       system_networks_check_mode:
         type: str
         default: files
@@ -50,10 +62,6 @@ argument_specs:
         elements: dict
         default: "[]"
         description: List of interfaces to manage
-      system_networks_interfaces_prune:
-        type: bool
-        default: "true"
-        description: Remove the unmanaged interfaces
       system_networks_restart_handler:
         type: str
         default: reboot

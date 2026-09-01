@@ -7,6 +7,32 @@
   roles:
     - role: gwerlas.system
   post_tasks:
+    # What each image actually runs, measured 2026-08-31. This is the
+    # regression test for the detection: an image changing its networking
+    # tooling has to be seen here rather than in a silent misconfiguration.
+    - name: The detected network backend matches the image
+      vars:
+        expected:
+          archlinux: networkd
+          bookworm: netplan
+          trixie: netplan
+          jammy: netplan
+          noble: netplan
+          centos9s: sysconfig
+          alma9: sysconfig
+          centos10s: keyfile
+          alma10: keyfile
+          fedora43: keyfile
+          fedora44: keyfile
+          gentoo: networkd
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - system_facts.network_backend == expected[inventory_hostname]
+        fail_msg: >-
+          {{ inventory_hostname }} resolves to '{{ system_facts.network_backend }}',
+          the table expects '{{ expected[inventory_hostname] }}'
+
     - name: Required facts are defined
       ansible.builtin.assert:
         quiet: true
