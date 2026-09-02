@@ -9,6 +9,12 @@
     extra_disks: "{{ platform.extra_disks | default([]) }}"
     volume_disk: "molecule-{{ inventory_hostname }}.qcow2"
     volume_cidata: "molecule-{{ inventory_hostname }}-cidata.iso"
+    platforms_db: "{{ (lookup('file', lookup('env', 'MOLECULE_PROJECT_DIRECTORY') + '/molecule/shared/platforms.yml') | from_yaml).platforms }}"
+    # Our own base images, and only those — why the pattern is the safety
+    # boundary sits with the storage pool in CONTRIBUTING.md.
+    base_image_pattern: molecule-image-.+-[0-9a-f]{8}[.]qcow2$
+    # Those of a platform platforms.yml still declares.
+    declared_image_pattern: molecule-image-({{ platforms_db | map(attribute='name') | join('|') }})-[0-9a-f]{8}[.]qcow2$
     extra_volumes: >-
       {{
         extra_disks | map(attribute='target')
@@ -57,6 +63,23 @@
           loop: "{{ [volume_disk, volume_cidata] + extra_volumes }}"
           loop_control:
             loop_var: volume
+
+        # Filter in the loop, not a `when`: a bare conditional does not read a
+        # `\1` backreference as `{{ }}` does, and every platform then looks
+        # retired.
+        - name: Remove base images of platforms that no longer exist  # noqa run-once
+          run_once: true
+          community.libvirt.virt_volume:
+            pool: "{{ libvirt_pool }}"
+            command: delete
+            name: "{{ retired_image }}"
+            uri: "{{ libvirt_uri }}"
+          loop: >-
+            {{ pools.pools[libvirt_pool].volumes
+               | select('match', base_image_pattern)
+               | reject('match', declared_image_pattern) | list }}
+          loop_control:
+            loop_var: retired_image
 
     - name: Reset Molecule instance config  # noqa run-once
       delegate_to: localhost
