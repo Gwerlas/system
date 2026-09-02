@@ -13,8 +13,8 @@
     memory: "{{ lookup('env', 'MOLECULE_MEMORY') | default(platform.memory | default(1), true) }}"
     vcpus: "{{ lookup('env', 'MOLECULE_VCPUS') | default(platform.vcpus | default(1), true) }}"
     # platform_data.image_url is a fixed URL; rolling platforms instead set
-    # image_latest (a `latest-*.txt` pointer) and image_url is resolved from it
-    # into resolved_image_url by the task below.
+    # image_latest, and image_url is resolved from it into resolved_image_url
+    # by the task below.
     image_url: "{{ platform_data.image_url | default(resolved_image_url | default('')) }}"
     # One cached base image per platform, fingerprinted from the metadata the
     # publisher returns for image_url — the storage pool section of
@@ -42,24 +42,26 @@
             src: "{{ ssh_key_path }}.pub"
           register: ssh_pubkey
 
-        # Rolling platforms (e.g. Gentoo) pin no timestamp — their autobuilds are
-        # pruned after a few weeks. Resolve the current image from the
-        # `latest-*.txt` pointer, whose body carries one
-        # `<dir>/<image>.qcow2 <size>` line relative to the autobuilds directory.
-        - name: Resolve the latest autobuild image
+        # A rolling platform pins no timestamp: image_latest names a document
+        # whose body carries the current image name, relative to that document,
+        # and image_pattern picks which one when the body holds several. Why a
+        # given platform needs this sits with its entry in platforms.yml.
+        - name: Resolve the current rolling image
           when: platform_data.image_latest is defined
           block:
-            - name: Fetch the latest-image pointer
+            - name: Fetch the document naming the current image
               ansible.builtin.uri:
                 url: "{{ platform_data.image_latest }}"
                 return_content: true
               register: latest_pointer
 
-            - name: Set image_url from the pointer file
+            - name: Set image_url from the document
               ansible.builtin.set_fact:
                 resolved_image_url: >-
                   {{ (platform_data.image_latest | dirname) ~ '/'
-                     ~ (latest_pointer.content | regex_search('\S+\.qcow2')) }}
+                     ~ (latest_pointer.content
+                        | regex_search(platform_data.image_pattern
+                                       | default('\S+\.qcow2'))) }}
 
         # Both headers are served by every platform's URL, and both survive the
         # mirror redirection some of them answer with — unlike an ETag, which
