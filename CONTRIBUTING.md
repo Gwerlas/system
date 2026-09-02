@@ -239,7 +239,11 @@ read with a `HEAD` before every create. Most platforms track a rolling
 `latest/` or `current/` URL whose file name never changes, so the name alone
 cannot say whether the cache is still the published image; those two headers
 can. A republished image gets a new fingerprint, hence a new volume, and the
-one it supersedes is deleted on the same run.
+one it supersedes is deleted on the same run. `destroy` removes one thing
+more: the base image of any platform `platforms.yml` no longer declares.
+
+Both sweeps only ever touch `molecule-image-*` volumes — `LIBVIRT_DEFAULT_POOL`
+may well be your own `default` pool, and nothing else in it belongs to molecule.
 
 `qemu:///session` is currently *not* supported by these scenarios: session
 mode has no built-in `default` network, and `virsh net-dhcp-leases` would not
