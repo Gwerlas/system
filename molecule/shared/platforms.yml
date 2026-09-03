@@ -50,7 +50,7 @@ platforms:
     galaxy: {name: Fedora, version: all}
     image_url: https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2
 
-  # Gentoo — rolling, pinned to a specific cloudinit autobuild
+  # Gentoo — rolling, cloudinit autobuild
   - name: gentoo
     galaxy: {name: Gentoo, version: all}
     # Gentoo's cloudinit image ships only the EFI bootloader, no BIOS GRUB
@@ -81,5 +81,9 @@ platforms:
   - name: sid
     image_url: https://cloud.debian.org/images/cloud/sid/daily/latest/debian-sid-generic-amd64-daily.qcow2
     cloud_init_network: *debian_dev_network
+  # Rawhide composes daily and keeps only the current one, so a dated URL 404s
+  # within days. The directory index is the only place its name appears, and it
+  # lists two qcow2 — Generic and UEFI-UKI — hence the pattern.
   - name: fedora-rawhide
-    image_url: https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-Rawhide-20260602.n.0.x86_64.qcow2
+    image_latest: https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Cloud/x86_64/images/
+    image_pattern: Fedora-Cloud-Base-Generic-Rawhide-[0-9.n]+\.x86_64\.qcow2
