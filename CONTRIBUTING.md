@@ -21,10 +21,8 @@ Install and configure :
 - [markdownlint-cli2][] — the Markdown linter the `markdownlint` job runs
 
 `.claude/settings.json` ships a Claude Code hook that runs `ansible-lint` on
-every edited YAML file and `j2lint` on every edited template, so a syntax error
-surfaces at edit time rather than in the pipeline. Both are skipped when the
-tool is missing, so the hook never blocks a contributor who has not installed
-them.
+every edited YAML file and `j2lint` on every edited template, each skipped when
+the tool is missing.
 
 Distributions that follow PEP 668 (Gentoo, recent Debian and Fedora) refuse
 `pip install` into the system or user site. Use a dedicated virtualenv — the
@@ -36,10 +34,9 @@ python3 -m venv ~/.local/share/j2lint-venv
 ```
 
 The container scenarios boot a real systemd in each guest, and every one of
-them eats a handful of inotify instances *from your own user quota*. With the
-kernel default of 128 and a desktop session already holding ~90, the last
-container of a 12-platform run dies at startup (exit 255, no log). Raise the
-limit before running them :
+them eats a handful of inotify instances *from your own user quota*. A run
+that exhausts it loses its last containers at startup, exit 255 and no log, so
+raise the limit before running them:
 
 ```sh
 sudo sysctl -w fs.inotify.max_user_instances=1024
@@ -74,33 +71,16 @@ qualifies because it only imports the `package-managers` task file: no service
 manager, no clock, no reboot, so none of the role's `not in_container` guards
 skip anything it exercises.
 
-They share a single `molecule.yml`, held by `molecule/containers/` and
-symlinked from the two others — add a distribution there and the three
-scenarios pick it up.
+`MOLECULE_CONTAINERS_BACKEND=podman,docker` names the driver preference; set
+it to switch between the two.
 
-The driver preference is defined by `MOLECULE_CONTAINERS_BACKEND=podman,docker`
-and you can easily switch between the two by setting this variable.
-
-Test the role with its defaults values in a VM of each supported distro :
+The VM scenarios run as the `molecule` user, one instance per platform:
 
 ```sh
-molecule test
-```
-
-Test the `server` and `desktop` profiles with hosts, users and groups settings
-customized, ran in libvirt VMs as the `molecule` user :
-
-```sh
-molecule test -s servers
-molecule test -s desktops
-```
-
-Test each time synchronization service :
-
-```sh
-molecule test -s chrony
-molecule test -s ntp
-molecule test -s timesync
+molecule test                 # the role's defaults, on every supported distro
+molecule test -s servers      # server profile: hosts, users, groups, sshd
+molecule test -s desktops     # desktop profile
+molecule test -s chrony       # one clock service each, with ntp and timesync
 ```
 
 The cache refresh tasks carry `molecule-idempotence-notest`, so the second run
@@ -133,20 +113,14 @@ about the rest:
 | `system_profile` resolution                     | yes, container jobs    | `containers-facts`              |
 | Desktop profiles, once installed                | no                     | `desktops`, `gnome`             |
 
-That gap is where the bugs come from. Three examples, all shipped through a
-green pipeline: a Jinja syntax error in `sshd_config.j2` that broke every
-managed host, `system_portage_kernel: auto` compiling a kernel for 45 minutes
-instead of using the binhost, and the `eclean-kernel` handler exiting 1 on a
-zstd initramfs.
-
-So when a change touches one of the uncovered areas, run the matching scenario
-on a workstation before merging, and say so in the merge request. Reviewing it
-against a green pipeline alone is reviewing nothing.
+Every "no" row is somewhere a defect has already shipped through a green
+pipeline. So when a change touches one, run the matching scenario on a
+workstation before merging and say so in the merge request: reviewing it
+against the pipeline alone is reviewing nothing.
 
 Running those scenarios in CI was considered and turned down ([issue #5][]):
-it would need either a self-hosted runner — a personal machine that has to be
-up, and that would execute contributor code from forks — or a paid cloud runner
-with nested virtualisation. Neither is worth it for this role today.
+it needs either a self-hosted runner, executing contributor code from forks on
+a personal machine, or a paid cloud runner with nested virtualisation.
 
 ### When each job runs
 
@@ -179,14 +153,14 @@ repository and runner minutes: `workflow:` matches branches and tags, never
 `merge_request_event`.
 
 `compare_to: refs/heads/main` therefore resolves against the *fork's* `main`,
-from the merge base. Branch off your own `main`, however far behind, and only
-your own commits are compared; sync the branch with this project while that
-`main` stays behind, and every job qualifies. Wasteful, never wrong.
+from the merge base: a branch cut from a `main` left behind compares only your
+own commits, and one synced with this project while that `main` stays behind
+qualifies every job — wasteful, never wrong.
 
 A fork with no `main` at all is the case with no signal: the rules report
 `rules:changes:compare_to is not a valid ref`, and `workflow:` creates no
 pipeline while saying nothing. `compare_to` expands CI/CD variables, so
-`$CI_DEFAULT_BRANCH` is the fix on hand if that ever bites.
+`$CI_DEFAULT_BRANCH` is the fix on hand.
 
 libvirt connection and storage pool
 -----------------------------------
@@ -208,9 +182,8 @@ is passed through).
 
 `MOLECULE_MEMORY` and `MOLECULE_VCPUS` override what the scenario asks for,
 which is what you want when a run compiles rather than installs. They apply to
-every platform of the run, so pair them with `-p`: a scenario like `default`
-creates twelve VMs, and twelve times twenty-four gigabytes is not a number
-your workstation has.
+every platform of the run, so pair them with `-p`: `default` creates twelve
+VMs, and twelve times twenty-four gigabytes is not a number a workstation has.
 
 ```sh
 MOLECULE_MEMORY=24 MOLECULE_VCPUS=12 molecule test -s future -p gentoo
@@ -234,13 +207,13 @@ parent works, provided your user is in `qemu`).
 
 The pool also caches the cloud images the VMs are cloned from, one per
 platform, as `molecule-image-<platform>-<id>.qcow2`. `<id>` fingerprints the
-`Last-Modified` and `Content-Length` the publisher serves for the image URL,
-read with a `HEAD` before every create. Most platforms track a rolling
-`latest/` or `current/` URL whose file name never changes, so the name alone
-cannot say whether the cache is still the published image; those two headers
-can. A republished image gets a new fingerprint, hence a new volume, and the
-one it supersedes is deleted on the same run. `destroy` removes one thing
-more: the base image of any platform `platforms.yml` no longer declares.
+`Last-Modified` and `Content-Length` served for the image URL, read with a
+`HEAD` before every create: most platforms track a rolling `latest/` or
+`current/` URL whose file name never changes, so the name alone cannot say
+whether the cache is still the published image. A republished image gets a new
+fingerprint, hence a new volume, and the one it supersedes is deleted on the
+same run. `destroy` removes one thing more, the base image of any platform
+`platforms.yml` no longer declares.
 
 Both sweeps only ever touch `molecule-image-*` volumes — `LIBVIRT_DEFAULT_POOL`
 may well be your own `default` pool, and nothing else in it belongs to molecule.
@@ -278,16 +251,15 @@ python3 scripts/sync-meta-platforms.py
 
 Each scenario's `molecule.yml` then picks a subset of those platforms by name
 (plus any `groups` / `memory` override); the cloud image URL is resolved at
-runtime by `create.yml` via a `lookup` on `molecule/shared/platforms.yml`.
-`molecule/shared/` also hosts the `create.yml` / `destroy.yml` playbooks that
-each VM scenario symlinks; molecule ignores it as a scenario because it doesn't
-carry a `molecule.yml`.
+runtime by `create.yml` via a `lookup` on it. `molecule/shared/` also hosts
+the `create.yml` / `destroy.yml` playbooks each VM scenario symlinks; molecule
+ignores it as a scenario because it carries no `molecule.yml`.
 
-Container scenarios don't go through `platforms.yml`: their shared
-`molecule/containers/molecule.yml` names a `gwerlas/ansible-guest-*` image and
-tag directly, and the containers driver brings its own create / destroy
-playbooks. Keep both lists in step when adding a distribution — a platform is
-only really supported once it passes in a VM *and* in a container.
+Container scenarios don't go through `platforms.yml`: their `molecule.yml`,
+held by `molecule/containers/` and symlinked from the two others, names a
+`gwerlas/ansible-guest-*` image and tag directly, and the containers driver
+brings its own create / destroy playbooks. Keep both lists in step — a platform
+is only really supported once it passes in a VM *and* in a container.
 
 Target properties: `vars/` files and issue labels
 ------------------------------------------------
@@ -312,8 +284,8 @@ layout.
 
 Issue labels follow the same rule, one step wider: an issue carries what it is
 true *of*. For the role's behaviour that is a property of the managed host —
-`pacman` for something in the pacman layer, `gentoo` for something true of
-Gentoo hosts whatever their tooling. For the project's own machinery it is the
+`pacman` for something in the pacman layer, `gentoo` for what is true of a
+Gentoo host. For the project's own machinery it is the
 thing impacted, which is why `ci` and `molecule` exist. What an issue never
 carries is the directory it happens to touch: there is deliberately no
 `package-managers` label, because `tasks/package-managers/` is a property of
@@ -358,11 +330,10 @@ Editing templates
 
 No CI job renders the role's templates: the container scenarios skip the tasks
 that use them (`manage_sshd` resolves to false in a container, and so on), and
-`ansible-lint` does not read `.j2` files. The `j2lint` job lints them, and only
-runs when a template changes. To reproduce it locally:
+`ansible-lint` does not read `.j2` files. The `j2lint` job is what lints them,
+and it is one command locally:
 
 ```sh
-pip install j2lint==1.3.0
 j2lint templates/ --ignore jinja-statements-indentation
 ```
 
@@ -506,14 +477,8 @@ read moved: minor. A branch answers "no" as a whole, so it is a minor even
 when every commit in it is a fix.
 
 `system_manage_sshd` moving to `auto` in `0.21.0` is the case worth
-remembering: no new feature, and it still turned a boolean into a truthy
-string for anyone testing that variable from their own playbook.
-
-The history already works this way, it was just never written down. Each patch
-so far carries exactly one commit — `0.18.1` changed a default, `parted`'s
-resize to `false`, and stayed a patch because it changed one thing nobody else
-could reference. Minors carry batches, 48 commits in `0.19.0` and 19 in
-`0.20.0`, and a batch nearly always holds a contract change.
+remembering: no new feature, and still a minor, because a boolean became a
+truthy string for anyone testing that variable from their own playbook.
 
 While the role is at `0.x` there is no major: a breaking change rides in a
 minor, and every contract change gets its line in the release notes. That line
