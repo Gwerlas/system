@@ -328,6 +328,31 @@ holds what some issue actually needed. Creating one takes project permissions
 a contributor does not have, and no bot does it today: if none of the existing
 labels fits, say so in the issue and a maintainer will add it.
 
+Editing tasks
+-------------
+
+`yamllint` and `ansible-lint` leave two habits to the author, both about how a
+value is written rather than what it means.
+
+**A scalar wherever the module coerces one.** A parameter declared
+`type: list, elements: str` accepts a bare string and wraps it itself, so a
+single value is written as one:
+
+```yaml
+community.general.portage:
+  package: dev-vcs/git
+```
+
+The list-of-one form reads as a multi-package call nobody trimmed.
+
+**Quotes only where YAML needs them.** `dev-vcs/git`, `~amd64`, `chrony` and
+file paths are plain scalars and stay bare. Quote when the parser would
+otherwise take the value for something else: a string shaped like a boolean or
+a number (`"yes"`, `"123"`), a value opening on `%`, `*`, `&`, `?` or `:`, one
+holding a `#` or a colon followed by a space, and a Jinja expression that
+starts the value — `"{{ var }}"`, which YAML reads as a flow mapping without
+them.
+
 Editing templates
 -----------------
 
@@ -431,6 +456,11 @@ Submit your changes
 -------------------
 
 Merge request in [Gitlab][].
+
+Everything that lands in the repository or in GitLab is written in English —
+code, comments, commit messages, `README.md`, this file, `docs/`, and the title
+and body of every issue and merge request. A conversation held in another
+language stops at the artifact.
 
 A change comes with its tests and its documentation, in the same commit. A new
 variable, or a change in behaviour, is not finished until:
