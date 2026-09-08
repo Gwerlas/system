@@ -83,6 +83,15 @@ molecule test -s desktops     # desktop profile
 molecule test -s chrony       # one clock service each, with ntp and timesync
 ```
 
+One platform at a time is `molecule test -p <platform>`, and neither of the
+two techniques that look equivalent works. `-- --limit <host>` reaches the
+*playbooks*, the driver's own `create.yml` included: no instance is created,
+and the converge then fails `UNREACHABLE ... exited with result 125` against
+whatever the previous run left behind — a driver problem wearing a role bug's
+failure. Trimming `platforms:` in a `molecule.yml` is the other one, and
+`MOLECULE_MEMORY` / `MOLECULE_VCPUS` below are now the only reason left to
+open that file for a single run.
+
 The cache refresh tasks carry `molecule-idempotence-notest`, so the second run
 keeps the index the first one left. A mirror publishing mid-scenario would
 otherwise move the versions the `state: latest` tasks see. That freeze is a
