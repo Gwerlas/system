@@ -83,6 +83,15 @@ molecule test -s desktops     # desktop profile
 molecule test -s chrony       # one clock service each, with ntp and timesync
 ```
 
+One platform at a time is `molecule test -p <platform>`, and neither of the
+two techniques that look equivalent works. `-- --limit <host>` reaches the
+*playbooks*, the driver's own `create.yml` included: no instance is created,
+and the converge then fails `UNREACHABLE ... exited with result 125` against
+whatever the previous run left behind — a driver problem wearing a role bug's
+failure. Trimming `platforms:` in a `molecule.yml` is the other one, and
+`MOLECULE_MEMORY` / `MOLECULE_VCPUS` below are now the only reason left to
+open that file for a single run.
+
 The cache refresh tasks carry `molecule-idempotence-notest`, so the second run
 keeps the index the first one left. A mirror publishing mid-scenario would
 otherwise move the versions the `state: latest` tasks see. That freeze is a
@@ -227,13 +236,21 @@ which lists both URIs side by side.
 Develop / Debug
 ---------------
 
+A failing run destroys its instances; `--destroy never` keeps them. Read its
+help line — "the destroy strategy used at the conclusion of a Molecule run" —
+as covering both destroy steps of the sequence, not only the trailing one:
+that is what makes a second `test` land on the instances the first one left.
+
 ```sh
-molecule create
-molecule converge
-molecule login -h <instance_name>
-# Do your changes by hand
-molecule verify
+molecule test -s <scenario> --destroy never
+molecule login -s <scenario> -h <instance>   # change things by hand
+molecule converge -s <scenario>              # re-apply after an edit
+molecule destroy -s <scenario>               # when you are done
 ```
+
+Prefer it to running `create` / `converge` / `verify` by hand. `molecule test
+--help` prints the sequence those three leave out, idempotence included, and
+this role's defects live there.
 
 Adding a new distribution or version
 ------------------------------------
