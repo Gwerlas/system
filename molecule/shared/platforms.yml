@@ -1,5 +1,8 @@
 ---
-# Source of truth for officially supported platforms (LTS / stable only).
+# Source of truth for officially supported platforms. Supported does not mean
+# current: a platform stays in the list as long as we can still test it,
+# whatever its upstream end of life — reaching an archived release's packages
+# is the test baseline's job (see the scenario's prepare.yml), not the role's.
 # After edits, run scripts/sync-meta-platforms.py to refresh meta/main.yml.
 # Each scenario's molecule.yml picks a subset by name and provides groups /
 # memory overrides; create.yml looks up image_url here.
@@ -9,7 +12,15 @@ platforms:
     galaxy: {name: ArchLinux, version: all}
     image_url: https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2
 
-  # Debian — stable + oldstable
+  # Debian — stable, oldstable, and oldoldstable while it lives
+  # bullseye is archived since its end of life: molecule/ntp/prepare.yml
+  # points it at archive.debian.org. Drop it the day the archive stops
+  # serving it.
+  - name: bullseye
+    galaxy: {name: Debian, version: bullseye}
+    # Like Debian 12, the `genericcloud` variant never brings sshd up here —
+    # use `generic`.
+    image_url: https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2
   - name: bookworm
     galaxy: {name: Debian, version: bookworm}
     # Debian 12's `genericcloud` variant has no EFI bootloader — use `generic`

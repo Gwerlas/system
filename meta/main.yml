@@ -16,6 +16,7 @@ galaxy_info:
         - all
     - name: Debian
       versions:
+        - bullseye
         - bookworm
         - trixie
     - name: Ubuntu
