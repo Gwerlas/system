@@ -7,11 +7,19 @@ driver:
 # supported_time_backends, and Debian dropped the ntp package in trixie
 # (vars/debian13.yml masks it too), so this scenario only targets distros
 # that ship a usable ntpd.
+# bullseye is archived (see platforms.yml) but kept here on purpose: unlike
+# bookworm's, its ntp package ships no `ntpd.service` alias, so it is the
+# platform that actually exercises the services_map translation in
+# after-install.yml — bookworm alone would pass even with the raw name.
 platforms:
   - name: archlinux
     groups:
       - archlinux
     memory: 2
+  - name: bullseye
+    groups:
+      - debian_like
+      - debian
   - name: bookworm
     groups:
       - debian_like
@@ -36,6 +44,7 @@ provisioner:
   playbooks:
     create: create.yml
     destroy: destroy.yml
+    prepare: prepare.yml
     converge: converge.yml
     verify: verify.yml
 verifier:
