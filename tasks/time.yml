@@ -29,10 +29,14 @@
       when: system_time_servers | length > 0
       become: true
       ansible.builtin.template:
-        src: "{{ path }}.j2"
-        dest: "/etc/{{ path }}"
+        src: "{{ template.src }}.j2"
+        dest: "/etc/{{ template.dest }}"
         mode: "0644"
+        # A distribution may ship its configuration path as a compat symlink
+        # to where the daemon really reads (Gentoo does, for chrony). Write
+        # through it instead of replacing it with a regular file.
+        follow: true
       loop: "{{ time_backend.templates }}"
       loop_control:
-        loop_var: path
+        loop_var: template
       notify: restart time service

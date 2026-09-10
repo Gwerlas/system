@@ -1,5 +1,5 @@
 ---
-- name: Verify role with Systemd Timesyncd
+- name: Verify role with Chrony
   hosts: all
   tasks:
     - name: Synchronisation
@@ -11,6 +11,40 @@
         (result.rc > 0) or
         ('synchronized: yes' not in result.stdout)
       changed_when: false
+
+    # chronyc cannot tell the role's configuration from the package's stock
+    # one: both resolve to reachable pool members, and chronyc prints the
+    # member it resolved, never the zone queried. Only the file chronyd reads
+    # discriminates, and chronyd is the only authority on which file that is.
+    # chronyd lives in /usr/sbin, which neither the login PATH nor sudo's
+    # secure_path carries on every image, so name the directories here.
+    - name: Chrony's help, which names its compiled-in configuration path
+      environment:
+        PATH: /usr/sbin:/sbin:/usr/bin:/bin
+      ansible.builtin.command:
+        cmd: chronyd --help
+      register: chronyd_help
+      changed_when: false
+      failed_when: false
+
+    - name: The path chronyd reads
+      ansible.builtin.set_fact:
+        chrony_conf_path: >-
+          {{ (chronyd_help.stdout ~ chronyd_help.stderr)
+             | regex_search('/[^ )]*chrony[.]conf') }}
+      failed_when: not chrony_conf_path
+
+    - name: Chrony configuration
+      ansible.builtin.slurp:
+        src: "{{ chrony_conf_path }}"
+      register: chrony_conf
+
+    - name: Configured servers are loaded
+      vars:
+        chrony_conf_content: "{{ chrony_conf.content | b64decode }}"
+      ansible.builtin.assert:
+        that:
+          - "'server 0.fr.pool.ntp.org iburst' in chrony_conf_content"
 
     - name: Service
       ansible.builtin.command:

@@ -39,3 +39,29 @@ networks_types:
   bridge:
     packages:
       - bridge-utils
+
+# chronyd's default configuration path is /etc/chrony/chrony.conf on Debian
+# and Ubuntu, not the /etc/chrony.conf the RPM-based distributions use
+# (chronyd --help prints the compiled-in path).
+# ntp and systemd-timesyncd are repeated from default_time_backends because
+# this dict assignment fully overrides it (no per-file combine — same
+# reasoning as sshd_config above).
+time_backends:
+  chrony:
+    services:
+      - chronyd
+    templates:
+      - src: chrony.conf
+        dest: chrony/chrony.conf
+  ntp:
+    services:
+      - ntpd
+    templates:
+      - src: ntp.conf
+        dest: ntp.conf
+  systemd-timesyncd:
+    services:
+      - systemd-timesyncd
+    templates:
+      - src: systemd/timesyncd.conf
+        dest: systemd/timesyncd.conf

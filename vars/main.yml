@@ -229,23 +229,30 @@ time_backend: "{{ time_backends[time_backend_name] }}"
 # default_time_backends.
 time_backends: "{{ default_time_backends }}"
 
-# Defaults NTP engines properties, use it only to fill the time_backends variable.
+# Defaults NTP engines properties, use it only to fill the time_backends
+# variable. Each template's src is a name under templates/ (unsuffixed), dest
+# a path under /etc/ — kept apart because a distro can require its config at
+# a path that does not match the template's own name (chrony on Debian-like:
+# see vars/debian-like.yml).
 default_time_backends:
   chrony:
     services:
       - chronyd
     templates:
-      - chrony.conf
+      - src: chrony.conf
+        dest: chrony.conf
   ntp:
     services:
       - ntpd
     templates:
-      - ntp.conf
+      - src: ntp.conf
+        dest: ntp.conf
   systemd-timesyncd:
     services:
       - systemd-timesyncd
     templates:
-      - systemd/timesyncd.conf
+      - src: systemd/timesyncd.conf
+        dest: systemd/timesyncd.conf
 
 # NTP engines supported by the current node
 supported_time_backends: |
