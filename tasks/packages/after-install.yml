@@ -16,7 +16,7 @@
 - name: Packages - Services
   become: true
   ansible.builtin.service:
-    name: "{{ service }}"
+    name: "{{ lookup('service', service) }}"
     state: started
     enabled: true
   loop: "{{ system_services }}"

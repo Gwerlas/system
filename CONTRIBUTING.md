@@ -272,6 +272,14 @@ runtime by `create.yml` via a `lookup` on it. `molecule/shared/` also hosts
 the `create.yml` / `destroy.yml` playbooks each VM scenario symlinks; molecule
 ignores it as a scenario because it carries no `molecule.yml`.
 
+Supported does not mean current: a platform stays in the list as long as we
+can still test it, whatever its upstream end of life. What we cannot do is
+guarantee one whose packages are no longer reachable, and that is where an
+entry leaves both files at once. A release past its end of life usually keeps
+its packages on an archive mirror rather than losing them, and reaching them
+there is the test baseline's job — a scenario's own `prepare.yml` — not the
+role's.
+
 Container scenarios don't go through `platforms.yml`: their `molecule.yml`,
 held by `molecule/containers/` and symlinked from the two others, names a
 `gwerlas/ansible-guest-*` image and tag directly, and the containers driver

@@ -1,0 +1,24 @@
+---
+# Debian 11 is archived: security.debian.org still serves bullseye-security,
+# but its Release file expired with the release, and apt refuses a repository
+# it can no longer date. An archived release lives on archive.debian.org
+# (https://www.debian.org/distrib/archive), whose Release files carry no
+# Valid-Until and where there is no security suite. Rewrite the list before
+# the role's own APT cache update reads it.
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Point an archived Debian at archive.debian.org
+      when:
+        - ansible_facts.distribution == "Debian"
+        - ansible_facts.distribution_release == "bullseye"
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list
+        content: |
+          # Debian 11 is archived: no security suite, no expiring Release.
+          deb http://archive.debian.org/debian bullseye main
+          deb http://archive.debian.org/debian bullseye-updates main
+        owner: root
+        group: root
+        mode: "0644"
