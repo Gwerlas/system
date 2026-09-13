@@ -15,3 +15,32 @@
       ansible.builtin.command:
         cmd: chronyc sourcestats
       changed_when: false
+
+    - name: Services facts
+      ansible.builtin.service_facts:
+
+    # A backend that is not a package of its own survives the uninstall step
+    # (systemd-timesyncd ships inside systemd on Arch): it must be stopped and
+    # disabled.
+    - name: No other time backend is left running or enabled
+      vars:
+        backend_units:
+          chrony: [chrony.service, chronyd.service]
+          ntp: [ntp.service, ntpd.service]
+          systemd-timesyncd: [systemd-timesyncd.service]
+        unit: "{{ ansible_facts.services[item] | default({}) }}"
+      ansible.builtin.assert:
+        that:
+          - unit.state | default('absent') != 'running'
+          - unit.status | default('absent') != 'enabled'
+        fail_msg: >-
+          {{ item }} is {{ unit.state | default('absent') }}/{{ unit.status | default('absent') }}
+          after switching to {{ switch_ntp_to }}
+      loop: |
+        {{
+          backend_units |
+          dict2items |
+          rejectattr('key', 'eq', switch_ntp_to) |
+          map(attribute='value') |
+          flatten
+        }}

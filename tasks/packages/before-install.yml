@@ -13,9 +13,10 @@
       ansible.builtin.service_facts:
 
     - name: Packages - Before install - Stop anoying services
+      when: lookup('service', service) in current_services
       become: true
       ansible.builtin.service:
-        name: "{{ service }}"
+        name: "{{ lookup('service', service) }}"
         state: stopped
         enabled: false
       vars:
@@ -25,20 +26,14 @@
             dict2items |
             json_query("[?value.status!='not-found'].key")
           }}
-        services_keys: |
-          {{
-            supported_time_backends |
-            dict2items |
-            rejectattr('key', '==', time_backend_name) |
-            map(attribute='value') |
-            map(attribute='services') |
-            flatten
-          }}
       loop: |
         {{
-          ( (services_keys | intersect(system_services_dict.keys()) | map('extract', system_services_dict))
-          + (services_keys | difference(system_services_dict.keys()))
-          ) | map('intersect', current_services) | flatten
+          supported_time_backends |
+          dict2items |
+          rejectattr('key', '==', time_backend_name) |
+          map(attribute='value') |
+          map(attribute='services') |
+          flatten
         }}
       loop_control:
         loop_var: service
