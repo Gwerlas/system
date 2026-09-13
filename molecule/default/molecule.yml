@@ -57,6 +57,8 @@ platforms:
       - gentoo
     memory: 4
     vcpus: 4
+    # Room for a kernel built by the @world rebuild the role triggers.
+    disk_gb: 60
 provisioner:
   name: ansible
   playbooks:
