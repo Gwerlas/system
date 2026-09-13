@@ -3,9 +3,9 @@
 # `system_portage_kernel`, resolved by the `Facts - Autodetect installed kernel
 # package` task, which lives in the bare-metal-only block of facts.yml. Producer
 # and consumer must share the same condition, otherwise the kernel atom stays
-# `sys-kernel/auto` and `portageq best_visible` fails. The guard sits here, next
-# to the reason, and not on the generic `Packages - Before install` hook, which
-# other package managers may legitimately use inside a container.
+# `sys-kernel/auto` and `portageq` fails. The guard sits here, next to the
+# reason, and not on the generic `Packages - Before install` hook, which other
+# package managers may legitimately use inside a container.
 - name: Portage - Before install - Kernel
   when: system_manage_kernel
   ansible.builtin.include_tasks:

@@ -54,3 +54,46 @@
       ansible.builtin.file:
         path: /etc/yum.repos.d/epel.repo
         state: absent
+
+# prepare.yml started the guest one kernel behind the tree's newest, and the
+# role ran without system_packages_upgrade: the kernel stays, and what the role
+# derives from its version follows the installed kernel, not the tree.
+- name: Check the kernel version the role worked on
+  hosts: gentoo
+  tasks:
+    - name: Installed kernel
+      ansible.builtin.command:
+        cmd: portageq best_version / sys-kernel/gentoo-kernel-bin
+      register: installed_kernel
+      changed_when: false
+
+    - name: Newest kernel in the tree
+      ansible.builtin.command:
+        cmd: portageq best_visible / sys-kernel/gentoo-kernel-bin
+      register: newest_kernel
+      changed_when: false
+
+    - name: Follow /usr/src/linux
+      ansible.builtin.stat:
+        path: /usr/src/linux
+      register: kernel_sources_link
+
+    - name: Savedconfig for the newest kernel
+      ansible.builtin.stat:
+        path: /etc/portage/savedconfig/sys-kernel/{{ newest_kernel.stdout | basename }}
+      register: newest_savedconfig
+
+    - name: The installed kernel is still behind, and nothing targets the newest
+      vars:
+        installed_version: >-
+          {{ installed_kernel.stdout | regex_replace('^sys-kernel/gentoo-kernel-bin-', '') }}
+        source_version: "{{ installed_version | replace('_p', '-p') }}"
+      ansible.builtin.assert:
+        that:
+          - installed_kernel.stdout != newest_kernel.stdout
+          - kernel_sources_link.stat.lnk_target is match('linux-' ~ source_version ~ '(-|$)')
+          - not newest_savedconfig.stat.exists
+        fail_msg: >-
+          installed {{ installed_kernel.stdout }}, tree {{ newest_kernel.stdout }},
+          /usr/src/linux -> {{ kernel_sources_link.stat.lnk_target | default('none') }},
+          savedconfig for the newest kernel present: {{ newest_savedconfig.stat.exists }}

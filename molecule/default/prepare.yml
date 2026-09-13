@@ -1,0 +1,44 @@
+---
+# Without system_packages_upgrade the role leaves an installed kernel where it
+# is, and everything it derives from the kernel version has to follow that
+# installed one. A freshly built image usually carries the tree's newest kernel,
+# which makes both versions the same and the check meaningless: start the guest
+# one version behind instead.
+#
+# gentoo-kernel-bin, with its matching virtual, replaces the image's
+# gentoo-kernel so the flavour the role resolves does not depend on whether a
+# binhost is detected, and so no source build is involved.
+- name: Fixtures
+  hosts: gentoo
+  become: true
+  tasks:
+    - name: Sync the Gentoo repository
+      community.general.portage:
+        sync: "yes"
+
+    - name: Newest gentoo-kernel-bin in the tree
+      ansible.builtin.command:
+        cmd: portageq best_visible / sys-kernel/gentoo-kernel-bin
+      register: newest_kernel
+      changed_when: false
+
+    - name: The version before it
+      ansible.builtin.command:
+        cmd: portageq best_visible / '<{{ newest_kernel.stdout }}'
+      register: previous_kernel
+      changed_when: false
+      failed_when: previous_kernel.stdout | length == 0
+
+    - name: Install the previous kernel
+      vars:
+        version: "{{ previous_kernel.stdout | regex_replace('^sys-kernel/gentoo-kernel-bin-', '') }}"
+      community.general.portage:
+        package:
+          - "={{ previous_kernel.stdout }}"
+          - "~virtual/dist-kernel-{{ version | regex_replace('-r\\d+$', '') }}"
+        oneshot: true
+
+    - name: Remove the image's kernel
+      community.general.portage:
+        package: sys-kernel/gentoo-kernel
+        state: absent

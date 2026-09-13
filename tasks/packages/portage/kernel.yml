@@ -1,14 +1,29 @@
 ---
+# Every task below works on the version the `Dist kernel` emerge leaves
+# installed: the tree's newest under an upgrade or when the flavour is missing,
+# the installed one otherwise. `portageq best_version` prints nothing, and
+# still exits 0, when the package is not installed.
+- name: Portage - Before install - Get the installed kernel version
+  when: not system_packages_upgrade | bool
+  check_mode: false
+  ansible.builtin.command:
+    cmd: portageq best_version / sys-kernel/{{ system_portage_kernel }}
+  register: installed_kernel
+  changed_when: false
+
 - name: Portage - Before install - Get the latest kernel version
+  when: installed_kernel.stdout | default('') | length == 0
   check_mode: false
   ansible.builtin.command:
     cmd: portageq best_visible / sys-kernel/{{ system_portage_kernel }}
-  register: result
+  register: latest_kernel
   changed_when: false
 
-- name: Portage - Before install - Latest available kernel fact
+- name: Portage - Before install - Kernel version fact
+  vars:
+    kernel_atom: "{{ (latest_kernel.stdout | default('')) or installed_kernel.stdout }}"
   ansible.builtin.set_fact:
-    system_latest_kernel: "{{ result.stdout | regex_replace('^.*-(\\d[^-]+(?:-r\\d+)?)\\s*$', '\\1') }}"
+    system_kernel_version: "{{ kernel_atom | regex_replace('^.*-(\\d[^-]+(?:-r\\d+)?)\\s*$', '\\1') }}"
 
 # Seed /etc/portage/savedconfig/sys-kernel/<pkg>-<ver> when missing —
 # see docs/packages.md "Kernel" section for the carry-over → /proc/config.gz
@@ -17,7 +32,7 @@
   when: system_portage_kernel is search('-kernel')
   vars:
     savedconfig_dir: /etc/portage/savedconfig/sys-kernel
-    savedconfig_file: "{{ savedconfig_dir }}/{{ system_portage_kernel }}-{{ system_latest_kernel }}"
+    savedconfig_file: "{{ savedconfig_dir }}/{{ system_portage_kernel }}-{{ system_kernel_version }}"
   block:
     - name: Portage - Before install - Existing kernel savedconfigs
       ansible.builtin.find:
@@ -145,8 +160,8 @@
 # Dist-kernels (sys-kernel/*-kernel) don't have the 'symlink' USE flag (it only
 # exists on *-sources). Their pkg_postinst only updates /usr/src/linux when the
 # old target is being replaced, so it leaves the symlink on a previously
-# installed kernel. Point it at the latest ourselves so @module-rebuild and
-# out-of-tree modules build against the right tree.
+# installed kernel. Point it at the installed one ourselves so @module-rebuild
+# and out-of-tree modules build against the right tree.
 #
 # The directory name carries the flavour's KV_LOCALVERSION, which the role has
 # no way to know: gentoo-kernel installs linux-<ver>-gentoo-dist,
@@ -154,12 +169,12 @@
 # linux-<ver>. Look the directory up instead of spelling it, and fail here on a
 # miss rather than leave a dangling symlink that only breaks later, in whatever
 # needs the sources (#36). One flavour is installed at a time, so one version
-# means one directory. system_latest_kernel keeps the _pN suffix (e.g.
+# means one directory. system_kernel_version keeps the _pN suffix (e.g.
 # 7.0.10_p1) while the directory uses -pN (linux-7.0.10-p1-gentoo-dist).
 - name: Portage - Before install - Kernel sources
   when: system_portage_kernel is search('-kernel')
   vars:
-    source_version: "{{ system_latest_kernel | replace('_p', '-p') }}"
+    source_version: "{{ system_kernel_version | replace('_p', '-p') }}"
   block:
     - name: Portage - Before install - Find the installed source tree
       ansible.builtin.find:

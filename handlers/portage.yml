@@ -67,7 +67,7 @@
     - etc-update savedconfig
   become: true
   vars:
-    savedconfig: /etc/portage/savedconfig/sys-kernel/{{ system_portage_kernel }}-{{ system_latest_kernel }}
+    savedconfig: /etc/portage/savedconfig/sys-kernel/{{ system_portage_kernel }}-{{ system_kernel_version }}
   ansible.builtin.command:
     cmd: etc-update --automode -5 {{ savedconfig }}
   register: result

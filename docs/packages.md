@@ -666,10 +666,16 @@ regenerates `grub.cfg`, then reboots. This keeps the CPU microcode bundled in
 the initramfs in sync with the new firmware and drops any stale standalone
 microcode image reference (e.g. `/boot/amd-uc.img`) from the boot entries.
 
-The role keeps `/usr/src/linux` pointing at the latest dist-kernel sources so
+The role keeps `/usr/src/linux` pointing at the installed dist-kernel sources so
 `@module-rebuild` and out-of-tree modules build against the right tree
 (dist-kernels have no `symlink` USE flag, and their own logic leaves the symlink
 on a previously installed kernel).
+
+The kernel only moves to a newer version with `system_packages_upgrade`. Without
+it, a kernel already installed stays where it is, even when the tree offers a
+newer one, and the savedconfig and the `/usr/src/linux` symlink follow that
+installed version; a host with no kernel of the chosen flavour gets the newest
+one.
 
 It also anchors `@world` on `virtual/dist-kernel` only, never on
 `sys-kernel/<kernel>` directly. Dist-kernels are version-slotted (one slot per
