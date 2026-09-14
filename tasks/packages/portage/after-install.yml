@@ -31,8 +31,8 @@
         file: "{{ role_path }}/tasks/packages/portage/installed-this-boot.yml"
 
     # If cpuid2cpuflags has been updated, its output may change now so we have to
-    # update /etc/portage/make.conf as well and rebuild the impacted packages if
-    # required.
+    # update /etc/portage/package.use/00cpu-flags as well and rebuild the
+    # impacted packages if required.
     - name: Portage - CPU flags
       when: "'app-portage/cpuid2cpuflags' in installed_this_boot.stdout"
       ansible.builtin.include_tasks:

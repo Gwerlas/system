@@ -531,8 +531,12 @@ mode, the role detects a configured Portage binhost by looking for any
 - Gentoo without a binhost → `true`, build from source ("the Gentoo way").
 - Other distributions → `false`, their package managers ship binaries only.
 
+When `packages_build` resolves to `true`, the CPU flags reported by
+`cpuid2cpuflags` go to `/etc/portage/package.use/00cpu-flags`, and any
+`CPU_FLAGS_*` line in `make.conf` is removed so the two cannot disagree.
+
 When `packages_build` resolves to `false`, the role keeps `make.conf` minimal:
-`CFLAGS`/`COMMON_FLAGS`, the cpuid-derived `CPU_FLAGS_X86` and the hardware
+`CFLAGS`/`COMMON_FLAGS`, the cpuid-derived CPU flags and the hardware
 USE_EXPAND variables (`CAMERAS`, `SANE_BACKENDS`, `VIDEO_CARDS`) are left
 untouched so the local USE flags stay compatible with the binhost's binpkgs
 (emerge runs with `--binpkg-respect-use=y`). Force `system_packages_build: true`

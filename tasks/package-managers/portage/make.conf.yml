@@ -1,5 +1,5 @@
 ---
-# Only touches CFLAGS / CPU_FLAGS_X86 / CAMERAS / SANE_BACKENDS / VIDEO_CARDS
+# Only touches CFLAGS / CPU_FLAGS_* / CAMERAS / SANE_BACKENDS / VIDEO_CARDS
 # when the user opts in to build-from-source. With packages_build=false
 # (Gentoo binhost mode and default for other distros), keep these unset so
 # the binhost binpkgs remain USE-flag compatible.
@@ -20,13 +20,32 @@
       changed_when: false
       check_mode: false
 
+    # cpuid2cpuflags 18 prefixes its output with the `*/*` atom, 17 does not:
+    # https://wiki.gentoo.org/wiki/CPU_FLAGS_*#Using_cpuid2cpuflags
+    - name: Portage - package.use - CPU flags
+      become: true
+      ansible.builtin.copy:
+        content: "*/* {{ cpuid2cpuflags.stdout | regex_replace('^\\*/\\* ', '') }}\n"
+        dest: /etc/portage/package.use/00cpu-flags
+        group: portage
+        mode: "0664"
+      notify: emerge --newuse
+
+    - name: Portage - make.conf - CPU flags moved to package.use
+      become: true
+      ansible.builtin.lineinfile:
+        dest: /etc/portage/make.conf
+        regexp: ^CPU_FLAGS_[A-Z0-9_]+=
+        state: absent
+      notify: emerge --newuse
+
     - name: Portage - make.conf - Hardware support
       become: true
       when: line.value | length > 0
       ansible.builtin.lineinfile:
         dest: /etc/portage/make.conf
         line: '{{ line.key }}="{{ line.value }}"'
-        regexp: '^{{ line.key }}='
+        regexp: "^{{ line.key | regex_escape }}="
         insertafter: "{{ line.insertafter | default(omit) }}"
         insertbefore: "{{ line.insertbefore | default(omit) }}"
         firstmatch: "{{ 'insertbefore' in line }}"
@@ -46,9 +65,6 @@
         - key: FFLAGS
           value: ${COMMON_FLAGS}
           insertafter: FCFLAGS
-        - key: "{{ cpuid2cpuflags.stdout | split(': ') | first }}"
-          value: "{{ cpuid2cpuflags.stdout | split(': ') | last }}"
-          state: "{{ in_container | ternary('absent', 'present') }}"
         - key: CAMERAS
           value: "{{ system_portage_cameras | join(' ') }}"
           state: "{{ in_container | ternary('absent', 'present') }}"
@@ -77,7 +93,7 @@
       ansible.builtin.lineinfile:
         dest: /etc/portage/make.conf
         line: '{{ line.key }}="{{ line.value }}"'
-        regexp: '^{{ line.key }}='
+        regexp: "^{{ line.key | regex_escape }}="
         insertafter: "{{ line.insertafter | default(omit) }}"
         insertbefore: "{{ line.insertbefore | default(omit) }}"
         firstmatch: "{{ 'insertbefore' in line }}"
