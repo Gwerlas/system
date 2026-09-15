@@ -19,13 +19,17 @@ Requirements
 This role has been written to be run as a non root user, so Sudo has to be
 installed and configured. It requires ansible-core 2.19 or above.
 
-For network configuration, the [`netaddr` Python package][netaddr] is
-required, You also need the [`ansible.utils`][ansible.utils] Ansible
-collection.
+It uses the [`ansible.posix`][ansible.posix],
+[`ansible.utils`][ansible.utils] and [`community.general`][community.general]
+collections. Installing the role does not install them: they are listed in the
+`requirements.yml` shipped with it.
 
-For filesystems management, the [`jmespath` Python package][jmespath] is
-required, You also need the [`community.general`][community.general] and
-[`ansible.posix`][ansible.posix] Ansible collections.
+```sh
+ansible-galaxy collection install -r requirements.yml
+```
+
+On the controller, the role needs the [`jmespath` Python package][jmespath],
+and network configuration the [`netaddr` one][netaddr] too.
 
 [jmespath]: https://jmespath.org/
 [netaddr]: https://netaddr.readthedocs.io/en/latest/
