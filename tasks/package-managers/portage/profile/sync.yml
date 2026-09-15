@@ -17,5 +17,5 @@
   # size off by a byte until the signature catches up). Retry to ride out
   # transient sync failures instead of letting the play abort.
   until: sync is success
-  retries: "{{ system_retries }}"
+  retries: "{{ system_portage_sync_retries }}"
   delay: 30

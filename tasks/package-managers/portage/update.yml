@@ -12,7 +12,7 @@
     sync: "{{ 'web' if system_manage_proxies else true }}"
   register: result
   until: result.failed == false
-  retries: "{{ system_retries }}"
+  retries: "{{ system_portage_sync_retries }}"
 
 # Update portage as the official recommendation:
 # https://wiki.gentoo.org/wiki/Portage#Updating_Portage

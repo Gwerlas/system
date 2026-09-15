@@ -3,6 +3,3 @@
   become: true
   ansible.builtin.package:
     name: "{{ system_packages }}"
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"

@@ -16,4 +16,3 @@ system_sequence:
 
 system_scripts_path: /usr/local/bin
 system_profile: server
-system_retries: 2

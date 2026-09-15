@@ -4,6 +4,3 @@
   ansible.builtin.package:
     name: "*"
     state: latest
-  register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"

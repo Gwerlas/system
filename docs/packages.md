@@ -11,6 +11,7 @@ Table of content :
 - [Profile](#profile)
 - [Packages managers](#packages-managers)
   - [Cache](#cache)
+  - [Retries](#retries)
   - [APT](#apt)
     - [Sources list](#sources-list)
     - [Backports](#backports)
@@ -23,6 +24,7 @@ Table of content :
       - [Repositories](#repositories)
       - [Repositories of binaries](#repositories-of-binaries)
       - [PORTDIR](#portdir)
+    - [Sync retries](#sync-retries)
     - [System group](#system-group)
     - [Ansible dependencies](#ansible-dependencies)
     - [Compilation settings](#compilation-settings)
@@ -119,6 +121,17 @@ system_packages_cache_age: never
 **Be careful** some distributions package managers (RedHat like for example)
 could update their cache automatically or, at the opposit, could ignore some cache
 update explicitly asked.
+
+### Retries
+
+An install or an upgrade is never retried: a download is retried by the
+package manager itself, so an unreliable network is tuned there, with
+[`Acquire::Retries`][apt-conf] for apt or [`retries`][dnf-conf] for dnf.
+Portage's repository syncs are the exception, see [Sync retries][].
+
+[apt-conf]: https://manpages.debian.org/stable/apt/apt.conf.5.en.html
+[dnf-conf]: https://dnf.readthedocs.io/en/latest/conf_ref.html#retries-label
+[Sync retries]: #sync-retries
 
 ### APT
 
@@ -497,6 +510,15 @@ See the [Default Gentoo ebuild repository location change][] chapter of the
 Portage documentation for more informations.
 
 [Default Gentoo ebuild repository location change]: https://wiki.gentoo.org/wiki/Portage#Default_Gentoo_ebuild_repository_location_change
+
+#### Sync retries
+
+```yaml
+system_portage_sync_retries: 2
+```
+
+How many more attempts a failed sync gets, for the main tree and every entry
+of `system_portage_repos` alike.
 
 #### System group
 

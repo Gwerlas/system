@@ -17,9 +17,6 @@
           - sys-devel/gcc
           - sys-libs/glibc
         oneshot: true
-      register: result
-      until: result.failed == false
-      retries: "{{ system_retries }}"
 
     - name: Portage - Profile - To 23 - System upgrade
       ansible.builtin.include_tasks:
@@ -73,9 +70,6 @@
         nodeps: true    # Prevent gcc rebuilding glibc as a dependency which may cause breackages
         noreplace: false
         oneshot: true
-      register: result
-      until: result.failed == false
-      retries: "{{ system_retries }}"
       loop:
         - sys-devel/binutils
         - sys-devel/gcc
@@ -94,7 +88,4 @@
     - name: Portage - Profile - To 23 - Rebuild/reinstall world
       ansible.builtin.command:
         cmd: emerge --emptytree @world
-      register: result
-      until: result.failed == false
-      retries: "{{ system_retries }}"
       changed_when: true

@@ -6,9 +6,7 @@
       ansible.builtin.include_role:
         name: gwerlas.system
       vars:
-        # Future distros are flaky on network/cache (rawhide mirrors, sid
-        # archives), so retry more aggressively than the default of 2.
-        system_retries: 5
+        system_portage_sync_retries: 5
         system_packages_upgrade: true
         # Gentoo: opt into the testing branch and exercise the vanilla kernel
         # path plus the GURU overlay in a non-default location.

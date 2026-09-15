@@ -7,8 +7,6 @@
     autoremove: true
     name: "{{ system_packages }}"
   register: result
-  until: result.failed == false
-  retries: "{{ system_retries }}"
 
 - name: APT - Change the version of Python
   vars:

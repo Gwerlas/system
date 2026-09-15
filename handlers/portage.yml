@@ -31,7 +31,7 @@
   register: result
   changed_when: not "You are already up to date" in result.stdout
   until: result is success
-  retries: "{{ system_retries }}"
+  retries: "{{ system_portage_sync_retries }}"
 
 - name: Portage - Prevent circular dependencies and multilib compilation failures
   listen:

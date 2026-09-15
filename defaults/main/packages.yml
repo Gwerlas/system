@@ -58,3 +58,4 @@ system_portage_directory: "{{ system_portage_repos_directory }}/{{ ansible_facts
 
 system_portage_binrepos: []
 system_portage_repos: []
+system_portage_sync_retries: 2

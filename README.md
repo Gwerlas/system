@@ -168,7 +168,6 @@ Look at [`defaults/main/common.yml`][common].
 ```yaml
 system_scripts_path: /usr/local/bin
 system_profile: server
-system_retries: 2
 ```
 
 Some tasks of this role need to put scripts. They are stored in the
@@ -207,9 +206,6 @@ ok: [node]
 ```
 
 [hardened]: https://gitlab.com/yoanncolin/ansible/roles/system/-/blob/main/docs/remote-access.md#the-hardened-profile
-
-If You have many download failures due to network troubles, you can increase
-the `system_retries` value.
 
 Dependencies
 ------------
