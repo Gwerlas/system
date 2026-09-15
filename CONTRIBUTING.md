@@ -269,8 +269,10 @@ python3 scripts/sync-meta-platforms.py
 Each scenario's `molecule.yml` then picks a subset of those platforms by name
 (plus any `groups` / `memory` override); the cloud image URL is resolved at
 runtime by `create.yml` via a `lookup` on it. `molecule/shared/` also hosts
-the `create.yml` / `destroy.yml` playbooks each VM scenario symlinks; molecule
-ignores it as a scenario because it carries no `molecule.yml`.
+the `create.yml` / `destroy.yml` playbooks each VM scenario symlinks, and the
+`collections.yml` they need on top of the role's own `requirements.yml` —
+molecule installs it at its `dependency` step. Molecule ignores the directory
+as a scenario because it carries no `molecule.yml`.
 
 Supported does not mean current: a platform stays in the list as long as we
 can still test it, whatever its upstream end of life. What we cannot do is
