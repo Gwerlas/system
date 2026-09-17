@@ -490,6 +490,13 @@ A tag publishes. The `import` job pushes the role to Ansible Galaxy and runs
 on a protected tag and nowhere else, so the number you pick is the only thing
 telling users what upgrading will cost them.
 
+What users install is not the repository either. Galaxy only records the tag
+and serves GitHub's archive of it, which `git archive` builds, so every path
+marked `export-ignore` in [`.gitattributes`][gitattributes] stays out of it:
+Molecule, CI, linter and editor settings, this guide. A new file that only
+serves development belongs in that list; check what a tag would ship with
+`git archive HEAD | tar t`.
+
 What that number answers is not what the work *was*, it is what the contract
 *does*. Intuition reaches for "we only fixed things, so it is a patch", and
 that is the wrong test. The right one:
@@ -512,6 +519,7 @@ minor, and every contract change gets its line in the release notes. That line
 is what a user has instead of a version number that would have warned them.
 
 <!-- Links section -->
+[gitattributes]: .gitattributes
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [issue #5]: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues/5
 [j2lint]: https://github.com/aristanetworks/j2lint
