@@ -327,6 +327,54 @@ holds what some issue actually needed. Creating one takes project permissions
 a contributor does not have, and no bot does it today: if none of the existing
 labels fits, say so in the issue and a maintainer will add it.
 
+Variable names
+--------------
+
+`system_` is the role's public surface: what an inventory sets, what
+`meta/argument_specs.yml` declares (an entry point's options too, such as the
+`system_user` that `users/linger` takes), what `README.md` and `docs/` document,
+and the facts `docs/facts.md` lists for a playbook to read back. Everything else
+the role defines for itself carries `_system_` — a `vars/` entry, a fact, a
+register, a `loop_var`, a variable handed to an included file — and the leading
+underscore is the whole message: the role computed it, nothing outside sets it.
+A Jinja `{% set %}` lives and dies inside its template, and stays bare.
+
+Where the name is a choice rather than a prefix, it says what the variable
+holds. A loop over Portage's directories iterates `_system_portage_dir`, not
+`system_dir`; a map of package names is `_system_package_names`, not a
+`_system_packages` one letter away from the public `system_packages`.
+
+A register says what is read out of it — the default zone a `firewall-cmd` call
+prints is `_system_default_zone` — and is never `result`. One that only feeds a
+`changed_when:` or an `until:` carries a task result and no data of its own, so
+it names the action it reports on instead: an `etc-update` run registers
+`_system_etc_update`.
+
+Much of the role predates this rule: `vars/` entries, registers and loop
+variables still go bare, or carry a `system_` that promises nothing. They are
+renamed when a change reaches them, never in a sweep of their own. A bare name
+met in a task is legacy, not precedent — rename the ones your change touches,
+and name the new ones by the rule.
+
+`ansible-lint` asks for the prefix on every key of `defaults/` and `vars/`, a
+private one included — "Variables names from within roles should use
+`role_name_` as a prefix. Underlines are accepted before the prefix."
+([var-naming][var-naming]) — so `_system_` satisfies it. The rule stays silent
+in this repository because the role is the root of it, leaving no
+`roles/<name>/` above the file for the linter to read the role name from. It
+does not stay silent for whoever installs the role under `~/.ansible/roles/`, so
+lint the layout they get, built from what a tag ships:
+
+```sh
+mkdir -p /tmp/lint/roles/system
+git archive HEAD | tar -x -C /tmp/lint/roles/system
+cp -a .config /tmp/lint/
+cd /tmp/lint && ansible-lint
+```
+
+It still reports the legacy names. What a change owes is a count that goes down,
+never up.
+
 Editing tasks
 -------------
 
@@ -525,3 +573,4 @@ is what a user has instead of a version number that would have warned them.
 [j2lint]: https://github.com/aristanetworks/j2lint
 [markdownlint-cli2]: https://github.com/DavidAnson/markdownlint-cli2
 [platforms]: molecule/shared/platforms.yml
+[var-naming]: https://docs.ansible.com/projects/lint/rules/var-naming/
