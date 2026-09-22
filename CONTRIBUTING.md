@@ -378,8 +378,8 @@ never up.
 Editing tasks
 -------------
 
-`yamllint` and `ansible-lint` leave two habits to the author, both about how a
-value is written rather than what it means.
+`yamllint` and `ansible-lint` leave three habits to the author: two about how a
+value is written rather than what it means, one about what a run prints.
 
 **A scalar wherever the module coerces one.** A parameter declared
 `type: list, elements: str` accepts a bare string and wraps it itself, so a
@@ -399,6 +399,21 @@ a number (`"yes"`, `"123"`), a value opening on `%`, `*`, `&`, `?` or `:`, one
 holding a `#` or a colon followed by a space, and a Jinja expression that
 starts the value — `"{{ var }}"`, which YAML reads as a flow mapping without
 them.
+
+**A label on every loop over mappings.** Without one, Ansible prints each item
+whole — a user with all its keys, a firewall rule with every option it sets —
+and the run reads as a dump. `loop_control.label` names the item by what
+identifies it, the key a reader would look for:
+
+```yaml
+loop_control:
+  loop_var: _system_netiface
+  label: "{{ _system_netiface.name }}"
+```
+
+A loop over scalars prints them already and needs none. A label is not
+`no_log`: a secret in the item still needs that. Most loops predate the habit;
+label the ones your change touches.
 
 Editing templates
 -----------------
