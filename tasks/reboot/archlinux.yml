@@ -4,10 +4,11 @@
     cmd: >
       set -o pipefail;
       file -bL /boot/vmlinuz-linux | grep -oP '(?<=version )[^ ]*'
-  register: result
-  changed_when: result.stdout != ansible_facts.kernel
+  register: _system_installed_kernel
+  changed_when: _system_installed_kernel.stdout != ansible_facts.kernel
+  check_mode: false
   notify: "{{ system_reboot_handler }}"
 
 - name: Archlinux - Set fact system_needs_reboot
   ansible.builtin.set_fact:
-    system_needs_reboot: "{{ result.stdout != ansible_facts.kernel }}"
+    system_needs_reboot: "{{ _system_installed_kernel.stdout != ansible_facts.kernel }}"

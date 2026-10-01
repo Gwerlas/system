@@ -149,6 +149,11 @@ Detection is delegated to whatever the distribution provides, so what counts as
 Anything else fails with "This system is not recognized" rather than reporting
 a node as up to date without having looked.
 
+Under `--check` the detection still runs, so `system_needs_reboot` is the
+host's real answer. The one exception is a RedHat like host that lacks
+`yum-utils`: the role would install it, `--check` only reports that, and the
+fact stays `false` until a real run.
+
 On Gentoo the role has the package list to work with, so it inspects the
 packages installed during the current boot and asks for a reboot when any of
 these change :

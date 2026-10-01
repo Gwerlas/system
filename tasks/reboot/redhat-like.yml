@@ -5,14 +5,27 @@
     name: yum-utils
     state: present
 
+# Under `--check` the install above writes nothing, so a host that lacks
+# yum-utils has no command to run yet.
+- name: RedHat like - Look for needs-restarting
+  ansible.builtin.stat:
+    path: /usr/bin/needs-restarting
+  register: _system_needs_restarting_command
+
 - name: RedHat like - Check if a reboot is required
+  when: _system_needs_restarting_command.stat.exists
   ansible.builtin.command:
     cmd: needs-restarting -r
-  register: result
-  changed_when: result.rc == 1
-  failed_when: result.rc > 1
+  register: _system_needs_restarting
+  changed_when: _system_needs_restarting.rc == 1
+  failed_when: _system_needs_restarting.rc > 1
+  check_mode: false
   notify: "{{ system_reboot_handler }}"
 
 - name: RedHat like - Set fact system_needs_reboot
   ansible.builtin.set_fact:
-    system_needs_reboot: "{{ result.rc == 1 }}"
+    system_needs_reboot: >-
+      {{
+        _system_needs_restarting is not skipped
+        and _system_needs_restarting.rc == 1
+      }}
