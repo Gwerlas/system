@@ -378,8 +378,9 @@ never up.
 Editing tasks
 -------------
 
-`yamllint` and `ansible-lint` leave three habits to the author: two about how a
-value is written rather than what it means, one about what a run prints.
+`yamllint` and `ansible-lint` leave four habits to the author: two about how a
+value is written rather than what it means, one about what a run prints, one
+about what `--check` does.
 
 **A scalar wherever the module coerces one.** A parameter declared
 `type: list, elements: str` accepts a bare string and wraps it itself, so a
@@ -414,6 +415,21 @@ loop_control:
 A loop over scalars prints them already and needs none. A label is not
 `no_log`: a secret in the item still needs that. Most loops predate the habit;
 label the ones your change touches.
+
+**A command that reads says so under `--check`.** `command` and `shell` declare
+no check-mode support, so `--check` skips them and whatever they registered is
+missing the keys a later task reads. A command that only reads carries
+`check_mode: false`, and `changed_when: false` unless its change is the answer
+the task exists to give — the reboot detection notifies its handler through it.
+A command that acts carries neither, and `--check` skips it. Modules that
+gather through their own interface — `stat`, `package_facts`, `service_facts` —
+run normally and need nothing.
+
+A read can also depend on what a skipped task would have written. Guard it on
+that rather than let it fail: `needs-update` runs only when its script exists,
+which under `--check` on a fresh host it does not. The promise behind all of
+this is the collection's:
+[a scenario converges in check mode before converging for real][check-mode].
 
 Editing templates
 -----------------
@@ -582,6 +598,7 @@ minor, and every contract change gets its line in the release notes. That line
 is what a user has instead of a version number that would have warned them.
 
 <!-- Links section -->
+[check-mode]: https://gitlab.com/yoanncolin/ansible/collections/system/-/blob/main/CONTRIBUTING.md
 [gitattributes]: .gitattributes
 [Gitlab]: https://gitlab.com/yoanncolin/ansible/roles/system/-/merge_requests
 [issue #5]: https://gitlab.com/yoanncolin/ansible/roles/system/-/issues/5
