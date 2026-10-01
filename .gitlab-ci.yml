@@ -110,7 +110,10 @@ markdownlint:
 # libvirt VMs (reboots, extra disks, clock, firewall…), which shared runners
 # can't provide. They all share the same sidecar setup, hence this template.
 .molecule:
-  image: gwerlas/molecule
+  # Pinned to 26.8: the 26.9 schema rejects the `systemd:` key of
+  # molecule/containers/molecule.yml. Lift the pin once the collection's issue
+  # about the shared Molecule toolchain has settled that key.
+  image: gwerlas/molecule:26.8
   # No runner tag on purpose: tagging these jobs for a larger SaaS machine
   # would leave them stuck in a contributor's fork, where only the default
   # shared runner is available. They fit a small runner — 7.6 GB of images
