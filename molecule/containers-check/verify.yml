@@ -1,0 +1,14 @@
+---
+- name: Verify the converge changed nothing
+  hosts: all
+  tasks:
+    # Written by the first task of `package-managers`, so its absence says the
+    # converge really ran under check mode rather than for real.
+    - name: Stat the script the role would have written
+      ansible.builtin.stat:
+        path: /usr/local/bin/needs-update
+      register: script
+
+    - name: The host is untouched
+      ansible.builtin.assert:
+        that: not script.stat.exists

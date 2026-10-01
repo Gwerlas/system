@@ -1,0 +1,47 @@
+---
+# Both plays are tagged out of the idempotence run: it asserts `changed=0`, and
+# a check-mode run on a fresh host reports every task that would have acted.
+- name: Converge the whole role in check mode
+  hosts: all
+  check_mode: true
+  diff: true
+  tags: molecule-idempotence-notest
+  roles:
+    - role: gwerlas.system
+
+# A container never reaches the reboot detection (`not in_container`), so it is
+# played on its own, where a container can answer. Arch Linux has no kernel
+# image to read and Gentoo no emerge log, hence RedHat like only.
+- name: Detect a reboot in check mode
+  hosts: all
+  check_mode: true
+  tags: molecule-idempotence-notest
+  tasks:
+    - name: RedHat like
+      when: ansible_facts.os_family == 'RedHat'
+      block:
+        - name: Run the detection before yum-utils is there
+          ansible.builtin.include_role:
+            name: gwerlas.system
+            tasks_from: reboot
+
+        # The role installs it in the same run, but under --check that install
+        # is only reported: the second pass is the one that reads a real answer.
+        - name: Install what the detection runs
+          become: true
+          check_mode: false
+          ansible.builtin.package:
+            name: yum-utils
+            state: present
+
+        - name: Run the detection again
+          ansible.builtin.include_role:
+            name: gwerlas.system
+            tasks_from: reboot
+
+        - name: The detection ran instead of being skipped
+          ansible.builtin.assert:
+            that: _system_needs_restarting is not skipped
+            fail_msg: >-
+              needs-restarting was skipped under --check, so the reboot fact
+              rests on nothing.

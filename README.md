@@ -79,6 +79,15 @@ Usage :
 ansible-playbook -t tag1[,tag2[,...]] my_play.yml
 ```
 
+Check mode
+----------
+
+`--check --diff` shows what the role would change on a host and changes
+nothing. Commands that only look at the host still run — the reboot detection,
+the age of the package index, the Portage profile in use — so what the role
+reports rests on the host's real state. Commands that act, a Portage sync or
+the cleanup of old kernels for instance, are skipped.
+
 Tasks
 -----
 

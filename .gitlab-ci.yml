@@ -213,6 +213,14 @@ containers:
   variables:
     SCENARIO: containers
 
+# The same role under `check_mode`, on instances that never ran it: a command
+# that only reads and gets skipped there fails the pipeline, not an operator's
+# `--check`.
+containers-check:
+  extends: .molecule
+  variables:
+    SCENARIO: containers-check
+
 import:
   stage: deploy
   image: gwerlas/ansible

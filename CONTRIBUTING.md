@@ -56,20 +56,34 @@ Scenarios come in two flavours: the container ones run on the
 time, sshd, sudo and reboot management when it detects a container), the others
 boot a libvirt VM per platform.
 
-Three scenarios run in containers, as the `ansible` user — the whole role with
-its default values, the gathered facts, and the package managers configuration
-alone :
+Four scenarios run in containers, as the `ansible` user — the whole role with
+its default values, the gathered facts, the package managers configuration
+alone, and the whole role again under `--check` :
 
 ```sh
 molecule test -s containers
 molecule test -s containers-facts
 molecule test -s pkg-mgrs-only
+molecule test -s containers-check
 ```
 
-Those three are the ones the CI runs, since they need no VM. `pkg-mgrs-only`
+Those four are the ones the CI runs, since they need no VM. `pkg-mgrs-only`
 qualifies because it only imports the `package-managers` task file: no service
 manager, no clock, no reboot, so none of the role's `not in_container` guards
 skip anything it exercises.
+
+`containers-check` sets `check_mode: true` on its plays, because
+`molecule converge -- --check` reaches the driver's `create.yml` as well: no
+instance is created and every host comes back `UNREACHABLE`. It plays the role
+on instances that never ran it, which is what finds a read that depends on a
+task `--check` skipped. Its verification asserts that nothing was written. Its
+plays carry `molecule-idempotence-notest`, since a check-mode run reports every
+task that would have acted and the idempotence step expects `changed=0`.
+
+A container never reaches the reboot detection, which the role guards with
+`not in_container`, so the scenario plays `tasks_from: reboot` on its own. It
+can only do so on RedHat like: Arch Linux has no kernel image in a container to
+read, and Gentoo no emerge log.
 
 `MOLECULE_CONTAINERS_BACKEND=podman,docker` names the driver preference; set
 it to switch between the two.
@@ -110,12 +124,14 @@ about the rest:
 | ----------------------------------------------- | ---------------------- | ------------------------------- |
 | Task syntax and idioms                          | yes, `ansible-lint`    | ansible-lint                    |
 | Templates compile                               | yes, `j2lint`          | j2lint                          |
-| Package managers, packages, users, CA, sudo     | yes, container jobs    | the three container scenarios   |
+| Package managers, packages, users, CA, sudo     | yes, container jobs    | the container scenarios         |
+| The role under `--check`, on a fresh host       | yes, container job     | `containers-check`              |
 | Bare-metal facts (`not in_container` block)     | no                     | `facts`                         |
 | sshd configuration and host keys                | no                     | `servers`                       |
 | Storage, LVM, extra disks                       | no                     | `servers`, `default`            |
 | Network interface configuration                 | no                     | `servers`, `facts`              |
 | Reboot handling                                 | no                     | `reboot-only`                   |
+| Arch and Gentoo reboot paths under `--check`    | no                     | nothing                         |
 | Clock and time synchronisation                  | no                     | `chrony`, `ntp`, `timesync`     |
 | Portage kernel and its handlers                 | no                     | `default` on gentoo             |
 | System upgrade (`system_packages_upgrade`)      | no                     | `future`                        |
