@@ -6,14 +6,22 @@
     dest: "{{ system_scripts_path }}/needs-update"
     mode: "0755"
 
+# Under `--check` the template above writes nothing, so on a host that never had
+# the script there is nothing to run yet.
+- name: Package managers - Needs update - Look for the script
+  ansible.builtin.stat:
+    path: "{{ system_scripts_path }}/needs-update"
+  register: _system_needs_update_script
+
 - name: Package managers - Needs update - Detect the need of a refresh
+  when: _system_needs_update_script.stat.exists
   ansible.builtin.command:
     cmd: "{{ system_scripts_path }}/needs-update"
-  register: result
-  failed_when: result.rc > 1
+  register: _system_needs_update
+  failed_when: _system_needs_update.rc > 1
   changed_when: false
   check_mode: false
 
 - name: Package managers - Set fact
   ansible.builtin.set_fact:
-    system_cache_needs_update: "{{ result.rc == 1 }}"
+    system_cache_needs_update: "{{ _system_needs_update is skipped or _system_needs_update.rc == 1 }}"
