@@ -117,7 +117,8 @@
       lsblk -oMOUNTPOINT,PKNAME -rn | awk '$1 ~ /^\/$/ { print $2 }'
     executable: /bin/bash
   changed_when: false
-  register: result
+  check_mode: false
+  register: _system_root_disk
 
 - name: Portage - Install Grub
   listen:
@@ -129,7 +130,7 @@
         --target={{ ansible_facts.architecture }}-{{ system_boot_mode }}
         --efi-directory={{ system_grub_efi_directory }}
       {% else %}
-        /dev/{{ result.stdout }}
+        /dev/{{ _system_root_disk.stdout }}
       {% endif %}
   ansible.builtin.command:
     cmd: grub-install {{ arguments }}
