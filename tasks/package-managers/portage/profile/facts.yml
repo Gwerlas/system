@@ -4,23 +4,24 @@
     paths: "{{ system_portage_directory }}/profiles"
     file_type: directory
     depth: 1
-  register: result
+  register: _system_portage_profiles
 
 - name: Portage - Profile - Facts - Get current profile
   ansible.builtin.command:
     cmd: eselect profile show
   changed_when: false
-  register: portage_profile
+  check_mode: false
+  register: _system_portage_profile
 
 - name: Portage - Facts
   vars:
     profiles: |
       {{
-        result.files |
+        _system_portage_profiles.files |
         map(attribute='path') |
         map('basename') |
         community.general.version_sort
       }}
   ansible.builtin.set_fact:
     portage_default_profile: "{{ profiles | last }}"
-    portage_profile_version: "{{ (portage_profile.stdout_lines[1] | split('/'))[3] }}"
+    portage_profile_version: "{{ (_system_portage_profile.stdout_lines[1] | split('/'))[3] }}"
